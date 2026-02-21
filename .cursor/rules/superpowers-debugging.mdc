@@ -1,0 +1,51 @@
+---
+description: Use when investigating bugs, unexpected behavior, test failures, or errors. Follow systematic debugging process instead of guessing.
+---
+
+# Systematic Debugging (from Superpowers)
+
+## The 4 Phases
+
+### Phase 1: OBSERVE
+- What EXACTLY is the error? Copy the full error message/stack trace.
+- When does it happen? What are the exact steps to reproduce?
+- What SHOULD happen vs what ACTUALLY happens?
+- When did it last work? What changed since then?
+
+### Phase 2: HYPOTHESIZE
+- Based on observations, form 2-3 specific hypotheses
+- Rank by likelihood
+- For each hypothesis, identify what evidence would confirm or refute it
+
+### Phase 3: TEST
+- Test the MOST LIKELY hypothesis first
+- Add targeted logging/breakpoints to gather evidence
+- Change ONE thing at a time
+- After each change, verify whether the hypothesis is confirmed or refuted
+
+### Phase 4: FIX
+- Once root cause is identified, write a FAILING TEST that reproduces the bug
+- Fix the code to make the test pass
+- Verify no other tests broke
+- Commit with a clear message explaining the root cause
+
+## Rules
+
+- **NEVER guess-and-check randomly.** Follow the phases.
+- **NEVER change multiple things at once.** Isolate variables.
+- **NEVER say "fixed" without a test proving it.**
+- If you're stuck after 3 hypotheses, step back and re-observe with fresh eyes.
+- Check git history: `git log --oneline -20` and `git diff` to see what changed.
+
+## Root Cause Tracing
+
+Ask "why?" five times:
+1. Why did the API return 500? → Unhandled exception in the handler
+2. Why was it unhandled? → Missing try/catch around DB query
+3. Why was it missing? → Template didn't include error handling
+4. Why didn't tests catch it? → No test for the error path
+5. Why no error path test? → Test only covered happy path
+
+Fix at the deepest level, not the surface symptom.
+
+Reference: `.superpowers-skills/systematic-debugging/SKILL.md`

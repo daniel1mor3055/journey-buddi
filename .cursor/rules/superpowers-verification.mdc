@@ -1,0 +1,36 @@
+---
+description: Use before declaring any task complete. Ensures the work actually works and meets requirements.
+---
+
+# Verification Before Completion (from Superpowers)
+
+## Before Saying "Done"
+
+1. **Tests pass:** Run the full test suite, not just the new tests
+   ```bash
+   venv/bin/python3 -m pytest tests/ -v        # Backend
+   npx vitest run                                # Frontend
+   ```
+
+2. **Linting clean:** No new linting errors introduced
+   ```bash
+   venv/bin/python3 -m ruff check backend/      # Python
+   npx eslint src/ --ext .ts,.tsx                # TypeScript
+   ```
+
+3. **Behavior verified:** Manually verify the feature works as intended (if applicable)
+
+4. **No regressions:** Existing functionality still works
+
+5. **Edge cases:** Have you considered error states, empty inputs, missing data?
+
+6. **Clean diff:** `git diff` shows only intentional changes. No debug logs, no commented-out code, no TODO hacks.
+
+## Red Flags
+
+- "It should work" — did you actually test it?
+- "I think that's right" — verify, don't assume
+- "Tests pass locally" — will they pass in CI?
+- Declaring done before running the actual code
+
+Reference: `.superpowers-skills/verification-before-completion/SKILL.md`

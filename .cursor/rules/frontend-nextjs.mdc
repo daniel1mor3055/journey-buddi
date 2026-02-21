@@ -1,0 +1,86 @@
+---
+description: Follow when writing frontend code with Next.js, React, TypeScript, and Tailwind CSS.
+globs:
+  - "frontend/**/*.ts"
+  - "frontend/**/*.tsx"
+  - "frontend/**/*.css"
+---
+
+# Next.js Frontend Rules
+
+## Stack
+- Next.js 14+ with App Router
+- TypeScript (strict mode)
+- Tailwind CSS for styling
+- Zustand for client state
+- React Query (TanStack Query) for server state
+- Framer Motion for animations
+- Lucide React for icons
+
+## Project Structure
+```
+frontend/src/
+├── app/                  # Next.js App Router pages
+│   ├── (auth)/           # Auth-related routes
+│   ├── (app)/            # Authenticated app routes
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Landing page
+├── components/
+│   ├── ui/               # Base UI components (Button, Card, Badge, Input)
+│   ├── chat/             # Chat-specific components
+│   ├── itinerary/        # Itinerary view components
+│   └── layout/           # Layout components (Header, Nav, Footer)
+├── lib/
+│   ├── api.ts            # API client with auth
+│   ├── auth.ts           # Auth utilities
+│   └── utils.ts          # General utilities
+├── stores/               # Zustand stores
+├── hooks/                # Custom React hooks
+└── types/                # TypeScript type definitions
+```
+
+## Conventions
+
+### Components
+- Functional components only (no class components)
+- Props interfaces defined explicitly (not inline)
+- Use `cn()` utility for conditional Tailwind classes (clsx + twMerge)
+- Extract reusable components — don't let files exceed 200 lines
+- Co-locate component, types, and tests
+
+### TypeScript
+- Strict mode — no `any` types except at API boundaries with explicit cast
+- Use `interface` for object shapes, `type` for unions/intersections
+- Export types from a central `types/` directory
+- Use discriminated unions for state machines
+
+### Styling (Tailwind)
+- Mobile-first responsive design (`sm:`, `md:`, `lg:` breakpoints)
+- Use design system tokens from the design system docs:
+  - Colors: `blue-600` (Buddi Blue), `teal-600` (Ocean Teal), `amber-500` (Sunset Warm)
+  - Spacing: 4px base scale
+  - Border radius: `rounded-xl` for cards, `rounded-lg` for buttons
+- Never use inline styles — Tailwind only
+- Extract repeated patterns into component variants, not CSS classes
+
+### Data Fetching
+- React Query for all server state (API calls)
+- Configure sensible staleTime and cacheTime per query type
+- Optimistic updates for itinerary changes
+- Error boundaries for graceful failure handling
+
+### State Management
+- Zustand for auth state, UI state, and trip context
+- React Query for server-state (don't duplicate server data in Zustand)
+- Keep stores small and focused (auth-store, ui-store, trip-store)
+
+## Performance
+- Use Next.js Image component for all images
+- Lazy load routes with dynamic imports
+- Minimize client-side JavaScript — use Server Components where possible
+- Stream AI responses (WebSocket) — show tokens as they arrive
+
+## Testing
+- Vitest for unit tests
+- React Testing Library for component tests
+- Test behavior, not implementation (what the user sees, not what the code does)

@@ -1,0 +1,41 @@
+---
+description: Use when reviewing code or preparing code for review. Ensures code quality and plan compliance.
+---
+
+# Code Review (from Superpowers)
+
+## Pre-Review Checklist (Before Requesting Review)
+
+1. All tests pass
+2. No linting errors
+3. No debug logs or commented-out code left behind
+4. Commit history is clean and logical
+5. Changes match the plan/spec — nothing extra, nothing missing
+
+## Reviewing Code
+
+### Plan Alignment
+- Does the implementation match the spec/plan?
+- Are there deviations? Are they justified improvements or problematic departures?
+- Is anything missing from the requirements?
+- Is anything added that wasn't requested? (YAGNI violation)
+
+### Code Quality
+- Error handling: Are failures handled gracefully?
+- Type safety: Are types used correctly? Any `any` types that should be specific?
+- Naming: Are variables, functions, and files named clearly?
+- Organization: Is the code in the right place? Separation of concerns?
+- Duplication: Is there copy-paste code that should be extracted?
+
+### Testing
+- Are there tests for the new functionality?
+- Do tests cover edge cases and error paths?
+- Are tests readable and well-named?
+
+### Issue Severity
+
+- **Critical:** Must fix before merge (bugs, security issues, missing requirements)
+- **Important:** Should fix (code quality, maintainability concerns)
+- **Suggestion:** Nice to have (style, minor improvements)
+
+Reference: `.superpowers-skills/requesting-code-review/SKILL.md`, `.superpowers-skills/agents/code-reviewer.md`

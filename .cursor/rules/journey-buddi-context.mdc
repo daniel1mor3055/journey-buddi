@@ -1,0 +1,39 @@
+---
+description: ALWAYS apply — provides essential project context for Journey Buddi development.
+---
+
+# Journey Buddi — Project Context
+
+## What We're Building
+Journey Buddi is an AI-powered adaptive travel companion. It helps travelers plan extended adventure trips through conversation with an AI agent (Buddi), then acts as a live companion during the trip — monitoring weather/conditions, delivering daily briefings, and suggesting itinerary adaptations when conditions warrant changes.
+
+## Architecture
+- **Frontend:** Next.js (App Router) + TypeScript + Tailwind CSS
+- **Backend:** Python + FastAPI (async)
+- **Database:** PostgreSQL + PostGIS
+- **Cache:** Redis
+- **AI:** Google Gemini (primary LLM) + LangChain + Chroma (RAG)
+- **Task Queue:** Celery + Redis
+- **Maps:** Mapbox GL JS
+- **Auth:** Magic link (JWT, no passwords)
+- **Deployment:** Railway (MVP)
+
+## Pilot Destination
+New Zealand — chosen for weather variability, diverse activities, and adventure/nature focus.
+
+## Key Docs
+- Vision: `docs/01-vision/`
+- Product specs: `docs/02-product/`
+- AI system design: `docs/03-ai/`
+- UX/Design: `docs/04-ux/`
+- Architecture: `docs/05-architecture/`
+- Data integrations: `docs/06-data/`
+- NZ pilot data: `docs/07-pilot/`
+- Roadmap: `docs/08-roadmap/`
+
+## Development Methodology
+- Test-Driven Development (RED → GREEN → REFACTOR)
+- Plan before coding (see `docs/plans/`)
+- Frequent atomic commits with conventional messages
+- DRY and YAGNI principles
+- Python: always use `venv/bin/python3`, never global Python

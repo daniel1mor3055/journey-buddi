@@ -1,0 +1,53 @@
+---
+description: Follow when working with AI/LLM integration, prompt engineering, or the Buddi AI agent system.
+globs:
+  - "backend/app/services/ai_agent/**"
+  - "backend/app/prompts/**"
+  - "backend/app/services/knowledge_service.py"
+---
+
+# AI Integration Rules
+
+## LLM Usage
+- Primary model: Google Gemini Pro (via `google-generativeai` SDK)
+- Use streaming for all user-facing AI responses
+- Track token usage and cost per call
+- Implement retry with exponential backoff for API failures
+- Always set temperature, max_tokens, and other parameters explicitly
+
+## Prompt Engineering
+- Store all prompts as template files in `backend/app/prompts/`
+- Use `{variable_name}` syntax for template variables
+- Every prompt has: system prompt + context injection + task instruction
+- Include negative examples ("DO NOT...") for common failure modes
+- Version prompts — track changes and rationale
+
+## Buddi Persona Consistency
+- All AI responses must follow the Buddi persona (see `docs/03-ai/PERSONA-BUDDI.md`)
+- Warm, knowledgeable, opinionated but respectful
+- Specific and actionable, never vague
+- Honest about uncertainty
+- Emoji usage: sparingly, purposefully (weather icons, activity icons, status indicators)
+
+## RAG (Retrieval Augmented Generation)
+- Use Chroma for vector storage (MVP)
+- Embed knowledge chunks as standalone, self-contained pieces
+- Retrieve top-5 relevant chunks per query
+- Always include retrieved context in prompts — don't rely on LLM training data for destination facts
+- Tag chunks with metadata (destination, category, attraction_id) for filtered search
+
+## Structured Output
+- For choice cards, itinerary data, condition assessments: request JSON output
+- Validate AI-generated JSON against Pydantic schemas before using
+- Handle malformed AI output gracefully (retry once, then fallback)
+
+## Safety
+- Never use AI-generated content for safety-critical decisions without data grounding
+- Condition assessments must be based on actual API data, not AI hallucination
+- Always cite data sources for weather, tides, and trail closures
+- When AI doesn't know something, it must say so (never fabricate)
+
+## Tool/Function Calling
+- Define tools with clear descriptions and parameter schemas
+- Tools are the bridge between AI and real data (weather, tides, attractions DB)
+- Log all tool calls for debugging and cost tracking

@@ -1,0 +1,61 @@
+---
+description: ALWAYS follow when writing tests or implementing features. Enforces RED-GREEN-REFACTOR test-driven development cycle.
+globs:
+  - "**/*.py"
+  - "**/*.ts"
+  - "**/*.tsx"
+---
+
+# Test-Driven Development (from Superpowers)
+
+## The Cycle: RED → GREEN → REFACTOR
+
+Every feature, every fix, every change follows this cycle. No exceptions.
+
+### RED: Write the Failing Test First
+1. Write a test that describes the behavior you want
+2. Run it. Watch it FAIL. If it doesn't fail, your test is wrong.
+3. Commit the failing test
+
+### GREEN: Write Minimal Code to Pass
+1. Write the MINIMUM code to make the test pass
+2. No extra features. No "while I'm here" additions. YAGNI.
+3. Run tests. ALL must pass.
+4. Commit.
+
+### REFACTOR: Clean Up
+1. Improve code quality without changing behavior
+2. Run tests after each change — they must still pass
+3. Commit.
+
+## Rules
+
+- **NEVER write implementation before tests**
+- If you catch yourself writing code first, STOP. Delete it. Write the test.
+- One behavior per test. Tests should be obvious about what they verify.
+- Test names describe behavior: `test_user_receives_magic_link_on_signup` not `test_auth`
+- Don't test implementation details. Test behavior and outcomes.
+
+## Anti-Patterns to Avoid
+
+- Writing tests after the code (that's validation, not TDD)
+- Testing private methods directly
+- Tests that depend on execution order
+- Mocking everything (test real behavior when practical)
+- Giant test files with no organization
+- Tests that pass when the code is wrong
+- "It works on my machine" without CI
+
+## Commands
+
+**Python (pytest):**
+```bash
+venv/bin/python3 -m pytest tests/path/test_file.py::test_name -v
+```
+
+**TypeScript (vitest):**
+```bash
+npx vitest run src/path/file.test.ts
+```
+
+Reference: `.superpowers-skills/test-driven-development/SKILL.md`

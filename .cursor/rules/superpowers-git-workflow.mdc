@@ -1,0 +1,50 @@
+---
+description: Use when starting a new feature or task. Guides git branching, commit practices, and branch completion workflow.
+---
+
+# Git Workflow (from Superpowers)
+
+## Starting a Feature
+
+1. Create a feature branch from main:
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feature/<feature-name>
+   ```
+
+2. Verify clean starting state:
+   ```bash
+   git status  # Should be clean
+   ```
+
+## During Development
+
+### Commit Frequently
+- Commit after each passing test (RED → GREEN → commit)
+- Commit after each refactor step
+- Small, atomic commits with clear messages
+
+### Commit Message Format
+```
+type: concise description
+
+Optional body explaining WHY, not WHAT.
+```
+
+**Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`
+
+**Examples:**
+- `feat: add magic link email delivery`
+- `fix: handle missing user profile gracefully`
+- `test: add condition scoring edge case tests`
+- `refactor: extract weather normalization into service`
+
+## Finishing a Branch
+
+1. Verify all tests pass
+2. Ensure clean git status
+3. Choose: merge directly, create PR, or keep for more work
+4. Clean up: delete merged branches
+
+Reference: `.superpowers-skills/using-git-worktrees/SKILL.md`, `.superpowers-skills/finishing-a-development-branch/SKILL.md`
