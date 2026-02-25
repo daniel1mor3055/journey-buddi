@@ -25,6 +25,40 @@ The primary usage context during trips is mobile (phone). During planning, it's 
 ### 5. Calm Design
 No alarm bells, no aggressive push for engagement, no gamification. This is a companion for a once-in-a-lifetime trip — the design should feel premium, calm, and trustworthy.
 
+## Nature-Inspired Design Language
+
+Journey Buddi's visual identity is rooted in the natural world — the mountains, oceans, forests, and skies that travelers come to experience.
+
+### Visual Identity
+- **Color Palette**: Earth tones as primary (warm sand, stone grey, bark brown), ocean and sky blues as accents, forest greens for positive states, warm sunset oranges/ambers for alerts. No harsh neon, no corporate blues.
+- **Backgrounds**: Subtle nature textures — watercolor washes, gradient skies, topographic line patterns. Destination photography as hero elements.
+- **Typography**: Warm, readable sans-serif for body text. A slightly more characterful typeface for headings that feels hand-picked, not generic.
+- **Iconography**: Clean with organic touches. Nature-themed where possible (leaf for eco-tips, mountain for difficulty, wave for marine activities).
+- **Spacing**: Generous whitespace everywhere. The interface should breathe — no cramming. Scrolling is perfectly fine; feeling crowded is not.
+
+### Interaction Feel
+- **Animations**: Smooth and natural — elements drift in like clouds, fade like sunsets, slide like water. Nothing snaps, flashes, or bounces aggressively.
+- **Transitions**: Page transitions feel like turning the page of a beautiful travel journal, not switching tabs in a spreadsheet.
+- **Feedback**: Subtle, satisfying interactions — a gentle pulse when booking is confirmed, a warm glow when a day is complete.
+
+### Navigation Philosophy
+- **Effortless**: The user should never feel lost in the app. Navigation is obvious, intuitive, and forgiving.
+- **Inviting**: Every screen should make the user want to explore more — visually pleasing with clear next actions.
+- **Easy to interact**: Touch targets are generous, actions are obvious, undo is always available.
+
+### Emotional Texture
+The app should feel like:
+- Opening a beautifully crafted travel journal
+- Talking to a friend who just got back from the trip you're about to take
+- Standing at a viewpoint looking at the landscape you're about to explore
+- The calm excitement of the night before a big adventure
+
+It should NOT feel like:
+- A spreadsheet with trip data
+- A generic booking platform
+- A corporate travel tool
+- A cluttered travel blog
+
 ## Key Screens
 
 ### 1. Landing / Onboarding
@@ -37,7 +71,7 @@ No alarm bells, no aggressive push for engagement, no gamification. This is a co
 
 ### 3. Itinerary View
 **Purpose:** Day-by-day overview of the complete trip.
-**Key elements:** Timeline/calendar view, activity cards, map integration, condition indicators (once live).
+**Key elements:** Interactive dashboard/control panel — NOT a static list. Every element is tappable, editable, and actionable. Activity cards with booking status, condition forecast banners, day tightness indicators, accommodation details, Google Maps links, drag-to-reorder, and floating add button. Think GetYourGuide's trip management, not a text itinerary.
 
 ### 4. Day Detail
 **Purpose:** Everything about one specific day.
@@ -107,6 +141,10 @@ For spatial awareness. The map is available as an overlay or dedicated view. It 
 ### During Trip — Challenging Days
 **Feeling to evoke:** Calm, trust, adaptability
 **Design approach:** Clear communication, solution-focused swap suggestions, positive framing of alternatives ("rain creates hundreds of temporary waterfalls in Milford Sound")
+
+### Interacting with the Itinerary
+**Feeling to evoke:** Empowerment, clarity, control
+**Design approach:** The itinerary dashboard should feel like a command center for an exciting expedition — everything visible, everything actionable, nothing hidden. The user should feel like a captain reviewing their voyage plan: confident that everything is organized, but with full control to change course.
 
 ### Post-Trip
 **Feeling to evoke:** Nostalgia, satisfaction, desire to share

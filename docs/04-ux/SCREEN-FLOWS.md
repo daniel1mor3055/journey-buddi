@@ -4,6 +4,20 @@
 
 This document describes each major screen in the application, its layout, key elements, and interaction behaviors. These serve as specifications for visual design and frontend development.
 
+### Design Language: Nature-Inspired
+
+Journey Buddi's visual design draws from nature — the destinations we help travelers explore. The interface should feel organic, inviting, and calming:
+
+- **Color palette**: Earth tones, ocean blues, forest greens, warm sunset accents. No harsh neon or corporate blues.
+- **Typography**: Clean, readable, with a sense of warmth. Not cold/technical.
+- **Iconography**: Organic, hand-drawn-style icons where appropriate. Nature-themed visual elements.
+- **Spacing**: Generous whitespace — the app should breathe, like being outdoors.
+- **Imagery**: Rich destination photography as backgrounds and accents. Every screen should evoke the feeling of being on an adventure.
+- **Interactions**: Smooth, natural animations — elements slide, fade, and breathe rather than snap or flash.
+- **Navigation**: Intuitive and effortless. The user should never feel lost in the app — only lost in the beauty of their trip planning.
+
+The goal: opening Journey Buddi should feel like opening a window to the destination.
+
 ## Screen Inventory
 
 ```
@@ -155,51 +169,91 @@ The conversational planning interface where Buddi builds the trip.
 
 ---
 
-## 4. Itinerary Overview
+## 4. Itinerary Dashboard (Interactive Control Panel)
 
 ### Purpose
-Day-by-day view of the complete trip after planning is complete.
+The trip command center. Not a static list — a living, interactive dashboard where every element is actionable. This is where the user manages their entire trip.
 
 ### Layout
 ```
-┌─────────────────────────────────────┐
-│ HEADER                              │
-│ NZ South Island — 18 Days    [Map]  │
-├─────────────────────────────────────┤
-│                                     │
-│ TRIP SUMMARY BAR                    │
-│ 18 days • 12 activities • 2,400km  │
-│                                     │
-├─────────────────────────────────────┤
-│                                     │
-│ DAY CARDS (scrollable list)         │
-│                                     │
-│ ┌─────────────────────────────┐    │
-│ │ Day 1 — Dec 5                │    │
-│ │ 📍 Christchurch              │    │
-│ │ Arrive, pick up campervan    │    │
-│ │ 🟢 (condition status, when   │    │
-│ │     trip is active)          │    │
-│ └─────────────────────────────┘    │
-│                                     │
-│ ┌─────────────────────────────┐    │
-│ │ Day 2 — Dec 6                │    │
-│ │ 📍 Kaikoura                  │    │
-│ │ 🐬 Dolphins • 🐋 Whales      │    │
-│ │ 🚗 2.5h drive from ChCh     │    │
-│ └─────────────────────────────┘    │
-│                                     │
-│ ... (more days)                     │
-│                                     │
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│ HEADER                                      │
+│ NZ South Island — 18 Days            [Map]  │
+├─────────────────────────────────────────────┤
+│                                             │
+│ TRIP SUMMARY BAR                            │
+│ 18 days • 12 activities • 2,400km          │
+│ ✅ 6 booked • ⚠️ 4 need booking • 2 flex   │
+│                                             │
+│ [💡 Buddi's Tips]  [🗺️ Treasure Map]       │
+│                                             │
+├─────────────────────────────────────────────┤
+│                                             │
+│ DAY CARDS (scrollable, draggable)           │
+│                                             │
+│ ┌─────────────────────────────────────┐    │
+│ │ Day 1 — Dec 5 • Christchurch       │    │
+│ │ ✈️ Arrive 2:30 PM (NZ123)          │    │
+│ │ 📍 Pick up campervan, explore city  │    │
+│ │ 🏨 Christchurch Top 10 ✅ Booked   │    │
+│ │ 🟢 92/100  │  📊 Relaxed           │    │
+│ └─────────────────────────────────────┘    │
+│                                             │
+│ ┌─────────────────────────────────────┐    │
+│ │ Day 2 — Dec 6 • Kaikoura           │    │
+│ │ 🐬 Dolphins ✅ • 🐋 Whales ⚠️      │    │
+│ │ 🚗 2.5h drive from ChCh            │    │
+│ │ 🏕️ Kaikoura Top 10 ✅ Booked       │    │
+│ │ 🟢 88/100  │  📊 Comfortable       │    │
+│ └─────────────────────────────────────┘    │
+│                                             │
+│ ┌─────────────────────────────────────┐    │
+│ │ Day 7 — Dec 11 • Abel Tasman       │    │
+│ │ 🛶 Kayaking ⚠️ • 🥾 Coast Track ✅ │    │
+│ │ 🚗 45min from Nelson               │    │
+│ │ 🏨 Not yet booked                  │    │
+│ │ 🟠 54/100  │  📊 Tight             │    │
+│ │ [🔄 Conditions alert — tap for     │    │
+│ │  alternative plan]                  │    │
+│ └─────────────────────────────────────┘    │
+│                                             │
+│ ... (more days)                             │
+│                                             │
+│ [+ Add a Day]                               │
+│                                             │
+├─────────────────────────────────────────────┤
+│ FLOATING ACTION BUTTON                      │
+│ [+ Add Activity]                            │
+└─────────────────────────────────────────────┘
 ```
 
+### Day Card Elements
+Each day card displays at a glance:
+- **Date and location**
+- **Activity icons with booking status** (✅ booked, ⚠️ needs booking)
+- **Transport summary** (mode, duration)
+- **Accommodation** (type, name, booking status)
+- **Condition banner** (score + emoji, confidence indicator)
+- **Tightness indicator** (relaxed / comfortable / tight / overpacked)
+- **Alert ribbon** (if conditions suggest a change, appears at bottom of card)
+
 ### Interactions
-- Tap any day card to open Day Detail
-- During active trip, current day is highlighted and pinned to top
-- Condition indicators appear once trip is live
-- Pre-trip: cards show planned activities
-- Active trip: cards show conditions + activity status
+- **Tap** any day card → opens Day Detail view
+- **Long-press + drag** → reorder days (Buddi validates feasibility)
+- **Swipe left** → quick actions (remove day, mark as flex, duplicate)
+- **Tap booking status icon** → opens booking flow or shows booking details
+- **Tap condition banner** → expands to show detailed forecast
+- **Tap "+" button** → add activity flow with Buddi suggesting optimal placement
+- **Tap "Buddi's Tips"** → persistent trip-wide tips (discounts, apps, logistics)
+- **Tap "Treasure Map"** → hidden gems downloadable to Google Maps
+
+### Active Trip Enhancements
+During an active trip:
+- Current day is highlighted with a glowing border and pinned to top
+- Past days are dimmed but accessible (with completed status)
+- Condition indicators update in real-time
+- "Today's Briefing" banner appears above the current day
+- Upcoming days show forecast confidence indicators
 
 ---
 
@@ -251,6 +305,82 @@ Complete information about one specific day.
 ├─────────────────────────────────────┤
 │ ✨ HIDDEN GEM                      │
 │ "Point Kean at dusk — seal pups..."│
+└─────────────────────────────────────┘
+```
+
+### Enhanced Day Detail Elements
+
+The Day Detail view includes all original elements PLUS:
+
+**Condition Banner (top of page):**
+```
+┌─────────────────────────────────────┐
+│ 🟢 GREAT CONDITIONS    Score: 88   │
+│ Perfect day for dolphins & walks    │
+│ Confidence: High ✓                  │
+└─────────────────────────────────────┘
+```
+
+**Tightness Indicator:**
+```
+📊 Day Fill: 67% — Comfortable
+   [━━━━━━━━━━━━━░░░░░░░] 
+   Plenty of room for spontaneous stops
+```
+
+**Activity Cards (enhanced):**
+```
+┌─────────────────────────────────────┐
+│ 🐋 Whale Watching                   │
+│ Whale Watch Kaikoura                │
+│ ⭐ 4.8 (2,340 reviews)             │
+│ ⏰ 9:15 AM - 12:15 PM              │
+│ 💰 $155 NZD                        │
+│ Conditions: 🟢 Excellent            │
+│ Status: ✅ Booked (Ref: WW-8821)   │
+│                                     │
+│ [📍 Maps] [📋 Details] [✏️ Edit]   │
+└─────────────────────────────────────┘
+```
+
+**Accommodation Card:**
+```
+┌─────────────────────────────────────┐
+│ 🏕️ Kaikoura Top 10 Holiday Park    │
+│ 📍 34 Beach Road, Kaikoura         │
+│ Check-in: 2:00 PM | Out: 10:00 AM  │
+│ Status: ✅ Booked (Ref: KTP-2847)  │
+│ 💰 $55/night                       │
+│                                     │
+│ [📍 Maps] [📞 Call] [✏️ Change]    │
+└─────────────────────────────────────┘
+```
+
+**Story Card:**
+```
+┌─────────────────────────────────────┐
+│ 📖 STORY: The Whales of Kaikoura   │
+│                                     │
+│ "The Kaikoura Canyon plunges to     │
+│  1,600m just 1km offshore..."       │
+│                                     │
+│ [🎧 Listen while walking]          │
+│ [📖 Read full story]               │
+└─────────────────────────────────────┘
+```
+
+**Transport Card:**
+```
+┌─────────────────────────────────────┐
+│ 🚗 Drive: Christchurch → Kaikoura  │
+│ 📏 181 km • ⏱️ 2.5 hours           │
+│ 🛣️ SH1 — scenic coastal route     │
+│                                     │
+│ Scenic stops along the way:        │
+│ • Waipara wine country (30min)     │
+│ • Ohau Point seal colony (15min)   │
+│                                     │
+│ [📍 Open in Google Maps]           │
 └─────────────────────────────────────┘
 ```
 
@@ -343,3 +473,103 @@ Detailed in the design system and implementation specs. Key notes:
 **Settings:** Notification timing, quiet hours, profile edits, trip management.
 
 **Trip Dashboard:** Hub screen showing current trip status, quick access to today's briefing, upcoming activities, and chat.
+
+---
+
+## 13. Treasure Map
+
+### Purpose
+A bonus screen showing hidden gems near the user's route that aren't in the itinerary — the "extras" that Buddi knows about from local knowledge.
+
+### Layout
+```
+┌─────────────────────────────────────┐
+│ HEADER                              │
+│ 🗺️ Your Treasure Map        [Map]  │
+├─────────────────────────────────────┤
+│                                     │
+│ "These hidden gems are near your    │
+│  route but not in your itinerary.   │
+│  If you have spare time or pass     │
+│  by — they're gold."               │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ 🌊 Secret Waterfall         │    │
+│ │ 📍 5 min from Day 7 route   │    │
+│ │ "A 100m waterfall hidden..." │    │
+│ │ [📍 Save to Google Maps]    │    │
+│ └─────────────────────────────┘    │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ ☕ Local's Favorite Café     │    │
+│ │ 📍 In Kaikoura town center  │    │
+│ │ "The best flat white on the..│    │
+│ │ [📍 Save to Google Maps]    │    │
+│ └─────────────────────────────┘    │
+│                                     │
+│ ... (more gems)                     │
+│                                     │
+├─────────────────────────────────────┤
+│ [📥 Download All to Google Maps]    │
+│ [🗺️ View on Map]                   │
+└─────────────────────────────────────┘
+```
+
+### Key Design Notes
+- Presented as a "gift" from Buddi at the end of planning
+- Each gem can be individually saved to Google Maps
+- "Download All" creates a Google Maps custom layer with all gems
+- During the trip, gems near the current location get highlighted
+- Gems are tagged by type (viewpoint, beach, café, waterfall, wildlife, photo spot)
+
+---
+
+## 14. Audio Stories & Storytelling
+
+### Purpose
+Immersive story delivery for attractions, locations, and drives.
+
+### Layout
+```
+┌─────────────────────────────────────┐
+│ HEADER                              │
+│ [←] 📖 Stories            [🎧|📖]  │
+├─────────────────────────────────────┤
+│                                     │
+│ NOW PLAYING                         │
+│ 🎧 "The Whales of Kaikoura"       │
+│                                     │
+│ ━━━━━━━━━━●━━━━━━━━━━              │
+│ 2:14 / 4:30                        │
+│        [⏮️]  [⏸️]  [⏭️]           │
+│                                     │
+├─────────────────────────────────────┤
+│                                     │
+│ UP NEXT (based on today's plan):   │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ 🌋 "Fire and Ice" (geology) │    │
+│ │ 4:30 • Best while driving   │    │
+│ └─────────────────────────────┘    │
+│                                     │
+│ ┌─────────────────────────────┐    │
+│ │ 🦎 "Tuatara: Living Fossil" │    │
+│ │ 3:15 • Best at location    │    │
+│ └─────────────────────────────┘    │
+│                                     │
+│ EVENING READS:                     │
+│ ┌─────────────────────────────┐    │
+│ │ 📖 "Piopiotahi: Milford's   │    │
+│ │    Māori Name" (legend)     │    │
+│ │ 6 min read                  │    │
+│ └─────────────────────────────┘    │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+### Key Design Notes
+- Audio player is minimal and unobtrusive — can play in background while Maps is open
+- Stories are queued based on the day's itinerary and current activity
+- Toggle between audio (🎧) and text (📖) modes
+- Evening reading section available in the day detail view
+- Stories use Buddi's warm, knowledgeable persona for narration

@@ -32,9 +32,30 @@ Transport is not just logistics — it's a major part of the travel experience. 
 2. **Accommodation availability**: Remote areas with few lodging options favor campervans
 3. **Road conditions**: Some roads suit different vehicle types
 4. **User preference**: Some people love campervans, others want a bed and shower at a hotel
-5. **Group size**: Solo vs. couple vs. family affects vehicle choice
+5. **Travel group**: 
+   - **Solo**: Any vehicle works. Smaller car recommended for nimbleness and cost. Consider hostel + car combo.
+   - **Couple**: Mid-size car or 2-berth campervan. Campervans are particularly romantic for NZ's scenic overnight spots.
+   - **Family with kids**: Larger vehicle essential. Station wagon or SUV for car option, family motorhome for campervan option. Factor in: car seats, extra space for gear, more frequent stops needed.
+   - **Friends group**: Consider multiple vehicles for flexibility, or a large motorhome for the social experience. Groups of 4+ may need two cars.
 6. **Budget**: Campervan rental + freedom camping vs. car rental + paid accommodation
 7. **Seasonal factors**: Winter camping requires specialized vehicles; some roads close seasonally
+
+### Max Driving Hours Per Day
+
+The user specifies their maximum comfortable driving time per day during planning. This is a HARD constraint:
+
+| Preference | Max Drive/Day | Impact |
+|-----------|--------------|--------|
+| "Short drives only" | 1-2 hours | More overnight stops, smaller geographic range, slower but more immersive |
+| "Normal driving" | 3-4 hours | Standard touring pace, good coverage, time for activities |
+| "Happy to drive more" | 5+ hours | Larger geographic range, longer transition days, may need designated "drive days" |
+
+**How it affects planning:**
+- Route segments exceeding the user's max are flagged and split with overnight stops
+- Long drives (exceeding the max) get scenic stop suggestions to break them up
+- Travel days are distinguished from activity days when drives exceed 3 hours
+- If a user says "1-2 hours max" but the route requires a 4-hour segment (e.g., Queenstown to Milford Sound), Buddi explains the trade-off: "The drive to Milford Sound is 3.5 hours each way — there's no shortcut. But the drive itself is stunning and I'll point out incredible stops along the way. Think of it as a scenic activity, not just a drive."
+- Family trips automatically get a 20% buffer on drive times (kids need more breaks)
 
 ### Decision Framework
 

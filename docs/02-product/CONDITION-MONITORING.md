@@ -58,6 +58,49 @@ The condition monitoring system is the environmental intelligence backbone of Jo
 | Avalanche risk | Winter alpine activities | Daily (seasonal) |
 | Fire danger rating | Bushfire risk areas | Daily (seasonal) |
 
+## Forecast Accuracy & Confidence
+
+Not all environmental data can be predicted with equal accuracy at equal range. The monitoring system tracks forecast confidence alongside the data itself.
+
+### Accuracy by Condition Type
+
+| Condition Type | High Confidence | Medium Confidence | Low Confidence | Notes |
+|---------------|----------------|-------------------|----------------|-------|
+| Temperature | 0-5 days | 5-7 days | 7-10 days | Most predictable atmospheric variable |
+| Precipitation | 0-3 days | 3-5 days | 5-7 days | Type (rain vs snow) more certain than intensity |
+| Wind | 0-2 days | 2-4 days | 4-5 days | Gusts less predictable than sustained; terrain effects add uncertainty |
+| Cloud cover | 0-2 days | 2-4 days | 4-6 days | Local effects (marine layer, valley fog) hard to predict |
+| Aurora (Kp-index) | 0-1 day | 1-2 days | 2-3 days | Dependent on solar wind; requires Bt/Bz/density from ACE/DSCOVR |
+| Tides | 0-90 days | N/A | N/A | Astronomical, near-perfect prediction |
+| Wave/swell | 0-2 days | 2-4 days | 4-5 days | Open-ocean swell well-modeled; nearshore effects less certain |
+| UV Index | 0-3 days | 3-5 days | N/A | Follows cloud cover patterns |
+
+### Confidence Indicators in Condition Reports
+
+Every condition score displayed to the user must include a confidence level:
+
+```
+condition_report: {
+  score: 85,                    // Numeric score
+  assessment: "EXCELLENT",      // Human-readable
+  confidence: "high",           // high | medium | low
+  confidence_reason: "Forecast is 2 days out with high model agreement"
+  last_updated: "2h ago",
+  next_update: "in 1h"
+}
+```
+
+### Smart Look-Ahead Strategy
+
+The monitoring system adapts its behavior based on how far out it's looking:
+
+- **Today + tomorrow (0-1 days)**: Full condition monitoring at maximum frequency. All parameters active. Scores presented with high confidence.
+- **2-3 days out**: Core parameters monitored (temperature, precipitation, wind). Scores presented with medium-high confidence. Suitable for making swap decisions.
+- **4-5 days out**: Trend monitoring only. Broad patterns noted ("a weather system is approaching") but specific hour-by-hour scores not generated. Flag potential issues.
+- **6+ days out**: General awareness only. "Next week looks mixed — I'll have better data in a few days." No actionable scores, no swap suggestions.
+
+For conditions with very short accuracy windows (aurora, volcanic), monitoring intensifies as the relevant day approaches.
+
 ## Monitoring Architecture
 
 ### Data Collection Pipeline
@@ -94,6 +137,35 @@ External APIs → Data Fetcher → Normalization Layer → Condition Store → A
 | Tide data | 24 hours | Tide times are highly predictable |
 | Solar/aurora | 3 hours | Aurora conditions can change quickly |
 | Road/trail status | 1 hour | Safety-critical, should be current |
+
+## Forecast Integration Sources
+
+### Primary APIs (Structured Data)
+
+| Provider | Data Type | Coverage | Reliability | Cost |
+|----------|----------|----------|-------------|------|
+| OpenWeatherMap | General weather | Global | Good | Free tier + paid |
+| MetService NZ | NZ weather, warnings | New Zealand | Excellent for NZ | Free API |
+| ECMWF | Premium forecast models | Global | Highest accuracy | Paid |
+| Windy.com API | Wind, marine, visual | Global | Good for wind/marine | Paid |
+| NOAA SWPC | Solar/aurora data | Global | Authoritative | Free |
+| LINZ / NIWA | NZ tides, marine | New Zealand | Authoritative | Free |
+| DOC API | Trail/road status | New Zealand | Authoritative | Free |
+
+### Fallback: Agent Web Search
+
+When API data is unavailable, stale, or insufficient for niche conditions:
+- Agent searches the web for current condition reports
+- Sources: Windy.com (visual forecasts), mountain weather services, local tourism boards
+- Useful for: glacial conditions, specific river levels, volcanic activity updates, local road conditions
+- The agent evaluates source reliability and recency before using web-searched data
+
+### Data Quality Rules
+
+- Always prefer structured API data over web-searched data
+- Never present web-searched data without noting reduced confidence
+- Cross-reference multiple sources when making high-impact decisions (swap recommendations)
+- Cache forecast data with appropriate TTLs per condition type
 
 ### Caching Strategy
 
@@ -166,6 +238,11 @@ ConditionProfile {
    - < 20 or any deal-breaker → ⛔ UNSAFE
 
 4. Apply special rules as overrides
+
+5. Apply confidence adjustment:
+   - High confidence → score as-is
+   - Medium confidence → widen acceptable ranges by 20% (be more lenient)
+   - Low confidence → suppress extreme scores (cap at FAIR minimum, floor at GOOD maximum) — don't trigger strong reactions on uncertain data
 
 ## Alert Triggers
 

@@ -47,6 +47,29 @@ The planning phase happens before the traveler departs. It transforms the user's
 - Trip summary with stats (total days, driving hours, activity count, etc.)
 - Export/share capability
 
+### A5. Provider Marketplace & Comparison
+**Goal:** For each activity, show the best providers across the destination with reviews, prices, and unique differentiators.
+
+- Nationwide provider search (not just the nearest location)
+- Geographic diversification — spread highlights across the trip
+- Reviews and ratings from TripAdvisor, GetYourGuide
+- Price comparison with clear value differentiators
+- Buddi's recommendation with reasoning
+- Future: direct booking through Journey Buddi
+
+### A6. Interactive Itinerary Dashboard
+**Goal:** The itinerary is a living control panel, not a static document.
+
+- Every element is tappable, editable, and actionable
+- Booking status tracking (not booked / booked / confirmed)
+- Day tightness indicator (relaxed / comfortable / tight / overpacked)
+- Condition forecast per day with confidence indicator
+- Accommodation details (all types: hotel, motel, Airbnb, campervan, motorhome, hostel, holiday park, freedom camp)
+- Google Maps links for every location
+- Drag-and-drop reordering with automatic re-optimization
+- Transport details with route and scenic stops
+- "Add activity" flow that suggests optimal placement
+
 ## Phase B: Live Companion (During Trip)
 
 The live companion phase activates once the trip begins. It transforms the static itinerary into an adaptive, condition-aware daily guide.
@@ -100,6 +123,26 @@ The live companion phase activates once the trip begins. It transforms the stati
 - Activity preparation reminders (evening before)
 - All notifications respect user's quiet hours and preferences
 
+### B6. Storytelling & Local Legends
+**Goal:** Bring destinations to life through stories, legends, geology, and cultural narratives.
+
+- Each attraction/location has associated stories curated by Buddi
+- Stories are categorized: legend, history, geology, culture, fun fact
+- Audio versions available for listening while walking or driving
+- Stories can be consumed as evening reading, at the location, or during drives
+- AI-generated from destination knowledge base + cultural research
+- Example: "While walking through Craters of the Moon, listen to how this geothermal field formed 2,000 years ago and the Māori legend of the fire goddess Mahuika who gifted fire to humanity..."
+
+### B7. Local Tips, Discounts & Recommended Apps
+**Goal:** Buddi knows what experienced locals know — discounts, apps, tricks.
+
+- Trip-wide tips (e.g., "Download Gaspy to find the cheapest fuel — it saved travelers $50-100 on a 2-week trip")
+- App recommendations relevant to the destination (CamperMate for camping/facilities, Gaspy for fuel prices, Rankers for campsite reviews, MetService for NZ weather)
+- Local discount programs (e.g., AA membership discounts, DOC passes, combo activity deals)
+- Per-attraction tips (e.g., "Book the 7:30 AM dolphin swim slot — it's $20 cheaper and less crowded")
+- Tips categorized as: trip-wide (persistent, shown once) vs. per-day/per-attraction (contextual)
+- Savings tracker: show estimated savings from following Buddi's tips
+
 ## Cross-Cutting Features
 
 ### C1. Chat with Buddi
@@ -128,6 +171,25 @@ The live companion phase activates once the trip begins. It transforms the stati
 - Multiple trip support (plan your next trip while on current one)
 - Trip history and memories
 
+### C4. Treasure Map — Hidden Gems Export
+**Goal:** Give travelers a downloadable collection of hidden gems near their route that aren't part of the itinerary.
+
+- Curated hidden gems within short detours of the planned route
+- Downloadable as a Google Maps layer / custom map
+- Each gem has: description, photo, best conditions, insider tip
+- Types: secret viewpoints, hidden beaches, local-favorite cafés, unmarked waterfalls, wildlife spots
+- Presented as a "treasure map" at the end of planning — a bonus gift from Buddi
+- "These aren't in your itinerary, but if you have spare time or pass by, they're gold."
+
+### C5. Audio Companion
+**Goal:** Hands-free storytelling and guidance for activities where reading isn't practical.
+
+- Audio versions of activity stories and legends
+- Walking/driving narration mode ("As you round this bend, look to your left...")
+- Geological and historical context while at locations
+- Played via the app during walks, drives, or evening downtime
+- AI-generated voice narration from the Buddi persona
+
 ## Feature Priority Matrix
 
 | Feature | Impact | Complexity | Phase |
@@ -144,3 +206,9 @@ The live companion phase activates once the trip begins. It transforms the stati
 | Chat with Buddi | High | Medium | MVP |
 | Map Integration | Medium | Medium | MVP |
 | User Account | High | Low | MVP |
+| Provider Marketplace | High | High | V1.1 |
+| Interactive Dashboard | Critical | High | MVP |
+| Storytelling & Legends | Medium | Medium | V1.1 |
+| Local Tips & Apps | Medium | Low | MVP |
+| Treasure Map | Medium | Medium | V1.1 |
+| Audio Companion | Medium | High | V2 |

@@ -16,6 +16,43 @@ Good morning! ☀️ Day 7 of your New Zealand adventure
 🌅 Sunrise: 6:12 AM | 🌇 Sunset: 8:47 PM
 ```
 
+### 1.5. Day Condition Banner
+
+A prominent visual banner at the top of every day (visible in both the daily briefing AND the itinerary dashboard) that indicates overall plan quality for the day:
+
+```
+┌─────────────────────────────────────────────────┐
+│  🟢 GREAT CONDITIONS     Today's plan: 92/100   │
+│  All activities looking excellent                │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│  🟠 MIXED CONDITIONS     Today's plan: 54/100   │
+│  Morning hike OK, but afternoon kayak may suffer │
+│  from wind. Tap for alternatives.                │
+│  [🔄 See Alternative Plan]                       │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│  🔴 POOR CONDITIONS      Today's plan: 28/100   │
+│  Heavy rain and wind expected all day.           │
+│  This isn't the right day for outdoor activities.│
+│  [🔄 Shuffle My Plan]  [💡 Indoor Alternatives] │
+└─────────────────────────────────────────────────┘
+```
+
+**Banner Rules:**
+- Score is a weighted combination of all activity condition scores for the day
+- When score is 🟠 or below, a "See Alternative Plan" button appears
+- When score is 🔴, a "Shuffle My Plan" button triggers the adaptation engine to present a multi-day shuffle
+- The banner also appears on each day card in the itinerary dashboard (compact version — just the emoji and score)
+
+**Forecast Confidence Indicator:**
+- For days more than 3 days out, append a confidence note:
+  - "Forecast confidence: High ✓" (1-3 days)
+  - "Forecast may change — I'll update as we get closer" (4-5 days)
+  - "Too early for reliable forecast — conditions could shift significantly" (6+ days)
+
 ### 2. Overall Day Assessment
 
 A single sentence that tells the traveler whether today is a "go" day:
@@ -92,6 +129,32 @@ A visual timeline of the day:
   8:00 PM   📍 Tomorrow's preview notification
 ```
 
+### 4.5. Day Tightness Check
+
+```
+📊 DAY SCHEDULE CHECK
+
+  Total activity time: 5.5 hours
+  Transport time: 1 hour
+  Meals & breaks: 2.5 hours
+  Buffer: 1 hour
+  ─────────────
+  Total: 10 hours | Fill: 67%
+  
+  🟡 Comfortable — good balance of activity and rest
+```
+
+When the day is overpacked (🔴 > 85% fill):
+```
+📊 DAY SCHEDULE CHECK
+
+  ⚠️ This day is packed tight — 92% fill
+  
+  If anything runs late or you want spontaneous stops,
+  you'll feel rushed. Consider:
+  [Remove an activity]  [Move something to tomorrow]
+```
+
 ### 5. Packing Summary
 
 Consolidated packing list for the entire day (deduplicated from all activities):
@@ -108,9 +171,68 @@ Consolidated packing list for the entire day (deduplicated from all activities):
   ✅ Cash/card for Nin's Bin (cash recommended, small operation)
 ```
 
+### 5.5. Accommodation for Tonight
+
+```
+🏨 TONIGHT'S STAY
+
+  Type: Holiday Park
+  Name: Kaikoura Top 10 Holiday Park
+  📍 34 Beach Road, Kaikoura
+  📞 +64 3-319 5362
+  🗺️ [Open in Google Maps]
+  
+  Check-in: From 2:00 PM
+  Status: ✅ Booked (Ref: KTP-2847)
+  
+  💡 They have hot tubs with mountain views — 
+     perfect after today's activities!
+```
+
+When accommodation is NOT booked:
+```
+🏨 TONIGHT'S STAY
+
+  Zone: Kaikoura area
+  Recommended type: Holiday park or motel
+  Status: ⚠️ Not yet booked
+  
+  Buddi's picks:
+  1. Kaikoura Top 10 ($55/night, great facilities) [Book]
+  2. Alpine-Pacific Motel ($120/night, mountain views) [Book]
+  3. Freedom camp at South Bay ($0, basic, oceanfront) [Navigate]
+```
+
 ### 6. Swap Suggestion (if applicable)
 
 Only included when conditions warrant a change. See [ITINERARY-ADAPTATION.md](./ITINERARY-ADAPTATION.md) for the full swap logic.
+
+When a swap is suggested, the briefing includes not just the rationale but a COMPLETE action plan:
+
+```
+🔄 SUGGESTED PLAN CHANGE
+
+  📅 I recommend shuffling your next 3 days:
+  
+  CURRENT PLAN:              SUGGESTED PLAN:
+  Day 7: Kayaking    🔴  →  Day 7: Museum + walk    🟡
+  Day 8: Museum      🟡  →  Day 8: Hike             🟢
+  Day 9: Hike        🟢  →  Day 9: Kayaking          🟢
+  
+  WHY: Monday's 35km/h wind makes kayaking unsafe.
+  Wednesday has calm 8km/h winds — perfect conditions.
+  
+  📋 WHAT YOU NEED TO DO:
+  ☐ Call Abel Tasman Kayaks to reschedule: 
+    📞 +64 3-527 8022 | Ref: ATK-4521
+    Move from Mon AM to Wed AM (they have 8:30 AM slots)
+  ☐ No hut/hotel changes needed — same area all 3 days
+  ☐ Everything else stays the same
+  
+  ⏰ Time-sensitive: Call today (they fill up for Wednesday)
+  
+  [✅ Accept & Update]  [❌ Keep Original]  [💬 More Info]
+```
 
 ### 7. Hidden Gem of the Day
 
@@ -124,6 +246,26 @@ Point Kean viewing platform. The fur seals are most active at
 dusk and you'll often see pups playing in the rock pools. It's 
 only 100m off the main trail and most tourists miss it.
 ```
+
+### 8. Look-Ahead Preview
+
+A brief preview of the next 3-5 days with condition forecasts:
+
+```
+📅 COMING UP
+
+  Tomorrow (Day 8): 🟢 Great — calm morning, perfect for coastal walk
+  Day 9: 🟡 Good — light cloud, fine for glacier visit  
+  Day 10: 🟠 Watch — rain system approaching, monitoring closely
+  Day 11: ⏳ Too early for reliable forecast
+  
+  💡 If Day 10 rain holds, I have a shuffle plan ready that 
+     moves your outdoor hike to Day 12 (looking clear). 
+     I'll confirm tomorrow evening.
+```
+
+**Accuracy Disclaimer:**
+For days beyond the reliable forecast window, include a note that data may change. Different conditions have different accuracy horizons — aurora predictions are only reliable 1-2 days out, while temperature trends are reliable 5-7 days out. The briefing should reflect this nuance rather than treating all forecasts equally.
 
 ## Briefing Generation
 

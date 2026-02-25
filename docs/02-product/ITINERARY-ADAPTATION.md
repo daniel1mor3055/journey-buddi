@@ -8,6 +8,57 @@ The itinerary adaptation engine is the decision-making system that determines wh
 
 **"Better, not perfect."** We don't chase optimal conditions for every activity. We pursue meaningful improvements that justify the disruption of changing plans. A traveler who follows our original plan should still have a great trip. A traveler who accepts our adaptation suggestions should have an exceptional one.
 
+**"Change only when it matters."** Itinerary changes are disruptive — they may require rebooking accommodation, rescheduling activities, contacting providers, and adjusting transport. We only recommend changes for conditions that truly ruin an experience (going to see aurora with no Kp-index, climbing Mount Cook in dangerous wind, kayaking in a storm). Minor imperfections (slightly cloudy for a viewpoint, light drizzle on a city walk) are NOT worth the disruption.
+
+**"Look ahead, act early."** Users don't want to learn about a change on the morning of. The system should identify potential issues 2-5 days in advance (within forecast accuracy limits) so users have time to plan changes, make calls, and adjust logistics. Day-of changes should be rare and only for safety or dramatic condition shifts.
+
+## Forecast Accuracy & Look-Ahead Windows
+
+Not all conditions can be predicted with the same accuracy at the same range. The adaptation engine must factor forecast confidence into its decisions.
+
+### Accuracy Windows by Condition Type
+
+| Condition | Reliable Forecast Window | Max Useful Window | Notes |
+|-----------|------------------------|-------------------|-------|
+| Aurora (Kp-index, Bt/Bz) | 1-2 days | 3 days max | Solar wind data from ACE/DSCOVR satellites, Kp predictions highly volatile beyond 48h |
+| Wind speed/direction | 2-3 days | 4 days | Mesoscale models (GFS, ECMWF) good at 48-72h, degrade after |
+| Precipitation (rain/snow) | 3-4 days | 6 days | Synoptic-scale patterns predictable 3-4 days; intensity less certain |
+| Cloud cover | 2-3 days | 5 days | Moderate reliability; local effects (marine layer, orographic) reduce accuracy |
+| Temperature | 4-5 days | 7 days | Most predictable variable; trends reliable a week out |
+| Tides | Weeks | Months | Astronomical, highly predictable — not a forecast concern |
+| Wave height/swell | 2-3 days | 5 days | Swell models good at 48-72h; local wind-waves less certain |
+| Road/trail closures | Real-time | Next day | Reactive, not forecast — depends on conditions |
+
+### Confidence Scoring
+
+Every condition score includes a confidence level:
+- **High confidence** (within reliable window): "Tuesday will be excellent for Tongariro — clear skies, light winds."
+- **Medium confidence** (within max useful window): "Thursday is looking promising for kayaking, but wind forecasts could shift."
+- **Low confidence** (beyond useful window): "Next Monday's conditions can't be reliably predicted yet. I'll update you as we get closer."
+
+### Decision Impact
+
+Confidence affects adaptation decisions:
+- **High confidence + poor conditions** → Strong swap recommendation
+- **Medium confidence + poor conditions** → Gentle suggestion, monitor and update
+- **Low confidence** → No action, flag for future monitoring only
+- NEVER recommend a major itinerary change based on low-confidence forecasts
+
+### Forecast Integrations
+
+| Source | Data | Update Frequency |
+|--------|------|-----------------|
+| OpenWeatherMap API | General weather | Hourly |
+| ECMWF (European Centre) | Premium forecast models | Every 6 hours |
+| Windy.com / Windguru | Wind-specific, marine data | Hourly |
+| NOAA SWPC | Aurora/solar activity (Kp, Bt, Bz) | Every 15 minutes |
+| LINZ / NIWA | NZ tides | Daily |
+| MetService NZ | NZ-specific weather, severe warnings | Hourly |
+| DOC (Dept of Conservation) | Trail/road closures | As updated |
+| Agent web search | Fallback for any missing/niche data | On demand |
+
+The system should prefer structured APIs but fall back to agent web search when API data is unavailable or for niche conditions (e.g., glacial river levels, specific volcanic activity).
+
 ## Adaptation Types
 
 ### Type 1: Day Swap
@@ -19,6 +70,9 @@ Swap two entire days when one day's activities are highly weather-sensitive and 
 - Swap: Move Tongariro to Day 10, Taupō activities to Day 7
 
 **Complexity: LOW** — Just reordering days, minimal logistics change.
+
+**Geographic Smoothness Rule:**
+Swaps must not create back-and-forth travel patterns. If swapping Day 7 and Day 10 means driving 3 hours south on Day 7, then 3 hours north on Day 8, then south again on Day 9 — it's not worth it regardless of condition improvement. Swaps must respect geographic flow. The best swaps are between days in the same area or adjacent areas.
 
 ### Type 2: Activity Rescheduling
 Move a specific activity to a different day within the same area cluster.
@@ -139,6 +193,40 @@ The AI agent generates a human-readable explanation:
 5. What the user needs to do (step by step)
 6. What stays the same (reassurance)
 
+### Step 5b: Comprehensive Change Instructions
+
+When a swap is accepted, the user must receive a COMPLETE action plan with NO loose ends. This is critical — a half-baked change plan is worse than no plan.
+
+**The Change Action Plan includes:**
+
+1. **What changes automatically** (Buddi handles these):
+   - Itinerary day reordering
+   - Activity rescheduling within days
+   - Transport recalculation (new routes, distances, times)
+   - Updated packing lists and condition forecasts
+   - New Google Maps links and directions
+
+2. **What the user needs to do** (explicit, step-by-step):
+   - Accommodation changes: "You need to call [Hotel Name] at [phone] to move your check-in from Dec 12 to Dec 14. Their cancellation policy allows free changes up to 48h before."
+   - Activity rebooking: "Contact [Provider Name] to reschedule your dolphin swim from Tuesday to Thursday morning. Their number is [phone] or rebook at [URL]. Mention booking ref [REF]."
+   - Transport adjustments: "Your rental car pickup is still from the same location, but you'll now drive north first instead of south. Updated route is in your Google Maps."
+
+3. **Timeline for making changes:**
+   - Which calls/actions are time-sensitive (do today)
+   - Which can wait (anytime before the affected day)
+   - Which are optional nice-to-haves
+
+4. **Fallback if changes can't be made:**
+   - "If [Hotel Name] can't accommodate the date change, here are 3 alternatives in the same area: [options]"
+   - "If the dolphin swim is fully booked for Thursday, Wednesday afternoon also works — here's the revised schedule for that."
+
+5. **What stays the same** (reassurance):
+   - "Days 1-6 and Days 11-18 are completely unchanged."
+   - "Your Milford Sound cruise on Day 15 is unaffected."
+   - "Your flights remain the same."
+
+**Principle: The user should be able to execute the change by following the instructions like a checklist. Zero ambiguity, zero loose ends.**
+
 ## Swap Constraints
 
 ### Hard Constraints (Never violate)
@@ -182,6 +270,48 @@ Over time, the system tracks:
 - Which condition thresholds users care about most
 - Whether accepted swaps resulted in better experiences (post-trip feedback)
 - Patterns that can improve future threshold calibration
+
+## Smart Look-Ahead Process
+
+The adaptation engine uses a rolling look-ahead window that considers forecast accuracy:
+
+### Daily Assessment Cycle
+
+1. **T-5 to T-7 days**: Temperature and general trend monitoring only. No action, just flagging potential concerns. "Heads up: Day 12 might see some weather — I'm monitoring."
+
+2. **T-3 to T-5 days**: Rain, cloud, and wind patterns become actionable. If a high-sensitivity activity (like Tongariro Crossing) shows POOR on a day where another nearby day shows GOOD, begin formulating a swap plan. Communicate to user: "I'm seeing a potential issue with Day 9 and have a plan ready if it holds."
+
+3. **T-2 to T-3 days**: Most conditions are reliable. This is the OPTIMAL window for swap decisions — early enough for the user to act (rebook accommodation, contact providers) but late enough for accurate forecasts.
+
+4. **T-1 day**: Confirm or adjust. Evening briefing includes final assessment. Same-day changes should be rare (only safety or dramatic shifts).
+
+5. **T-0 (day of)**: Real-time monitoring only. No proactive swaps after 10 AM — the user is already executing. Safety alerts are the exception.
+
+### Multi-Day Shuffle Illustration
+
+When a swap involves rearranging 2-3 days (not just swapping two), the engine must present it as a single coherent plan:
+
+**Before:**
+| Day 7 (Mon) | Day 8 (Tue) | Day 9 (Wed) |
+|-------------|-------------|-------------|
+| Kayaking 🔴 | Museum + Town 🟡 | Hike to Hut 🟢 |
+
+**After (suggested):**
+| Day 7 (Mon) | Day 8 (Tue) | Day 9 (Wed) |
+|-------------|-------------|-------------|
+| Museum + Town 🟡 | Hike to Hut 🟢 | Kayaking 🟢 |
+
+**Why this works:**
+- Monday's high wind ruins kayaking but doesn't affect indoor activities
+- Moving the hike one day earlier still has good conditions
+- Wednesday's forecast shows calm winds perfect for kayaking
+- All three days are in the same area — no extra driving needed
+- Accommodation stays the same for all three nights
+
+**What the user needs to do:**
+- Call kayak provider to move from Monday to Wednesday: [phone/link]
+- The hut booking is flexible — no change needed
+- Everything else stays the same
 
 ## Edge Cases
 

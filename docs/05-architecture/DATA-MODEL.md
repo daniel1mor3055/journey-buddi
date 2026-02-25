@@ -40,6 +40,10 @@ The data model is designed around the core entities of the Journey Buddi system:
 │  Condition   │  │  Attraction  │
 │  Record      │  │  (Template)  │
 └──────────────┘  └──────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│   Provider   │  │  Hidden Gem  │  │    Story     │
+└──────────────┘  └──────────────┘  └──────────────┘
 ```
 
 ## Core Tables
@@ -67,6 +71,10 @@ CREATE TABLE users (
   "pace": "balanced",
   "interests": ["wildlife", "mountains", "hiking", "photography"],
   "activity_budget": "medium",
+  "travel_group": "couple",
+  "max_driving_hours_per_day": 4,
+  "priority_locations": ["Milford Sound", "Tongariro Crossing"],
+  "must_not_do": ["bungy jumping"],
   "notification_preferences": {
     "morning_briefing_time": "07:00",
     "evening_preview_time": "20:00",
@@ -91,6 +99,8 @@ CREATE TABLE trips (
     entry_point VARCHAR(100),
     exit_point VARCHAR(100),
     transport_plan JSONB DEFAULT '{}'::jsonb,
+    flight_details JSONB DEFAULT '{}'::jsonb,
+    -- { arrival: { airline, flight_number, arrives_at, airport }, departure: { ... } }
     planning_state JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -135,6 +145,13 @@ CREATE TABLE itinerary_days (
     accommodation_zone VARCHAR(255),
     notes TEXT,
     buddi_tips TEXT[],
+    tightness_score VARCHAR(20) DEFAULT 'comfortable',
+    -- tightness_score: relaxed, comfortable, tight, overpacked
+    tightness_fill_pct DECIMAL(5,2),
+    condition_forecast JSONB DEFAULT '{}'::jsonb,
+    -- { score, assessment, confidence, key_factors }
+    accommodation JSONB DEFAULT '{}'::jsonb,
+    -- { type, name, address, google_maps_url, booking_status, check_in, check_out, cost, booking_ref }
     is_locked BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
@@ -165,6 +182,19 @@ CREATE TABLE activity_instances (
     packing_notes TEXT[],
     pro_tips TEXT[],
     swap_priority VARCHAR(10) DEFAULT 'medium',
+    provider_name VARCHAR(255),
+    provider_rating DECIMAL(3,2),
+    provider_review_count INTEGER,
+    provider_price JSONB,
+    -- { amount: number, currency: string }
+    provider_booking_url VARCHAR(512),
+    booking_status VARCHAR(20) DEFAULT 'not_booked',
+    -- booking_status: not_booked, booked, confirmed, cancelled
+    booking_reference VARCHAR(100),
+    booking_time TIME,
+    google_maps_url VARCHAR(512),
+    story TEXT,
+    audio_story_url VARCHAR(512),
     sort_order INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(20) DEFAULT 'planned',
     -- status: planned, active, completed, skipped, swapped
@@ -207,6 +237,90 @@ CREATE TABLE attractions (
 CREATE INDEX idx_attractions_destination ON attractions(destination);
 CREATE INDEX idx_attractions_types ON attractions USING GIN(types);
 CREATE INDEX idx_attractions_location ON attractions USING GIST(location_point);
+```
+
+### providers
+
+```sql
+CREATE TABLE providers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    destination VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    activity_types TEXT[] NOT NULL,
+    location_name VARCHAR(255),
+    location_point GEOGRAPHY(Point, 4326),
+    description TEXT,
+    rating DECIMAL(3,2),
+    review_count INTEGER DEFAULT 0,
+    price_range JSONB DEFAULT '{}'::jsonb,
+    -- { min: number, max: number, currency: string }
+    unique_differentiator TEXT,
+    booking_url VARCHAR(512),
+    contact_phone VARCHAR(50),
+    contact_email VARCHAR(255),
+    tripadvisor_url VARCHAR(512),
+    getyourguide_url VARCHAR(512),
+    seasonal_availability VARCHAR(50) DEFAULT 'year-round',
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_providers_destination ON providers(destination);
+CREATE INDEX idx_providers_activity_types ON providers USING GIN(activity_types);
+CREATE INDEX idx_providers_location ON providers USING GIST(location_point);
+```
+
+### hidden_gems
+
+```sql
+CREATE TABLE hidden_gems (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    destination VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    location_name VARCHAR(255),
+    location_point GEOGRAPHY(Point, 4326),
+    google_maps_url VARCHAR(512),
+    gem_type VARCHAR(50) NOT NULL,
+    -- gem_type: viewpoint, beach, waterfall, cafe, walk, wildlife, photo_spot, secret_spot
+    best_conditions TEXT,
+    insider_tip TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_gems_destination ON hidden_gems(destination);
+CREATE INDEX idx_gems_location ON hidden_gems USING GIST(location_point);
+CREATE INDEX idx_gems_type ON hidden_gems(gem_type);
+```
+
+### stories
+
+```sql
+CREATE TABLE stories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    destination VARCHAR(100) NOT NULL,
+    attraction_id UUID REFERENCES attractions(id),
+    location_name VARCHAR(255),
+    location_point GEOGRAPHY(Point, 4326),
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    story_type VARCHAR(50) NOT NULL,
+    -- story_type: legend, history, geology, culture, fun_fact, ecology
+    audio_url VARCHAR(512),
+    audio_duration_seconds INTEGER,
+    best_consumed VARCHAR(50) DEFAULT 'at_location',
+    -- best_consumed: while_walking, evening_read, at_location, during_drive
+    cultural_sensitivity_note TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_stories_destination ON stories(destination);
+CREATE INDEX idx_stories_attraction ON stories(attraction_id);
+CREATE INDEX idx_stories_location ON stories USING GIST(location_point);
 ```
 
 ### conversations

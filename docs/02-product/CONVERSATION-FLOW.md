@@ -23,9 +23,9 @@ Buddi: "Hey! I'm Buddi, your travel companion. I'm going to help you
        This helps me tailor everything to you."
 ```
 
-### Round 1: Travel DNA (4 quick-choice questions)
+### Round 1: Travel DNA (5 quick-choice questions)
 
-Each question is a visual card with 3 options. User taps one.
+Each question is a visual card with 3-4 options. User taps one.
 
 ```
 Buddi: "When you travel, you're more like..."
@@ -53,6 +53,14 @@ Buddi: "For paid activities and experiences, you're thinking..."
        [💚 Mostly free/budget — nature doesn't cost money!]
        [💛 Happy to pay for standout experiences]
        [💎 I want the best, cost isn't the main factor]
+```
+
+```
+Buddi: "Who's coming along?"
+       [🧑 Just me — solo adventure]
+       [💑 With my partner]
+       [👨‍👩‍👧‍👦 Family with kids]
+       [👯 Group of friends]
 ```
 
 ### Round 2: Interests (Multi-Select)
@@ -102,9 +110,49 @@ Buddi: "Where do you fly in and out?"
        [Different arrival and departure cities]
 ```
 
-### Round 4: Deep Dive — Interest-Specific Options
+```
+Buddi: "How do you feel about driving?"
+       [🚗 Keep it short — 1-2 hours max per day]
+       [🛣️ 3-4 hours is fine — road trips are part of the fun]
+       [🏎️ 5+ hours is OK if it means seeing more]
+```
 
-For each selected interest, Buddi presents destination-specific experiences. This is the longest part of the conversation but the most engaging because the user is seeing concrete, exciting possibilities.
+```
+Buddi: "Do you have your flights booked? If so, share the details 
+       and I'll build Day 1 and your final day around your arrival 
+       and departure times."
+       [✈️ Yes — let me enter my flight details]
+       [📅 Not yet — I'll add them later]
+       [🤷 Help me figure out the best flights]
+```
+
+### Round 4: Priority Locations
+
+```
+Buddi: "Before we dive into specific activities — are there any places 
+       or experiences that are absolutely non-negotiable for you?"
+       
+       [🗺️ Yes — I have some must-dos]
+       [🙅 Yes — there are things I want to avoid]
+       [🤙 No strong feelings — surprise me, Buddi!]
+```
+
+If user has must-dos:
+
+```
+Buddi: "Tell me your must-dos! You can type them or pick from these 
+       popular ones for New Zealand:"
+       
+       [🏔️ Milford Sound]  [🌋 Tongariro Crossing]  [⭐ Hobbiton]
+       [🦘 Kiwi spotting]  [🧊 Glacier hike]  [🪂 Queenstown bungy]
+       [Type your own...]
+       
+       "These are locked in — I'll build everything around them."
+```
+
+### Round 5: Deep Dive — Interest-Specific Options
+
+For each selected interest, Buddi presents destination-specific experiences. This is the longest part of the conversation but the most engaging because the user is seeing concrete, exciting possibilities. When showing specific options, Buddi shows providers across ALL of NZ, not just one location.
 
 **Conversation branching example:**
 
@@ -142,7 +190,40 @@ Buddi: "Great choices! A couple of notes:
        or after Milford Sound. I'll slot that in."
 ```
 
-### Round 5: Route Negotiation
+**Provider diversification example — when the user selects an activity type, Buddi shows the best providers across NZ:**
+
+```
+Buddi: "Let's find the perfect bungy experience! Here are the best 
+       options across New Zealand:
+       
+       🏆 AJ Hackett Kawarau Bridge — Queenstown
+       The ORIGINAL bungy site. 43m over the turquoise Kawarau River.
+       ⭐ 4.8 (2,340 reviews) • $205 NZD
+       What's special: Historic site, scenic setting, great photos included
+       
+       🏔️ AJ Hackett Nevis — Queenstown  
+       NZ's HIGHEST bungy at 134m. Suspended over a dramatic canyon.
+       ⭐ 4.9 (1,890 reviews) • $275 NZD
+       What's special: Extreme height, cable car ride to the platform
+       
+       🌊 Taupō Bungy — Taupō (North Island)
+       47m over the stunning Waikato River with cliff-face backdrop.
+       ⭐ 4.7 (1,120 reviews) • $189 NZD
+       What's special: Beautiful river setting, less crowded than QT
+       
+       🌲 AJ Hackett Auckland Bridge — Auckland
+       40m off the Auckland Harbour Bridge with city views.
+       ⭐ 4.5 (980 reviews) • $165 NZD
+       What's special: Urban setting, combine with bridge walk
+       
+       💡 My recommendation: If you're doing bungy once, the Nevis is 
+       unmatched — but if you're also skydiving in Queenstown, consider 
+       spreading the thrills and doing Taupō Bungy on Day 4 instead.
+       
+       Which speaks to you? Or should I pick the best fit for your route?"
+```
+
+### Round 6: Route Negotiation
 
 ```
 Buddi: "Here's what I'm thinking for your route. With everything you've 
@@ -159,7 +240,7 @@ Buddi: "Here's what I'm thinking for your route. With everything you've
        Does this flow feel right, or would you like to adjust the direction?"
 ```
 
-### Round 6: Pace & Duration
+### Round 7: Pace & Duration
 
 ```
 Buddi: "Based on your 'balanced' pace preference and everything you've 
@@ -179,7 +260,7 @@ Buddi: "Based on your 'balanced' pace preference and everything you've
        [I need to trim — show me options]"
 ```
 
-### Round 7: Transport Discussion
+### Round 8: Transport Discussion
 
 ```
 Buddi: "Let's talk about getting around. For the South Island, I have 
@@ -205,7 +286,7 @@ Buddi: "Let's talk about getting around. For the South Island, I have
        [Tell me more about the trade-offs]"
 ```
 
-### Round 8: Itinerary Presentation
+### Round 9: Itinerary Presentation
 
 ```
 Buddi: "Your trip is ready! Here's your 18-day South Island adventure:
@@ -224,6 +305,30 @@ Buddi: "Your trip is ready! Here's your 18-day South Island adventure:
        [I want to make changes]"
 ```
 
+## The Autonomous Fallback
+
+Not every question needs a manual answer. For complex decisions where the user would struggle to express preferences, Buddi offers to decide:
+
+**Questions that commonly use the fallback:**
+- Optimal day structure and activity sequencing
+- Which provider to choose when differences are marginal
+- Rest day placement
+- Route direction (clockwise vs counterclockwise)
+- Activity timing within a day
+
+**How it works:**
+
+```
+Buddi: "I can optimize the day-by-day ordering based on geography 
+       and conditions, or would you like to arrange the sequence yourself?"
+       [🤖 You decide — I trust you, Buddi!]
+       [✋ Let me see the options first]
+```
+
+When the user chooses "you decide," Buddi makes the call AND explains its reasoning briefly: "I put Milford Sound on Day 12 because that's when the forecast looks clearest — and it follows naturally from Te Anau."
+
+**Principle:** The agent should always be ready to take full ownership of a decision. The user should never feel forced to answer a question they don't have a strong opinion on.
+
 ## Conversation Recovery
 
 ### What if the user goes off-script?
@@ -240,6 +345,7 @@ Buddi should handle natural language gracefully:
 
 - "Just build me a trip, I trust you" → Buddi generates a balanced itinerary using profile defaults and presents it for review
 - "I already know what I want to do, here's my list" → Buddi takes the list and optimizes route/timing/logistics
+- "Build it your way, Buddi, and I'll tweak it" → Buddi generates a complete itinerary using profile + smart defaults, presents it as an interactive dashboard, and the user edits whatever they want. This is the most common flow for users who trust the AI — Buddi can generate 80-100% of the itinerary autonomously, and the user's job is to review, customize, and get excited.
 
 ## Conversation State Management
 
@@ -251,6 +357,11 @@ ConversationState {
   profile: UserProfile            // Accumulated preferences
   destination: Destination        // Selected destination
   dates: DateRange                // Trip dates
+  travel_group: string            // Solo, couple, family, friends
+  max_driving_hours: number       // Preferred max per day
+  priority_locations: Location[]  // Must-visit places
+  must_not_do: string[]           // Things to avoid
+  flight_details: FlightInfo      // Arrival and departure flights
   selected_interests: string[]    // What excites the user
   selected_attractions: Attraction[]  // Specific things to do
   rejected_attractions: string[]  // Things the user passed on
