@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1500" viewBox="0 0 1800 1500">
+  <rect width="1800" height="1500" fill="#0b1220"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#dbeafe">01 - Journey Buddi Master Map (Read First)</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">Purpose: full-system orientation. Read this first, then continue in numeric order.</text>
+
+  <rect x="40" y="115" width="1720" height="120" rx="10" fill="#111827" stroke="#1f2937"/>
+  <text x="60" y="145" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Mission + Value Proposition</text>
+  <text x="60" y="172" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Journey Buddi is an AI-powered adaptive travel companion for extended nature/adventure trips.</text>
+  <text x="60" y="195" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Core value: AI-guided planning before travel + real-time condition-aware adaptation during travel.</text>
+  <text x="60" y="218" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Pilot destination: New Zealand (high weather volatility, diverse activities, ideal stress test for adaptive logic).</text>
+
+  <rect x="40" y="255" width="540" height="350" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="285" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#fde68a">Product Experience Model</text>
+  <text x="60" y="312" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Phase A - Planning (conversation-driven):</text>
+  <text x="75" y="335" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">1) profile/preferences -> 2) destination/dates -> 3) must-dos</text>
+  <text x="75" y="357" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">4) interest deep-dive -> 5) attraction curation -> 6) route build</text>
+  <text x="75" y="379" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">7) transport -> 8) pace/duration -> 9) itinerary dashboard -> 10) refine</text>
+  <text x="60" y="409" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Phase B - Live Companion:</text>
+  <text x="75" y="432" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Evening preview, morning briefing, live updates, day wrap.</text>
+  <text x="75" y="454" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Condition scoring: EXCELLENT / GOOD / FAIR / POOR / UNSAFE.</text>
+  <text x="75" y="476" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Swap suggestions only when improvement is meaningful and feasible.</text>
+  <text x="60" y="505" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Cross-cutting: chat, map, notifications, hidden gems, stories, account persistence.</text>
+  <text x="60" y="535" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Design principles: conversation-first, calm design, glanceable-then-deep.</text>
+  <text x="60" y="565" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Primary user context: mobile during trip; desktop/tablet during planning.</text>
+  <text x="60" y="590" font-family="Arial, sans-serif" font-size="14" fill="#93c5fd">Deep dive files: 02, 03, 10</text>
+
+  <rect x="620" y="255" width="560" height="350" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="285" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#bfdbfe">AI + Intelligence Model</text>
+  <text x="640" y="312" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Agents: Planning Agent, Live Companion Agent, General Chat Agent.</text>
+  <text x="640" y="335" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Primary model: Gemini; fallback/comparison: GPT/Claude for resiliency.</text>
+  <text x="640" y="358" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Tool-calling accesses weather, tides, solar, maps, itinerary, profile, RAG knowledge.</text>
+  <text x="640" y="381" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Decision domains:</text>
+  <text x="655" y="404" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- attraction selection (interest+fitness+route+budget+uniqueness)</text>
+  <text x="655" y="426" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- location/provider selection, route sequencing, timing, packing</text>
+  <text x="655" y="448" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- swap evaluation (improvement vs disruption)</text>
+  <text x="640" y="476" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">RAG architecture: destination knowledge chunks -> embeddings -> vector search -> prompt grounding.</text>
+  <text x="640" y="499" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Guardrails: schema validation, confidence levels, source-grounded safety data.</text>
+  <text x="640" y="522" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Decision logging supports explainability, debugging, and iterative improvement.</text>
+  <text x="640" y="590" font-family="Arial, sans-serif" font-size="14" fill="#93c5fd">Deep dive file: 03</text>
+
+  <rect x="1220" y="255" width="540" height="350" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1240" y="285" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#fca5a5">Engineering Architecture Model</text>
+  <text x="1240" y="312" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Frontend: Next.js + TypeScript + Tailwind + React Query + Zustand + Mapbox.</text>
+  <text x="1240" y="335" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Backend: FastAPI async modular monolith (decomposable later).</text>
+  <text x="1240" y="358" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Data layer: PostgreSQL/PostGIS + Redis + Chroma (MVP) -> Pinecone (scale).</text>
+  <text x="1240" y="381" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Background + real-time: Celery beat/workers, Redis broker, WebSocket chat streaming.</text>
+  <text x="1240" y="404" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Auth: magic link + JWT (passwordless).</text>
+  <text x="1240" y="427" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">APIs: REST /api/v1 + WS /api/v1/ws/chat/:conversationId.</text>
+  <text x="1240" y="450" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">External integrations normalized to canonical schemas with fallback chains.</text>
+  <text x="1240" y="473" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Deployment MVP: Railway (app + postgres + redis + celery worker).</text>
+  <text x="1240" y="496" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Key objective: ship quickly while preserving clean service boundaries.</text>
+  <text x="1240" y="590" font-family="Arial, sans-serif" font-size="14" fill="#93c5fd">Deep dive files: 04, 05, 06, 07</text>
+
+  <rect x="40" y="635" width="1720" height="360" rx="10" fill="#111827" stroke="#1f2937"/>
+  <text x="60" y="665" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#c4b5fd">System-Wide Data and Control Loop (End-to-End)</text>
+  <text x="60" y="692" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">1) User interacts with Buddi in planning or companion mode -> request hits FastAPI API layer.</text>
+  <text x="60" y="715" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">2) Service layer orchestrates AI, itinerary logic, condition evaluation, and retrieval from structured DB + vector KB.</text>
+  <text x="60" y="738" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">3) External Data Service fetches weather/tides/solar/maps from providers with per-provider rate limits and circuit breakers.</text>
+  <text x="60" y="761" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">4) Adapter layer normalizes heterogeneous payloads into canonical models (consistent units, UTC timestamps, schema-safe fields).</text>
+  <text x="60" y="784" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">5) Multi-tier cache (memory/Redis/Postgres) serves hot reads fast; stale policy controls degraded scenarios.</text>
+  <text x="60" y="807" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">6) Condition scoring compares forecast vectors against activity condition profiles; confidence scales by forecast horizon.</text>
+  <text x="60" y="830" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">7) If major mismatch is detected, swap engine computes candidate moves and disruption impacts; Buddi proposes only high-value changes.</text>
+  <text x="60" y="853" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">8) Celery tasks prefetch and refresh conditions, generate briefings on schedule, and trigger push notifications by user timezone.</text>
+  <text x="60" y="876" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">9) User accepts/declines changes; itinerary versions, decisions, and outcomes are persisted for transparency and continuous tuning.</text>
+  <text x="60" y="899" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">10) UX layer keeps all this complex logic calm and actionable (quick-glance summaries + deep expandable context).</text>
+  <text x="60" y="934" font-family="Arial, sans-serif" font-size="16" fill="#93c5fd">This loop is the product moat: static trip planners cannot perform this continuous adaptation cycle.</text>
+
+  <rect x="40" y="1025" width="1720" height="420" rx="10" fill="#111827" stroke="#1f2937"/>
+  <text x="60" y="1055" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#86efac">Recommended Reading Order (by SVG File)</text>
+  <text x="60" y="1082" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">01 - Master map (this file): full orientation and architecture of the architecture.</text>
+  <text x="60" y="1105" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">02 - Product planning + live companion flows: user value and operational behavior.</text>
+  <text x="60" y="1128" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">03 - AI agent + decision engine: how Buddi reasons, retrieves knowledge, and chooses actions.</text>
+  <text x="60" y="1151" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">04 - System architecture runtime: services, communication patterns, deployment shape.</text>
+  <text x="60" y="1174" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">05 - API + WebSocket + events: interface contracts and real-time interaction protocol.</text>
+  <text x="60" y="1197" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">06 - Data model + geospatial schema: persistence foundations and core entities.</text>
+  <text x="60" y="1220" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">07 - External integrations + caching + fallback logic: operational resilience and costs.</text>
+  <text x="60" y="1243" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">08 - NZ pilot intelligence: domain rules Buddi needs to behave like a real local expert.</text>
+  <text x="60" y="1266" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">09 - Roadmap + implementation sequence: what to build first and what "done" means per phase.</text>
+  <text x="60" y="1289" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">10 - UX information architecture: interaction patterns, hierarchy, and emotional quality bar.</text>
+  <text x="60" y="1324" font-family="Arial, sans-serif" font-size="15" fill="#fca5a5">Implementation note: files 03-07 are the highest-priority technical set for coding.</text>
+  <text x="60" y="1347" font-family="Arial, sans-serif" font-size="15" fill="#fca5a5">Domain note: file 08 is critical for correct NZ decision quality (especially weather/tide windows).</text>
+  <text x="60" y="1370" font-family="Arial, sans-serif" font-size="15" fill="#fca5a5">Delivery note: this pack synthesizes the docs corpus into actionable system views, not just summaries.</text>
+</svg>

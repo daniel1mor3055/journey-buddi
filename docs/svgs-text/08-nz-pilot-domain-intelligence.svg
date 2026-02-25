@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1500" viewBox="0 0 1800 1500">
+  <rect width="1800" height="1500" fill="#0f172a"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">08 - New Zealand Pilot Domain Intelligence</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: destination-specific rules Buddi must internalize for high-quality planning and adaptation.</text>
+
+  <rect x="40" y="120" width="1720" height="95" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Why NZ Is the Right Pilot</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">High condition sensitivity + dense attraction diversity + long road-trip patterns make adaptation value obvious and measurable.</text>
+
+  <rect x="40" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Climate + Geography Truths</text>
+  <text x="60" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- Maritime climate with rapid shifts ("four seasons in one day").</text>
+  <text x="60" y="326" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- Strong west-to-east weather front movement.</text>
+  <text x="60" y="350" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- Southern Alps rain shadow creates extreme regional contrasts.</text>
+  <text x="60" y="374" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- UV is unusually intense in summer; protection guidance is mandatory.</text>
+  <text x="60" y="398" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- Southern hemisphere seasons are reversed for many travelers.</text>
+  <text x="60" y="422" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">- North vs South Island climate behavior differs materially for itinerary design.</text>
+
+  <text x="60" y="460" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Operational weather-window strategy</text>
+  <text x="75" y="483" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Track fronts, identify post-front clear windows, and relocate weather-critical activities accordingly.</text>
+  <text x="75" y="505" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Use confidence-weighted language; avoid over-certainty on long horizons.</text>
+
+  <text x="60" y="543" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Safety-critical contexts</text>
+  <text x="75" y="566" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Tongariro and exposed alpine tracks: hard weather gates, not soft suggestions.</text>
+  <text x="75" y="588" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Road closure/chain requirements in winter routes must feed day-level logistics.</text>
+
+  <rect x="620" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Activity-Specific Condition Intelligence</text>
+  <text x="640" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Milford Sound</text>
+  <text x="655" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Rain can improve experience (waterfalls/mood); avoid simplistic "rain = bad" logic.</text>
+  <text x="640" y="361" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Tongariro Crossing</text>
+  <text x="655" y="384" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Wind/visibility/wind-chill and volcanic alerts determine go/no-go safety threshold.</text>
+  <text x="640" y="420" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Glacier heli-hikes</text>
+  <text x="655" y="443" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Cloud ceiling is dominant risk; schedule with backup-day logic.</text>
+  <text x="640" y="479" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Stargazing and aurora</text>
+  <text x="655" y="502" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Cloud cover and moon phase are binary quality drivers; Kp index influences viability.</text>
+  <text x="640" y="538" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Whale watching and coastal tours</text>
+  <text x="655" y="561" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Sea state can flip from feasible to canceled quickly; maintain same-area alternatives.</text>
+  <text x="640" y="597" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Kayaking</text>
+  <text x="655" y="620" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Wind usually matters more than rain; align guidance with local operator constraints.</text>
+
+  <rect x="1200" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Tide + Transport + Local Ops</text>
+  <text x="1220" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Tide-dependent examples</text>
+  <text x="1235" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Cathedral Cove / Hot Water Beach / coastal walks rely on low-tide windows.</text>
+  <text x="1235" y="347" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Schedule tide-critical activities first, then fill non-critical slots around them.</text>
+
+  <text x="1220" y="383" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Storm surge caveat</text>
+  <text x="1235" y="406" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Pressure drops and onshore wind can invalidate deterministic tide assumptions.</text>
+
+  <text x="1220" y="442" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Transport complexity in NZ</text>
+  <text x="1235" y="465" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Campervan/rental car dominant; ferries, domestic flights, and weather disruptions affect plan validity.</text>
+  <text x="1235" y="487" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Route design must include realistic drive-time rules and remote-fuel constraints.</text>
+
+  <text x="1220" y="523" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Data sources to trust most</text>
+  <text x="1235" y="546" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">MetService, DOC, NIWA, NZTA/Waka Kotahi, GeoNet as safety/authority backbone.</text>
+  <text x="1235" y="568" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Open APIs enrich but should not override official safety advisories.</text>
+
+  <rect x="40" y="830" width="1720" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="862" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Pilot Scope and Expansion Logic</text>
+  <text x="60" y="892" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">MVP scope: both islands, strongest 50-60 attractions, summer/shoulder seasons, key condition monitoring stack.</text>
+  <text x="60" y="916" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Out of scope initially: full winter specialization, full booking integrations, multi-language/social layers.</text>
+
+  <text x="60" y="953" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Pilot success criteria</text>
+  <text x="60" y="977" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">planning quality ratings, swap acceptance rates, guidance usefulness, condition accuracy, coverage depth, companion engagement.</text>
+
+  <text x="60" y="1014" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Globalization leverage</text>
+  <text x="60" y="1038" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">If system handles NZ volatility, same architecture can extend to Iceland/Patagonia/Norway/Scotland/Japan with model/data adaptation.</text>
+  <text x="60" y="1060" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Reusable primitives: condition profiles, swap engine, transport templates, cultural-protocol metadata, remote-area logic.</text>
+
+  <text x="60" y="1097" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Implementation mistakes to avoid in pilot</text>
+  <text x="60" y="1121" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- generic weather advice without regional nuance</text>
+  <text x="60" y="1143" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- no backup options for high-cancel-risk activities</text>
+  <text x="60" y="1165" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- tide-insensitive coastal scheduling</text>
+  <text x="60" y="1187" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- over-aggressive adaptation that ignores user disruption cost</text>
+
+  <text x="60" y="1225" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 09 - Roadmap and Implementation Order.</text>
+</svg>

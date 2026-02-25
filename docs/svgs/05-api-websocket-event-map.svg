@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1300" viewBox="0 0 1600 1300">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#60a5fa"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4ade80"/></marker>
+    <marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a78bfa"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f87171"/></marker>
+    <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fbbf24"/></marker>
+  </defs>
+  <rect width="1600" height="1300" rx="12" fill="#0f172a"/>
+  <text x="800" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#e2e8f0">05  -  API, WebSocket + Event Map</text>
+
+  
+  <rect x="40" y="80" width="720" height="790" rx="14" fill="#1a2e1a" stroke="#4ade80" stroke-width="2"/>
+  <text x="400" y="112" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#86efac">REST API Endpoints</text>
+
+  
+  <rect x="65" y="130" width="320" height="108" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="85" y="153" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Auth</text>
+  <text x="85" y="174" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/auth/magic-link</text>
+  <text x="85" y="190" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/auth/verify</text>
+  <text x="85" y="206" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/auth/refresh</text>
+  <text x="85" y="222" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/auth/logout</text>
+
+  
+  <rect x="410" y="130" width="320" height="108" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="430" y="153" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Users</text>
+  <text x="430" y="174" font-family="monospace" font-size="11" fill="#94a3b8">GET    /api/users/me</text>
+  <text x="430" y="190" font-family="monospace" font-size="11" fill="#94a3b8">PATCH  /api/users/me</text>
+  <text x="430" y="206" font-family="monospace" font-size="11" fill="#94a3b8">PUT    /api/users/me/profile</text>
+  <text x="430" y="222" font-family="monospace" font-size="11" fill="#94a3b8">DELETE /api/users/me</text>
+
+  
+  <rect x="65" y="250" width="320" height="140" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="85" y="273" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Trips</text>
+  <text x="85" y="294" font-family="monospace" font-size="11" fill="#94a3b8">GET    /api/trips</text>
+  <text x="85" y="310" font-family="monospace" font-size="11" fill="#94a3b8">POST   /api/trips</text>
+  <text x="85" y="326" font-family="monospace" font-size="11" fill="#94a3b8">GET    /api/trips/{id}</text>
+  <text x="85" y="342" font-family="monospace" font-size="11" fill="#94a3b8">PATCH  /api/trips/{id}</text>
+  <text x="85" y="358" font-family="monospace" font-size="11" fill="#94a3b8">DELETE /api/trips/{id}</text>
+  <text x="85" y="374" font-family="monospace" font-size="11" fill="#94a3b8">POST   /api/trips/{id}/confirm</text>
+
+  
+  <rect x="410" y="250" width="320" height="140" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="430" y="273" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Itinerary</text>
+  <text x="430" y="294" font-family="monospace" font-size="11" fill="#94a3b8">GET  /api/trips/{id}/itinerary</text>
+  <text x="430" y="310" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/trips/{id}/generate</text>
+  <text x="430" y="326" font-family="monospace" font-size="11" fill="#94a3b8">GET  /.../days/{day}</text>
+  <text x="430" y="342" font-family="monospace" font-size="11" fill="#94a3b8">PATCH /.../activities/{id}</text>
+  <text x="430" y="358" font-family="monospace" font-size="11" fill="#94a3b8">POST  /.../activities/reorder</text>
+  <text x="430" y="374" font-family="monospace" font-size="11" fill="#94a3b8">POST  /.../activities/{id}/lock</text>
+
+  
+  <rect x="65" y="405" width="320" height="90" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="85" y="428" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Conditions</text>
+  <text x="85" y="449" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/conditions/{trip}/{day}</text>
+  <text x="85" y="465" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/conditions/activity/{id}</text>
+  <text x="85" y="481" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/conditions/summary</text>
+
+  
+  <rect x="410" y="405" width="320" height="90" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="430" y="428" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Briefings</text>
+  <text x="430" y="449" font-family="monospace" font-size="11" fill="#94a3b8">GET  /api/briefings/{trip}/today</text>
+  <text x="430" y="465" font-family="monospace" font-size="11" fill="#94a3b8">GET  /api/briefings/{trip}/{date}</text>
+  <text x="430" y="481" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/briefings/{trip}/generate</text>
+
+  
+  <rect x="65" y="510" width="320" height="90" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="85" y="533" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Swaps</text>
+  <text x="85" y="554" font-family="monospace" font-size="11" fill="#94a3b8">GET  /api/swaps/{trip}</text>
+  <text x="85" y="570" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/swaps/{id}/accept</text>
+  <text x="85" y="586" font-family="monospace" font-size="11" fill="#94a3b8">POST /api/swaps/{id}/decline</text>
+
+  
+  <rect x="410" y="510" width="320" height="90" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="430" y="533" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Conversations</text>
+  <text x="430" y="554" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/conversations/{trip}</text>
+  <text x="430" y="570" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/conversations/{id}/msgs</text>
+  <text x="430" y="586" font-family="monospace" font-size="11" fill="#94a3b8">WS  /api/ws/chat/{conversation}</text>
+
+  
+  <rect x="65" y="615" width="665" height="90" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="85" y="638" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Attractions</text>
+  <text x="85" y="659" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/attractions?region=...&amp;amp;category=...</text>
+  <text x="85" y="675" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/attractions/{id}                        </text>
+  <text x="85" y="691" font-family="monospace" font-size="11" fill="#94a3b8">GET /api/attractions/nearby?lat=...&amp;amp;lng=...&amp;amp;radius=...</text>
+
+  
+  <rect x="65" y="720" width="665" height="130" rx="8" fill="#111827" stroke="#475569"/>
+  <text x="85" y="745" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#e2e8f0">Standard Response Envelope</text>
+  <text x="85" y="770" font-family="monospace" font-size="11" fill="#4ade80">200: { &quot;data&quot;: {...}, &quot;meta&quot;: { &quot;timestamp&quot;, &quot;request_id&quot; } }</text>
+  <text x="85" y="790" font-family="monospace" font-size="11" fill="#fbbf24">400: { &quot;error&quot;: { &quot;code&quot;, &quot;message&quot;, &quot;details&quot; } }</text>
+  <text x="85" y="810" font-family="monospace" font-size="11" fill="#f87171">500: { &quot;error&quot;: { &quot;code&quot;: &quot;INTERNAL&quot;, &quot;request_id&quot; } }</text>
+  <text x="85" y="835" font-family="Arial,sans-serif" font-size="11" fill="#64748b">Auth: Bearer token in Authorization header  |  Pagination: cursor-based</text>
+
+  
+  <rect x="800" y="80" width="760" height="790" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="1180" y="112" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#93c5fd">WebSocket Chat Sequence</text>
+
+  
+  <text x="900" y="145" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#93c5fd">Client</text>
+  <line x1="900" y1="155" x2="900" y2="840" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="1180" y="145" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Server</text>
+  <line x1="1180" y1="155" x2="1180" y2="840" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="1440" y="145" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">LLM</text>
+  <line x1="1440" y1="155" x2="1440" y2="840" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+
+  
+  <line x1="900" y1="175" x2="1180" y2="175" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="1040" y="168" text-anchor="middle" font-family="monospace" font-size="10" fill="#60a5fa">WS connect + JWT auth</text>
+
+  
+  <line x1="1180" y1="200" x2="900" y2="200" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="1040" y="193" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">connection.ack</text>
+
+  
+  <line x1="900" y1="240" x2="1180" y2="240" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="1040" y="233" text-anchor="middle" font-family="monospace" font-size="10" fill="#60a5fa">user.message { text, context }</text>
+
+  
+  <line x1="1180" y1="270" x2="900" y2="270" stroke="#fbbf24" stroke-width="2" marker-end="url(#ay)"/>
+  <text x="1040" y="263" text-anchor="middle" font-family="monospace" font-size="10" fill="#fbbf24">assistant.thinking</text>
+
+  
+  <rect x="1195" y="320" width="230" height="65" rx="6" fill="#1e293b" stroke="#a78bfa" stroke-dasharray="4"/>
+  <text x="1310" y="340" text-anchor="middle" font-family="monospace" font-size="10" fill="#c4b5fd">tool_call: get_weather</text>
+  <text x="1310" y="356" text-anchor="middle" font-family="monospace" font-size="10" fill="#c4b5fd">tool_call: get_tides</text>
+  <text x="1310" y="372" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">(parallel execution)</text>
+
+  
+  <line x1="1180" y1="400" x2="900" y2="400" stroke="#fbbf24" stroke-width="2" marker-end="url(#ay)"/>
+  <text x="1040" y="393" text-anchor="middle" font-family="monospace" font-size="10" fill="#fbbf24">tool.status { name, status }</text>
+
+  
+  <line x1="1440" y1="430" x2="1180" y2="430" stroke="#a78bfa" stroke-width="2" marker-end="url(#ap)"/>
+  <text x="1310" y="423" text-anchor="middle" font-family="monospace" font-size="10" fill="#a78bfa">stream tokens</text>
+
+  
+  <line x1="1180" y1="460" x2="900" y2="460" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="1040" y="453" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">assistant.token { text, seq }</text>
+  <line x1="1180" y1="480" x2="900" y2="480" stroke="#4ade80" stroke-width="1.5" marker-end="url(#ag)"/>
+  <text x="1040" y="473" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">assistant.token { text, seq }</text>
+  <line x1="1180" y1="500" x2="900" y2="500" stroke="#4ade80" stroke-width="1.5" marker-end="url(#ag)"/>
+  <text x="1040" y="493" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">assistant.token { text, seq }</text>
+
+  
+  <line x1="1180" y1="535" x2="900" y2="535" stroke="#f87171" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="1040" y="528" text-anchor="middle" font-family="monospace" font-size="10" fill="#fca5a5">assistant.rich { type: &quot;card&quot; }</text>
+
+  
+  <line x1="1180" y1="565" x2="900" y2="565" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="1040" y="558" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">assistant.done { message_id }</text>
+
+  
+  <rect x="830" y="600" width="700" height="60" rx="8" fill="#111827" stroke="#475569"/>
+  <text x="1180" y="625" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Heartbeat: ping/pong every 30s  |  Auto-reconnect: exp. backoff 1s-30s</text>
+  <text x="1180" y="645" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">State recovery: re-fetch last N messages on reconnect  |  Max 1 active WS per user</text>
+
+  
+  <rect x="830" y="680" width="330" height="160" rx="8" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="995" y="705" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#93c5fd">Client Message Types</text>
+  <text x="850" y="726" font-family="monospace" font-size="11" fill="#60a5fa">user.message</text><text x="990" y="726" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Chat text + context</text>
+  <text x="850" y="746" font-family="monospace" font-size="11" fill="#60a5fa">user.action</text><text x="990" y="746" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Button/card response</text>
+  <text x="850" y="766" font-family="monospace" font-size="11" fill="#60a5fa">user.typing</text><text x="990" y="766" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Typing indicator</text>
+  <text x="850" y="786" font-family="monospace" font-size="11" fill="#60a5fa">user.context</text><text x="990" y="786" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Location update</text>
+  <text x="850" y="806" font-family="monospace" font-size="11" fill="#60a5fa">ping</text><text x="990" y="806" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Keepalive</text>
+
+  
+  <rect x="1200" y="680" width="330" height="160" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="1365" y="705" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#86efac">Server Message Types</text>
+  <text x="1220" y="726" font-family="monospace" font-size="11" fill="#4ade80">assistant.thinking</text><text x="1390" y="726" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Processing...</text>
+  <text x="1220" y="746" font-family="monospace" font-size="11" fill="#4ade80">assistant.token</text><text x="1390" y="746" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Streamed text</text>
+  <text x="1220" y="766" font-family="monospace" font-size="11" fill="#4ade80">assistant.rich</text><text x="1390" y="766" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Card/map/list</text>
+  <text x="1220" y="786" font-family="monospace" font-size="11" fill="#4ade80">assistant.done</text><text x="1390" y="786" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Turn complete</text>
+  <text x="1220" y="806" font-family="monospace" font-size="11" fill="#4ade80">tool.status</text><text x="1390" y="806" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Tool progress</text>
+
+  
+  <rect x="40" y="900" width="1520" height="160" rx="14" fill="#2d1f3d" stroke="#a78bfa" stroke-width="2"/>
+  <text x="800" y="930" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#c4b5fd">Background Tasks (Celery) + Internal Events</text>
+
+  <rect x="70" y="950" width="230" height="90" rx="8" fill="#1e293b" stroke="#7c3aed"/>
+  <text x="185" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">Scheduled Tasks</text>
+  <text x="185" y="996" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">briefing.generate  5AM</text>
+  <text x="185" y="1012" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">conditions.check   2h</text>
+  <text x="185" y="1028" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">weather.prefetch   6h</text>
+
+  <rect x="320" y="950" width="230" height="90" rx="8" fill="#1e293b" stroke="#7c3aed"/>
+  <text x="435" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">Triggered Tasks</text>
+  <text x="435" y="996" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">itinerary.generate</text>
+  <text x="435" y="1012" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">swap.evaluate</text>
+  <text x="435" y="1028" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">notification.send</text>
+
+  <rect x="570" y="950" width="230" height="90" rx="8" fill="#1e293b" stroke="#7c3aed"/>
+  <text x="685" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">Task Queues</text>
+  <text x="685" y="996" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">high:  swap, notification</text>
+  <text x="685" y="1012" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">default: briefing, gen</text>
+  <text x="685" y="1028" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">low:   prefetch, cleanup</text>
+
+  
+  <rect x="820" y="950" width="700" height="90" rx="8" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="1170" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fde68a">Internal Event Catalog</text>
+  <text x="840" y="996" font-family="monospace" font-size="10" fill="#fbbf24">trip.created</text>
+  <text x="840" y="1012" font-family="monospace" font-size="10" fill="#fbbf24">trip.confirmed</text>
+  <text x="840" y="1028" font-family="monospace" font-size="10" fill="#fbbf24">itinerary.generated</text>
+  <text x="1040" y="996" font-family="monospace" font-size="10" fill="#fbbf24">condition.threshold_breach</text>
+  <text x="1040" y="1012" font-family="monospace" font-size="10" fill="#fbbf24">swap.suggested</text>
+  <text x="1040" y="1028" font-family="monospace" font-size="10" fill="#fbbf24">swap.accepted / declined</text>
+  <text x="1300" y="996" font-family="monospace" font-size="10" fill="#fbbf24">briefing.ready</text>
+  <text x="1300" y="1012" font-family="monospace" font-size="10" fill="#fbbf24">notification.sent</text>
+  <text x="1300" y="1028" font-family="monospace" font-size="10" fill="#fbbf24">trip.day_started</text>
+
+  
+  <rect x="40" y="1080" width="1520" height="190" rx="14" fill="#111827" stroke="#475569"/>
+  <text x="800" y="1112" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#e2e8f0">Data Freshness SLAs + Cache TTLs</text>
+
+  <rect x="80" y="1130" width="240" height="60" rx="8" fill="#166534"/><text x="200" y="1156" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#fff">Weather</text><text x="200" y="1176" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#bbf7d0">Cache: 30min  |  Prefetch: 6h</text>
+  <rect x="340" y="1130" width="240" height="60" rx="8" fill="#166534"/><text x="460" y="1156" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#fff">Tides</text><text x="460" y="1176" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#bbf7d0">Cache: 24h  |  Very stable</text>
+  <rect x="600" y="1130" width="240" height="60" rx="8" fill="#166534"/><text x="720" y="1156" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#fff">Solar / UV</text><text x="720" y="1176" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#bbf7d0">Cache: 24h  |  Aurora: 30min</text>
+  <rect x="860" y="1130" width="240" height="60" rx="8" fill="#92400e"/><text x="980" y="1156" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#fff">Routes</text><text x="980" y="1176" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Cache: 7d  |  Stable data</text>
+  <rect x="1120" y="1130" width="240" height="60" rx="8" fill="#92400e"/><text x="1240" y="1156" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#fff">Attractions</text><text x="1240" y="1176" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Cache: 30d  |  Batch update</text>
+
+  <text x="800" y="1225" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#94a3b8">Stale data policy: Serve stale + background refresh when provider unavailable  |  Max stale: 2x TTL</text>
+  <text x="800" y="1250" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#94a3b8">Prefetch active trips&apos; conditions before morning briefing deadline  |  Retry 3x with exponential backoff</text>
+</svg>

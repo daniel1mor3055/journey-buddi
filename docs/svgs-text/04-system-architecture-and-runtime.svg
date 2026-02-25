@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1500" viewBox="0 0 1800 1500">
+  <rect width="1800" height="1500" fill="#0f172a"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">04 - System Architecture and Runtime</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: service boundaries, communication patterns, background execution, and deployment topology.</text>
+
+  <rect x="40" y="120" width="1720" height="110" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Architecture Strategy</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">MVP shape: modular monolith (FastAPI) with clean domain seams so services can be split later without rewrite.</text>
+  <text x="60" y="202" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Goal balance: speed-to-market now + maintainability + scale path later.</text>
+
+  <rect x="40" y="255" width="540" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="287" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Client Layer</text>
+  <text x="60" y="317" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Web app (Next.js App Router + TS)</text>
+  <text x="75" y="340" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- SSR where needed (landing/discovery)</text>
+  <text x="75" y="362" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- rich client mode for planning dashboard and trip operations</text>
+  <text x="75" y="384" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- WebSocket for token streaming and live updates</text>
+  <text x="75" y="406" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- PWA install + push notification capability</text>
+
+  <text x="60" y="442" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">State/data strategy</text>
+  <text x="75" y="465" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- React Query for server state + caching/invalidations</text>
+  <text x="75" y="487" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Zustand for app-local state (auth/chat/ui/trip)</text>
+  <text x="75" y="509" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Mapbox for route/pin/condition map rendering</text>
+
+  <text x="60" y="545" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Future extension</text>
+  <text x="75" y="568" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- React Native app can consume same backend contracts.</text>
+
+  <rect x="620" y="255" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="287" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">API + Service Layer</text>
+  <text x="640" y="317" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">API modules: auth, users, trips, itinerary, conditions, chat, briefings, swaps, attractions.</text>
+  <text x="640" y="341" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Service modules:</text>
+  <text x="655" y="364" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">AI Agent Service: prompts, LLM calls, tool orchestration, streaming.</text>
+  <text x="655" y="386" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Condition Service: fetch, normalize, cache, score, threshold alerts.</text>
+  <text x="655" y="408" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Itinerary Service: generate, validate, optimize, adapt, version.</text>
+  <text x="655" y="430" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Knowledge Service: vector indexing/retrieval + structured destination data.</text>
+  <text x="655" y="452" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">External Data Service: provider adapters, rate limits, fallback/circuit breaker.</text>
+  <text x="655" y="474" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Notification Service: schedule by timezone, payload creation, delivery channel handling.</text>
+
+  <text x="640" y="510" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Communication patterns</text>
+  <text x="655" y="533" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">REST for CRUD, WebSocket for chat stream, Celery for async/scheduled workloads.</text>
+
+  <text x="640" y="569" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">In-process event bus (MVP)</text>
+  <text x="655" y="592" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">trip.created, trip.activated, itinerary.updated, swap.accepted, briefing.generated, etc.</text>
+  <text x="655" y="614" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Migration path: external broker (Redis Streams/RabbitMQ) when coupling pressure rises.</text>
+
+  <rect x="1220" y="255" width="540" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1240" y="287" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Data + Runtime Foundations</text>
+  <text x="1240" y="317" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">PostgreSQL + PostGIS</text>
+  <text x="1255" y="340" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- transactional source of truth for users/trips/itinerary/briefings/swaps</text>
+  <text x="1255" y="362" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- geospatial indexing and proximity/path queries</text>
+  <text x="1240" y="398" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Redis</text>
+  <text x="1255" y="421" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- cache tiers, session/rate-limit counters, Celery broker/backend</text>
+  <text x="1240" y="457" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Vector Store</text>
+  <text x="1255" y="480" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Chroma for MVP, Pinecone path for production scaling</text>
+  <text x="1240" y="516" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Security baseline</text>
+  <text x="1255" y="539" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- magic-link JWT (short-lived verify token + longer session token)</text>
+  <text x="1255" y="561" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- authz by user ownership on all trip resources</text>
+  <text x="1255" y="583" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- no secret leakage in logs, env-based secrets, HTTPS everywhere</text>
+  <text x="1240" y="619" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Performance goals</text>
+  <text x="1255" y="642" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">REST p95 &lt; 200ms, first chat token &lt; 2s, condition eval &lt; 5s, briefing generation &lt; 30s async.</text>
+
+  <rect x="40" y="845" width="1720" height="620" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="877" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Critical Runtime Flows</text>
+  <text x="60" y="907" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Planning chat:</text>
+  <text x="75" y="930" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">user action -> WS message -> AI tool calls + RAG -> streamed tokens -> state persistence -> next turn.</text>
+  <text x="60" y="960" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Morning briefing:</text>
+  <text x="75" y="983" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">scheduled task -> itinerary fetch -> condition refresh/score -> optional swap eval -> briefing generation -> push + store.</text>
+  <text x="60" y="1013" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Swap cycle:</text>
+  <text x="75" y="1036" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">degradation trigger -> multi-day candidate analysis -> recommendation payload -> user accept/decline -> itinerary update.</text>
+
+  <text x="60" y="1074" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Deployment and Scale Path</text>
+  <text x="60" y="1098" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">MVP: Railway-hosted app stack + postgres + redis + worker. Keep ops simple, prioritize product signal.</text>
+  <text x="60" y="1120" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Scale-up: split FE/BE, add managed DB/Redis/vector service, multi-worker queues, read replicas, CDN, horizontal API replicas.</text>
+  <text x="60" y="1142" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Principle: vertical-first scaling until clear bottlenecks justify complexity.</text>
+
+  <text x="60" y="1180" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Operational Risk Controls</text>
+  <text x="60" y="1204" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- queue isolation by task type (briefings/monitoring/notifications)</text>
+  <text x="60" y="1226" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- retries with bounded backoff for external API and generation failures</text>
+  <text x="60" y="1248" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- health checks + key metrics: task latency, provider errors, stale data age, swap latency</text>
+  <text x="60" y="1270" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- backup strategy for database + durable logs for incident forensics</text>
+
+  <text x="60" y="1308" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 05 - API, WebSocket, and Events.</text>
+</svg>

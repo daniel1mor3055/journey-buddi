@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1550" viewBox="0 0 1800 1550">
+  <rect width="1800" height="1550" fill="#0f172a"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">06 - Data Model and Storage Schema</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: relational core, JSON flexibility, geospatial model, and audit-critical records.</text>
+
+  <rect x="40" y="120" width="1720" height="95" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Data Philosophy</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Relational backbone for integrity + JSONB for adaptive travel data + PostGIS for location-aware planning and routing.</text>
+
+  <rect x="40" y="240" width="560" height="610" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Identity + Trip Core</text>
+  <text x="60" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">users</text>
+  <text x="75" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">id/email/name/timestamps + preferences/profile JSONB (travel DNA, notification windows).</text>
+  <text x="60" y="361" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">trips</text>
+  <text x="75" y="384" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">user FK + destination scope + status lifecycle (planning/confirmed/active/completed/archived).</text>
+  <text x="75" y="406" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">transport_plan, flight_details, planning_state JSONB support evolving planning state.</text>
+
+  <text x="60" y="442" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">itineraries</text>
+  <text x="75" y="465" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">versioned per trip, active flag, summary JSONB for quick renders.</text>
+  <text x="60" y="501" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">itinerary_days</text>
+  <text x="75" y="524" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">day_number/date/title/location_point/day_type transport/accommodation/condition snapshots.</text>
+  <text x="75" y="546" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">tightness scoring + lock semantics preserve user intent under adaptation pressure.</text>
+
+  <text x="60" y="582" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">activity_instances</text>
+  <text x="75" y="605" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">day FK + optional attraction FK + timing, sensitivity, provider metadata, booking state.</text>
+  <text x="75" y="627" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">status lifecycle supports planned/active/completed/skipped/swapped tracking.</text>
+
+  <text x="60" y="664" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Practical modeling decisions</text>
+  <text x="75" y="687" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- UUID keys for distributed-safe references</text>
+  <text x="75" y="709" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- explicit enum-like text fields for state readability</text>
+  <text x="75" y="731" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- unique constraints on day_number per itinerary and version per trip</text>
+
+  <rect x="620" y="240" width="560" height="610" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Knowledge + Content Tables</text>
+  <text x="640" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">attractions</text>
+  <text x="655" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">destination/region/type arrays + condition profiles (ideal/acceptable/dealbreaker JSONB).</text>
+  <text x="655" y="347" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">location_point indexed with GIST for proximity and route-near search.</text>
+
+  <text x="640" y="383" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">providers</text>
+  <text x="655" y="406" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">activity_types GIN index + quality/pricing/contact URLs for marketplace logic.</text>
+
+  <text x="640" y="442" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">hidden_gems</text>
+  <text x="655" y="465" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">detour-level discovery objects with type taxonomy and insider tips.</text>
+
+  <text x="640" y="501" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">stories</text>
+  <text x="655" y="524" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">cultural/contextual narratives with optional audio and consumption-context metadata.</text>
+
+  <text x="640" y="560" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">conversation memory</text>
+  <text x="655" y="583" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">conversations + messages tables persist prompt context and structured interaction artifacts.</text>
+  <text x="655" y="605" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">token_count supports cost attribution and optimization loops.</text>
+
+  <text x="640" y="641" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Condition + adaptation persistence</text>
+  <text x="655" y="664" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">condition_records store raw/normalized snapshots by source and forecast horizon.</text>
+  <text x="655" y="686" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">swap_suggestions preserve recommendation rationale, impact scores, and user response.</text>
+  <text x="655" y="708" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">daily_briefings keep content + conditions snapshot + delivery/view timestamps for auditability.</text>
+
+  <rect x="1200" y="240" width="560" height="610" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Geospatial Query Patterns</text>
+  <text x="1220" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Core spatial operations enabled by PostGIS:</text>
+  <text x="1235" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- attractions within radius (ST_DWithin)</text>
+  <text x="1235" y="347" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- point-to-point distances for route scoring</text>
+  <text x="1235" y="369" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- route corridor search against LineString buffers</text>
+
+  <text x="1220" y="405" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Schema quality controls</text>
+  <text x="1235" y="428" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- GIST indices for location columns</text>
+  <text x="1235" y="450" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- GIN indices for arrays (types/activity categories)</text>
+  <text x="1235" y="472" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- btree indices on high-cardinality FK/status/date columns</text>
+
+  <text x="1220" y="508" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Migration discipline</text>
+  <text x="1235" y="531" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Alembic-only schema evolution. No direct production DDL edits.</text>
+  <text x="1235" y="553" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Forward + rollback plans required per release candidate.</text>
+
+  <text x="1220" y="589" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Data retention rationale</text>
+  <text x="1235" y="612" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Historical condition and swap/briefing records support debugging and model tuning.</text>
+  <text x="1235" y="634" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Conversation logs support explainability and user-facing "why" transparency.</text>
+
+  <rect x="40" y="880" width="1720" height="640" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="912" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Entity Relationship Narrative (Practical Read)</text>
+  <text x="60" y="942" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">User owns trips; trip owns itinerary versions; itinerary owns days; day owns activity instances.</text>
+  <text x="60" y="966" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Activity instances may reference attractions but keep denormalized execution fields for day-specific behavior.</text>
+  <text x="60" y="990" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Swap suggestions link two itinerary days plus rationale metrics; acceptance mutates itinerary state and downstream briefings.</text>
+  <text x="60" y="1014" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Condition records are independent time-series snapshots consumed by condition service and AI generation tasks.</text>
+  <text x="60" y="1038" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Briefings snapshot both generated content and condition context to preserve historical truth of what user saw.</text>
+
+  <text x="60" y="1075" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Data Integrity Risks to Guard Against</text>
+  <text x="60" y="1099" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- orphaned records when itinerary/day/activity deletions are not cascade-safe</text>
+  <text x="60" y="1121" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- race conditions between swap acceptance and concurrent itinerary edits</text>
+  <text x="60" y="1143" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- inconsistent timezone handling for day boundaries and briefing schedules</text>
+  <text x="60" y="1165" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- schema drift between JSONB payload writers across services</text>
+
+  <text x="60" y="1202" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Testing Priorities</text>
+  <text x="60" y="1226" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">migration tests, FK cascade tests, geospatial query correctness, swap transaction atomicity, historical snapshot immutability.</text>
+
+  <text x="60" y="1264" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 07 - External Integrations and Fallbacks.</text>
+</svg>

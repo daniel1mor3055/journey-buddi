@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4ade80"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#60a5fa"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f87171"/></marker>
+    <marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a78bfa"/></marker>
+  </defs>
+  <rect width="1600" height="1200" rx="12" fill="#0f172a"/>
+  <text x="800" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#e2e8f0">02  -  Product User Journey Flow</text>
+
+  
+  <rect x="40" y="75" width="740" height="50" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="410" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#93c5fd">PHASE A  -  Pre-Trip Planning (Conversation)</text>
+
+  
+  <rect x="60" y="150" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="120" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">1. Profile</text><text x="120" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Adventure, fitness</text><text x="120" y="208" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">pace, interests</text>
+  <line x1="180" y1="184" x2="200" y2="184" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="205" y="150" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="265" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">2. Destination</text><text x="265" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Dates, entry/exit</text><text x="265" y="208" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">seasonal context</text>
+  <line x1="325" y1="184" x2="345" y2="184" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="350" y="150" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="410" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">3. Must-Dos</text><text x="410" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Locked constraints</text><text x="410" y="208" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">+ must-not-dos</text>
+  <line x1="470" y1="184" x2="490" y2="184" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="495" y="150" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="555" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">4. Interests</text><text x="555" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Curated options</text><text x="555" y="208" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">per category</text>
+  <line x1="615" y1="184" x2="635" y2="184" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="640" y="150" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="700" y="178" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">5. Curation</text><text x="700" y="196" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Provider compare</text><text x="700" y="208" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">diversification</text>
+
+  
+  <path d="M 700 218 L 700 238 Q 700 248 690 248 L 130 248 Q 120 248 120 258 L 120 270" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#ab)"/>
+
+  <rect x="60" y="275" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="120" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">6. Route</text><text x="120" y="321" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Cluster + optimize</text><text x="120" y="333" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">direction logic</text>
+  <line x1="180" y1="309" x2="200" y2="309" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="205" y="275" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="265" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">7. Transport</text><text x="265" y="321" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Multi-modal per</text><text x="265" y="333" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">segment + costs</text>
+  <line x1="325" y1="309" x2="345" y2="309" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="350" y="275" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="410" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">8. Pace</text><text x="410" y="321" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Duration + density</text><text x="410" y="333" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">tradeoffs</text>
+  <line x1="470" y1="309" x2="490" y2="309" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="495" y="275" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="555" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">9. Dashboard</text><text x="555" y="321" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Interactive itin.</text><text x="555" y="333" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">control panel</text>
+  <line x1="615" y1="309" x2="635" y2="309" stroke="#60a5fa" stroke-width="2" marker-end="url(#ab)"/>
+  <rect x="640" y="275" width="120" height="68" rx="8" fill="#1e293b" stroke="#3b82f6"/><text x="700" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">10. Refine</text><text x="700" y="321" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Edit, lock, drag</text><text x="700" y="333" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">then confirm</text>
+
+  
+  <line x1="700" y1="343" x2="700" y2="385" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+  <rect x="580" y="390" width="240" height="50" rx="25" fill="#422006" stroke="#fbbf24" stroke-width="2"/>
+  <text x="700" y="421" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fde68a">CONFIRM TRIP</text>
+
+  <line x1="700" y1="440" x2="700" y2="470" stroke="#fbbf24" stroke-width="2" marker-end="url(#a)"/>
+
+  
+  <rect x="550" y="475" width="300" height="44" rx="8" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="700" y="503" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#fde68a">T-3: Monitoring starts  |  T-1: Pre-departure brief</text>
+
+  <line x1="700" y1="519" x2="700" y2="555" stroke="#fbbf24" stroke-width="2" marker-end="url(#a)"/>
+
+  
+  <rect x="40" y="558" width="1520" height="50" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+  <text x="800" y="590" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#86efac">PHASE B  -  Live Companion (During Trip - Daily Cycle)</text>
+
+  
+  <rect x="80" y="640" width="220" height="90" rx="10" fill="#1e293b" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="190" y="670" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Evening Preview</text>
+  <text x="190" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Tomorrow&apos;s plan</text>
+  <text x="190" y="706" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Packing reminder</text>
+
+  <line x1="300" y1="685" x2="350" y2="685" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+
+  <rect x="355" y="640" width="220" height="90" rx="10" fill="#1e293b" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="465" y="670" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Morning Briefing</text>
+  <text x="465" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Condition scores per activity</text>
+  <text x="465" y="706" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Packing + timing + tips</text>
+
+  <line x1="575" y1="685" x2="625" y2="685" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+
+  <rect x="630" y="640" width="220" height="90" rx="10" fill="#1e293b" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="740" y="670" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Live Updates</text>
+  <text x="740" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Significant changes only</text>
+  <text x="740" y="706" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Opportunity windows</text>
+
+  <line x1="850" y1="685" x2="900" y2="685" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+
+  <rect x="905" y="640" width="220" height="90" rx="10" fill="#1e293b" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="1015" y="670" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">Day Wrap</text>
+  <text x="1015" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Experience recap</text>
+  <text x="1015" y="706" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Next-day adjustments</text>
+
+  
+  <path d="M 1125 685 L 1170 685 Q 1185 685 1185 700 L 1185 760 Q 1185 775 1170 775 L 130 775 Q 115 775 115 760 L 115 735 L 115 730" stroke="#4ade80" stroke-width="2" fill="none" marker-end="url(#ag)"/>
+  <text x="650" y="793" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#4ade80">Repeats daily for duration of trip</text>
+
+  
+  <rect x="870" y="75" width="690" height="480" rx="14" fill="#111827" stroke="#a78bfa" stroke-width="2"/>
+  <text x="1215" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#c4b5fd">Condition Scoring + Swap Engine</text>
+
+  
+  <rect x="910" y="130" width="280" height="200" rx="10" fill="#1e293b" stroke="#7c3aed"/>
+  <text x="1050" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Condition Assessment</text>
+  <rect x="930" y="172" width="240" height="24" rx="4" fill="#166534"/><text x="1050" y="189" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">EXCELLENT</text>
+  <rect x="930" y="200" width="200" height="24" rx="4" fill="#3f6212"/><text x="1030" y="217" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">GOOD</text>
+  <rect x="930" y="228" width="160" height="24" rx="4" fill="#92400e"/><text x="1010" y="245" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">FAIR</text>
+  <rect x="930" y="256" width="120" height="24" rx="4" fill="#991b1b"/><text x="990" y="273" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">POOR</text>
+  <rect x="930" y="284" width="80" height="24" rx="4" fill="#450a0a"/><text x="970" y="301" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">UNSAFE</text>
+
+  
+  <rect x="1230" y="130" width="280" height="200" rx="10" fill="#1e293b" stroke="#7c3aed"/>
+  <text x="1370" y="157" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Activity Factor Weighting</text>
+  <text x="1370" y="182" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Hiking: wind, visibility, temp, rain</text>
+  <text x="1370" y="200" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Marine: sea state, wind, tide</text>
+  <text x="1370" y="218" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Wildlife: time, season, tide, moon</text>
+  <text x="1370" y="236" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Photography: light, cloud, visibility</text>
+  <text x="1370" y="254" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Stargazing: cloud, moon phase, Kp</text>
+
+  
+  <polygon points="1050,370 1160,420 1050,470 940,420" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+  <text x="1050" y="415" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#fca5a5">Swap</text>
+  <text x="1050" y="432" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">needed?</text>
+
+  
+  <line x1="1160" y1="420" x2="1280" y2="420" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="1210" y="412" font-family="Arial,sans-serif" font-size="11" fill="#4ade80">Yes</text>
+  <rect x="1285" y="395" width="200" height="50" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="1385" y="418" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#86efac">Swap Suggestion</text>
+  <text x="1385" y="436" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Before/after + reasoning</text>
+
+  <line x1="940" y1="420" x2="910" y2="420" stroke="#f87171" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="923" y="412" font-family="Arial,sans-serif" font-size="11" fill="#f87171">No</text>
+  <rect x="820" y="395" width="88" height="50" rx="8" fill="#1e293b" stroke="#475569"/>
+  <text x="864" y="424" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Proceed</text>
+
+  
+  <line x1="1385" y1="445" x2="1385" y2="480" stroke="#4ade80" stroke-width="2" marker-end="url(#ag)"/>
+  <rect x="1310" y="483" width="72" height="36" rx="6" fill="#166534"/><text x="1346" y="506" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">Accept</text>
+  <rect x="1396" y="483" width="72" height="36" rx="6" fill="#7f1d1d"/><text x="1432" y="506" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fff">Decline</text>
+
+  
+  <rect x="40" y="840" width="1520" height="100" rx="14" fill="#1c1917" stroke="#78716c" stroke-width="1.5"/>
+  <text x="800" y="870" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#d6d3d1">Cross-Cutting Capabilities (Always Available)</text>
+
+  <rect x="80" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="160" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Chat with Buddi</text>
+  <rect x="260" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="340" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Map View</text>
+  <rect x="440" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="520" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Notifications</text>
+  <rect x="620" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="700" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Storytelling</text>
+  <rect x="800" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="880" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Hidden Gems</text>
+  <rect x="980" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="1060" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Activity Guidance</text>
+  <rect x="1160" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="1240" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Local Tips</text>
+  <rect x="1340" y="890" width="160" height="36" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="1420" y="913" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#d6d3d1">Account / Auth</text>
+
+  
+  <rect x="40" y="970" width="1520" height="200" rx="14" fill="#111827" stroke="#475569"/>
+  <text x="800" y="1000" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#e2e8f0">Feature Priority by Phase</text>
+
+  
+  <rect x="80" y="1020" width="440" height="130" rx="8" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="300" y="1045" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#93c5fd">MVP (Phase 1-2)</text>
+  <text x="300" y="1068" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Profile + Itinerary Building + Transport</text>
+  <text x="300" y="1086" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Interactive Dashboard + Chat + Map</text>
+  <text x="300" y="1104" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Account + Local Tips</text>
+
+  
+  <rect x="560" y="1020" width="440" height="130" rx="8" fill="#1e293b" stroke="#4ade80"/>
+  <text x="780" y="1045" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">V1.1 (Phase 3-4)</text>
+  <text x="780" y="1068" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Daily Briefings + Condition Monitoring</text>
+  <text x="780" y="1086" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Adaptive Swaps + Push Notifications</text>
+  <text x="780" y="1104" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Provider Marketplace + Treasure Map</text>
+
+  
+  <rect x="1040" y="1020" width="440" height="130" rx="8" fill="#1e293b" stroke="#a78bfa"/>
+  <text x="1260" y="1045" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">V2+ (Phase 5)</text>
+  <text x="1260" y="1068" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Audio Companion + Mobile App</text>
+  <text x="1260" y="1086" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">New Destinations + B2B Marketplace</text>
+  <text x="1260" y="1104" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Social Features + Post-Trip</text>
+</svg>

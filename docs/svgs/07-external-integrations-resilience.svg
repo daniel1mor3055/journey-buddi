@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4ade80"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#f87171"/></marker>
+    <marker id="ay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#fbbf24"/></marker>
+  </defs>
+  <rect width="1600" height="1200" rx="12" fill="#0f172a"/>
+  <text x="800" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#e2e8f0">07  -  External Integrations + Resilience Patterns</text>
+
+  
+  <rect x="560" y="90" width="480" height="80" rx="14" fill="#2d1f3d" stroke="#a78bfa" stroke-width="2"/>
+  <text x="800" y="125" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#c4b5fd">External Data Service</text>
+  <text x="800" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Orchestrates all provider calls with resilience</text>
+
+  
+  <line x1="600" y1="170" x2="200" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="700" y1="170" x2="540" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="800" y1="170" x2="800" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="900" y1="170" x2="1060" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="1000" y1="170" x2="1380" y2="220" stroke="#a78bfa" stroke-width="2" marker-end="url(#a)"/>
+
+  
+  <rect x="40" y="220" width="310" height="310" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <text x="195" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#93c5fd">Weather</text>
+
+  
+  <rect x="65" y="270" width="260" height="38" rx="6" fill="#172554" stroke="#3b82f6"/>
+  <text x="80" y="293" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">1. OpenWeatherMap</text>
+  <text x="240" y="293" font-family="Arial,sans-serif" font-size="10" fill="#64748b">1000/day</text>
+  <line x1="195" y1="308" x2="195" y2="320" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="210" y="318" font-family="Arial,sans-serif" font-size="9" fill="#f87171">fallback</text>
+
+  <rect x="65" y="322" width="260" height="38" rx="6" fill="#172554" stroke="#3b82f6"/>
+  <text x="80" y="345" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">2. Open-Meteo</text>
+  <text x="240" y="345" font-family="Arial,sans-serif" font-size="10" fill="#64748b">10K/day free</text>
+  <line x1="195" y1="360" x2="195" y2="372" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="210" y="370" font-family="Arial,sans-serif" font-size="9" fill="#f87171">fallback</text>
+
+  <rect x="65" y="374" width="260" height="38" rx="6" fill="#172554" stroke="#3b82f6"/>
+  <text x="80" y="397" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#93c5fd">3. WeatherAPI.com</text>
+  <text x="240" y="397" font-family="Arial,sans-serif" font-size="10" fill="#64748b">1M/mo free</text>
+
+  
+  <rect x="65" y="430" width="260" height="48" rx="8" fill="#166534" stroke="#4ade80"/>
+  <text x="195" y="452" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#86efac">WeatherCondition</text>
+  <text x="195" y="468" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#bbf7d0">temp, wind, rain, cloud, vis, uv</text>
+  <text x="195" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache TTL: 30min</text>
+
+  
+  <rect x="380" y="220" width="310" height="310" rx="12" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+  <text x="535" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#67e8f9">Tides</text>
+
+  <rect x="405" y="270" width="260" height="38" rx="6" fill="#083344" stroke="#06b6d4"/>
+  <text x="420" y="293" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#67e8f9">1. WorldTides</text>
+  <text x="580" y="293" font-family="Arial,sans-serif" font-size="10" fill="#64748b">500/mo free</text>
+  <line x1="535" y1="308" x2="535" y2="320" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="550" y="318" font-family="Arial,sans-serif" font-size="9" fill="#f87171">fallback</text>
+
+  <rect x="405" y="322" width="260" height="38" rx="6" fill="#083344" stroke="#06b6d4"/>
+  <text x="420" y="345" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#67e8f9">2. NIWA (NZ)</text>
+  <text x="580" y="345" font-family="Arial,sans-serif" font-size="10" fill="#64748b">gov, stable</text>
+
+  <rect x="405" y="430" width="260" height="48" rx="8" fill="#166534" stroke="#4ade80"/>
+  <text x="535" y="452" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#86efac">TideCondition</text>
+  <text x="535" y="468" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#bbf7d0">events[], heights, tide state</text>
+  <text x="535" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache TTL: 24h</text>
+
+  
+  <rect x="720" y="220" width="310" height="310" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="875" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#fde68a">Solar / Celestial</text>
+
+  <rect x="745" y="270" width="260" height="38" rx="6" fill="#422006" stroke="#f59e0b"/>
+  <text x="760" y="293" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fde68a">1. sunrise-sunset.org</text>
+  <text x="920" y="293" font-family="Arial,sans-serif" font-size="10" fill="#64748b">unlimited</text>
+
+  <rect x="745" y="322" width="260" height="38" rx="6" fill="#422006" stroke="#f59e0b"/>
+  <text x="760" y="345" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fde68a">2. NOAA SWPC (Aurora)</text>
+  <text x="920" y="345" font-family="Arial,sans-serif" font-size="10" fill="#64748b">free, Kp index</text>
+
+  <rect x="745" y="374" width="260" height="38" rx="6" fill="#422006" stroke="#f59e0b"/>
+  <text x="760" y="397" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fde68a">3. OpenUV</text>
+  <text x="920" y="397" font-family="Arial,sans-serif" font-size="10" fill="#64748b">50/day free</text>
+
+  <rect x="745" y="430" width="260" height="48" rx="8" fill="#166534" stroke="#4ade80"/>
+  <text x="875" y="452" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#86efac">SolarCondition</text>
+  <text x="875" y="468" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#bbf7d0">sunrise/set, golden hr, uv, Kp, moon</text>
+  <text x="875" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache TTL: 24h  |  Aurora: 30min</text>
+
+  
+  <rect x="1060" y="220" width="240" height="310" rx="12" fill="#1e293b" stroke="#4ade80" stroke-width="2"/>
+  <text x="1180" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#86efac">Maps / Routing</text>
+
+  <rect x="1080" y="270" width="200" height="38" rx="6" fill="#14532d" stroke="#4ade80"/>
+  <text x="1180" y="293" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#86efac">Mapbox</text>
+  <text x="1180" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Maps + Geocode</text>
+
+  <rect x="1080" y="322" width="200" height="38" rx="6" fill="#14532d" stroke="#4ade80"/>
+  <text x="1180" y="345" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#86efac">OSRM</text>
+  <text x="1180" y="355" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Route calculation</text>
+
+  <rect x="1080" y="374" width="200" height="38" rx="6" fill="#14532d" stroke="#4ade80"/>
+  <text x="1180" y="397" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#86efac">Overpass API</text>
+  <text x="1180" y="407" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">POI from OpenStreetMap</text>
+
+  <rect x="1080" y="426" width="200" height="38" rx="6" fill="#14532d" stroke="#4ade80"/>
+  <text x="1180" y="449" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#86efac">Google Places</text>
+  <text x="1180" y="459" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Reviews + details</text>
+  <text x="1180" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache TTL: 7d (routes)</text>
+
+  
+  <rect x="1330" y="220" width="230" height="310" rx="12" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="1445" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#c4b5fd">Wildlife / Safety</text>
+
+  <rect x="1350" y="270" width="190" height="38" rx="6" fill="#2d1f3d" stroke="#a78bfa"/>
+  <text x="1445" y="293" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">iNaturalist</text>
+  <text x="1445" y="303" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Species sightings</text>
+
+  <rect x="1350" y="322" width="190" height="38" rx="6" fill="#2d1f3d" stroke="#a78bfa"/>
+  <text x="1445" y="345" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">DOC</text>
+  <text x="1445" y="355" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Track + hut status</text>
+
+  <rect x="1350" y="374" width="190" height="38" rx="6" fill="#2d1f3d" stroke="#a78bfa"/>
+  <text x="1445" y="397" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">GeoNet</text>
+  <text x="1445" y="407" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Volcanic alerts</text>
+
+  <rect x="1350" y="426" width="190" height="38" rx="6" fill="#2d1f3d" stroke="#a78bfa"/>
+  <text x="1445" y="449" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#c4b5fd">NZTA / Waka Kotahi</text>
+  <text x="1445" y="459" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#64748b">Road closures</text>
+  <text x="1445" y="518" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache TTL: varies</text>
+
+  
+  <rect x="40" y="570" width="1520" height="280" rx="14" fill="#111827" stroke="#f87171" stroke-width="2"/>
+  <text x="800" y="605" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Resilience Patterns</text>
+
+  
+  <rect x="70" y="625" width="340" height="200" rx="10" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="240" y="655" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fde68a">Rate Limiter</text>
+  <text x="240" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Redis sliding window per provider</text>
+  <rect x="95" y="695" width="290" height="28" rx="4" fill="#1f2415" stroke="#4ade80"/><text x="240" y="714" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">OWM: 60/min, 1000/day</text>
+  <rect x="95" y="728" width="290" height="28" rx="4" fill="#1f2415" stroke="#4ade80"/><text x="240" y="747" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">WorldTides: 10/min, 500/month</text>
+  <rect x="95" y="761" width="290" height="28" rx="4" fill="#1f2415" stroke="#4ade80"/><text x="240" y="780" text-anchor="middle" font-family="monospace" font-size="10" fill="#4ade80">OpenUV: 1/sec, 50/day</text>
+  <rect x="95" y="794" width="290" height="20" rx="4" fill="#111827"/><text x="240" y="810" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Wait or fallback if budget exhausted</text>
+
+  
+  <rect x="440" y="625" width="340" height="200" rx="10" fill="#1e293b" stroke="#ef4444"/>
+  <text x="610" y="655" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fca5a5">Circuit Breaker</text>
+  <text x="610" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Per-provider state machine</text>
+
+  
+  <rect x="470" y="698" width="90" height="36" rx="18" fill="#166534" stroke="#4ade80"/><text x="515" y="721" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#86efac">CLOSED</text>
+  <line x1="560" y1="716" x2="580" y2="716" stroke="#f87171" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="570" y="708" font-family="Arial,sans-serif" font-size="9" fill="#f87171">5 fails</text>
+  <rect x="585" y="698" width="90" height="36" rx="18" fill="#7f1d1d" stroke="#ef4444"/><text x="630" y="721" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">OPEN</text>
+  <line x1="675" y1="716" x2="695" y2="716" stroke="#fbbf24" stroke-width="2" marker-end="url(#ay)"/>
+  <text x="685" y="708" font-family="Arial,sans-serif" font-size="9" fill="#fbbf24">60s</text>
+  <rect x="700" y="698" width="55" height="36" rx="18" fill="#422006" stroke="#f59e0b"/><text x="727" y="721" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#fde68a">HALF</text>
+  
+  <path d="M 727 734 L 727 760 Q 727 770 717 770 L 525 770 Q 515 770 515 760 L 515 740" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#ag)"/>
+  <text x="621" y="788" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#4ade80">success -&gt; close</text>
+  <path d="M 727 734 L 727 800 Q 727 810 717 810 L 640 810 Q 630 810 630 800 L 630 740" stroke="#f87171" stroke-width="1.5" fill="none" marker-end="url(#ar)"/>
+  <text x="680" y="818" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#f87171">fail -&gt; reopen</text>
+
+  
+  <rect x="810" y="625" width="340" height="200" rx="10" fill="#1e293b" stroke="#a78bfa"/>
+  <text x="980" y="655" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#c4b5fd">Fallback Chain</text>
+  <text x="980" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Ordered provider priority</text>
+
+  <rect x="840" y="698" width="280" height="28" rx="4" fill="#166534" stroke="#4ade80"/><text x="860" y="717" font-family="Arial,sans-serif" font-size="11" fill="#86efac">1. Try primary provider</text>
+  <line x1="980" y1="726" x2="980" y2="736" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="840" y="738" width="280" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="860" y="757" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">2. If circuit open -&gt; next provider</text>
+  <line x1="980" y1="766" x2="980" y2="776" stroke="#64748b" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="840" y="778" width="280" height="28" rx="4" fill="#7f1d1d" stroke="#ef4444"/><text x="860" y="797" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">3. All fail -&gt; serve stale cache</text>
+
+  
+  <rect x="1180" y="625" width="340" height="200" rx="10" fill="#1e293b" stroke="#06b6d4"/>
+  <text x="1350" y="655" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#67e8f9">Stale Data Policy</text>
+  <text x="1350" y="678" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Graceful degradation strategy</text>
+  <text x="1350" y="710" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Max stale window = 2x normal TTL</text>
+  <text x="1350" y="738" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Background refresh on stale serve</text>
+  <text x="1350" y="766" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Confidence tag on stale data</text>
+  <text x="1350" y="794" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">UI shows &quot;last updated X ago&quot;</text>
+
+  
+  <rect x="40" y="880" width="1520" height="290" rx="14" fill="#1a2e1a" stroke="#4ade80" stroke-width="2"/>
+  <text x="800" y="912" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#86efac">Data Normalization Pipeline</text>
+
+  
+  <rect x="80" y="1050" width="1440" height="100" rx="8" fill="#111827" stroke="#334155"/>
+  <text x="100" y="1078" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#e2e8f0">Standardized Units:</text>
+  <text x="310" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Temperature: -&gt;C</text>
+  <text x="490" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Wind: km/h</text>
+  <text x="630" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Pressure: hPa</text>
+  <text x="810" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Visibility: km</text>
+  <text x="990" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Rain: mm/h</text>
+  <text x="1130" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Tide: m (chart datum)</text>
+  <text x="1360" y="1078" font-family="monospace" font-size="12" fill="#4ade80">Times: UTC</text>
+
+  <text x="100" y="1108" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#e2e8f0">Adapter Pattern:</text>
+  <text x="280" y="1108" font-family="monospace" font-size="12" fill="#94a3b8">abstract WeatherProviderAdapter -&gt; normalize(raw) -&gt; WeatherCondition</text>
+  <text x="100" y="1130" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#e2e8f0">Prefetch:</text>
+  <text x="220" y="1130" font-family="monospace" font-size="12" fill="#94a3b8">Celery beat -&gt; every 6h -&gt; fetch weather for all active trip locations -&gt; cache warm</text>
+</svg>

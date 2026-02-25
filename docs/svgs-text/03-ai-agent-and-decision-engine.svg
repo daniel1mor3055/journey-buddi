@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1600" viewBox="0 0 1800 1600">
+  <rect width="1800" height="1600" fill="#0b1220"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">03 - AI Agent and Decision Engine</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: how Buddi reasons, retrieves knowledge, calls tools, and produces trusted decisions.</text>
+
+  <rect x="40" y="120" width="1720" height="100" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="153" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">AI Is the Product Core</text>
+  <text x="60" y="180" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Planning, itinerary generation, briefings, swaps, and guidance are AI-mediated workflows with strict data grounding.</text>
+  <text x="60" y="203" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Without this layer, Journey Buddi degrades to static itinerary software.</text>
+
+  <rect x="40" y="245" width="560" height="620" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Agent Topology</text>
+  <text x="60" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Planning Agent</text>
+  <text x="75" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- structured conversation orchestration</text>
+  <text x="75" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- attraction/route recommendations</text>
+  <text x="75" y="374" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- itinerary draft generation + refinement</text>
+
+  <text x="60" y="410" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Live Companion Agent</text>
+  <text x="75" y="433" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- condition-aware briefing generation</text>
+  <text x="75" y="455" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- swap evaluation + explanation narrative</text>
+  <text x="75" y="477" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- in-trip assistance and timing/packing guidance</text>
+
+  <text x="60" y="513" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">General Chat Agent</text>
+  <text x="75" y="536" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- ad hoc destination and logistics questions</text>
+  <text x="75" y="558" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- change requests outside strict guided flows</text>
+
+  <text x="60" y="595" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Model Strategy</text>
+  <text x="75" y="618" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Primary: Gemini for reasoning + long context.</text>
+  <text x="75" y="640" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Fast tiers for lower-complexity high-frequency tasks (briefings/assessments).</text>
+  <text x="75" y="662" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Fallback model paths for resilience and quality experiments.</text>
+
+  <text x="60" y="698" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#86efac">Persona Contract</text>
+  <text x="75" y="721" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Buddi stays warm, specific, calm, and decisive without being pushy.</text>
+  <text x="75" y="743" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Same persona across planning, briefing, swap, and support contexts.</text>
+  <text x="75" y="765" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Tone scales with confidence: assertive when data is firm, conditional when uncertain.</text>
+
+  <rect x="620" y="245" width="560" height="620" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Decision Engine Domains</text>
+  <text x="640" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Attraction Selection Scoring (0-100)</text>
+  <text x="655" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- interest match 40%</text>
+  <text x="655" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- fitness compatibility 20%</text>
+  <text x="655" y="374" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- route fit (detour penalty) 20%</text>
+  <text x="655" y="396" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- budget fit 10%</text>
+  <text x="655" y="418" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- uniqueness bonus 10%</text>
+  <text x="655" y="440" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Decision bands: &gt;60 recommend, 40-60 optional, &lt;40 hidden unless requested.</text>
+
+  <text x="640" y="476" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Location/Provider Selection</text>
+  <text x="655" y="499" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Quality + route proximity + crowd + season + uniqueness trade-off model.</text>
+
+  <text x="640" y="535" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Route Optimization</text>
+  <text x="655" y="558" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Generate feasible route permutations, enforce hard constraints, rank by drive/backtracking/scenic/seasonal score.</text>
+
+  <text x="640" y="594" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Swap Evaluation</text>
+  <text x="655" y="617" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">swap_value = condition_improvement - displaced_impact - logistics_friction - user_disruption</text>
+  <text x="655" y="639" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Recommendation only when value exceeds calibrated threshold.</text>
+
+  <text x="640" y="675" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Packing + Timing Engines</text>
+  <text x="655" y="698" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Condition-to-item rules (temp/rain/wind/UV/activity duration).</text>
+  <text x="655" y="720" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Arrival optimization from crowd windows, golden hour, tide slots, heat avoidance.</text>
+  <text x="655" y="742" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Departure = optimal arrival - travel time - operational buffer.</text>
+
+  <text x="640" y="779" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Every major decision is logged with inputs, scores, confidence, and user response/outcome.</text>
+
+  <rect x="1200" y="245" width="560" height="620" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">RAG and Tool-Calling Pipeline</text>
+  <text x="1220" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Knowledge Categories</text>
+  <text x="1235" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- attraction definitions and condition profiles</text>
+  <text x="1235" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- pro tips (timing/viewpoints/preparation/safety)</text>
+  <text x="1235" y="374" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- stories/history/geology/culture context</text>
+  <text x="1235" y="396" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- area and transport knowledge blocks</text>
+
+  <text x="1220" y="432" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Retrieval Sequence</text>
+  <text x="1235" y="455" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">1) build query set from context (activity+conditions+user intent)</text>
+  <text x="1235" y="477" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">2) vector search top-K chunks + metadata filtering</text>
+  <text x="1235" y="499" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">3) deduplicate and threshold by relevance</text>
+  <text x="1235" y="521" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">4) inject into prompt as factual context</text>
+  <text x="1235" y="543" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">5) generate response constrained by schema/tone rules</text>
+
+  <text x="1220" y="579" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Tool Interface Examples</text>
+  <text x="1235" y="602" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">weather_forecast, tide_data, solar_data, route_calc, user_profile, itinerary_read/write.</text>
+  <text x="1235" y="624" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">These calls make Buddi grounded in real trip state rather than generic language-model memory.</text>
+
+  <text x="1220" y="660" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Freshness Rules</text>
+  <text x="1235" y="683" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Static knowledge (annual), semi-dynamic logistics (quarterly), real-time conditions (API pull).</text>
+  <text x="1235" y="705" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Unknown handling: explicit uncertainty, provide generalized fallback, log for KB enrichment.</text>
+
+  <text x="1220" y="742" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Safety + Quality Guardrails</text>
+  <text x="1235" y="765" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- no invented safety-critical facts</text>
+  <text x="1235" y="787" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- schema validation for structured output</text>
+  <text x="1235" y="809" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- confidence-tier communication policy</text>
+
+  <rect x="40" y="900" width="1720" height="650" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="932" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Implementation Blueprint for Engineers</text>
+  <text x="60" y="962" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">1) Build deterministic tool layer first (weather/tide/route/itinerary/profile I/O) with strict schemas.</text>
+  <text x="60" y="986" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">2) Add prompt templates per task (planning, briefing, swap, guidance) with clear constraints.</text>
+  <text x="60" y="1010" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">3) Implement RAG with metadata filters by destination/category/activity and robust query construction.</text>
+  <text x="60" y="1034" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">4) Add confidence scoring and tone adaptation to avoid overclaiming on long forecast horizons.</text>
+  <text x="60" y="1058" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">5) Log every recommendation path for replayability and post-trip learning loops.</text>
+
+  <text x="60" y="1095" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Failure Modes to Prevent</text>
+  <text x="60" y="1119" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Hallucinated local tips due to weak retrieval or missing confidence constraints.</text>
+  <text x="60" y="1141" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Tool-call race conditions causing stale itinerary context in swap recommendations.</text>
+  <text x="60" y="1163" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Overfitting to one model prompt style without fallback behavior validation.</text>
+  <text x="60" y="1185" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Decision opacity (no logs) making quality regressions impossible to diagnose.</text>
+
+  <text x="60" y="1222" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Operational KPIs for AI Quality</text>
+  <text x="60" y="1246" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Swap acceptance rate, briefing usefulness votes, recommendation override rate, hallucination incident count.</text>
+  <text x="60" y="1268" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Latency targets: first token speed for chat + predictable generation times for scheduled briefings.</text>
+  <text x="60" y="1305" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 04 - System Architecture and Runtime.</text>
+</svg>

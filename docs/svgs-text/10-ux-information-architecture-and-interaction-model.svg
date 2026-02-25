@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1450" viewBox="0 0 1800 1450">
+  <rect width="1800" height="1450" fill="#0f172a"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">10 - UX Information Architecture and Interaction Model</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: UX principles, screen responsibilities, information hierarchy, and emotional interaction goals.</text>
+
+  <rect x="40" y="120" width="1720" height="95" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">UX Mission</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Make complex adaptive planning feel like guidance from a trusted friend, not operation of a dense travel tool.</text>
+
+  <rect x="40" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Core Principles</text>
+  <text x="60" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">1) Conversation first, interface second</text>
+  <text x="60" y="326" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">2) Progressive complexity (simple summary -> optional depth)</text>
+  <text x="60" y="350" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">3) Glanceable then deep (3-second read path available everywhere)</text>
+  <text x="60" y="374" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">4) Mobile-first in-trip; desktop-rich pre-trip planning</text>
+  <text x="60" y="398" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">5) Calm design over urgency/noise</text>
+
+  <text x="60" y="436" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Visual + interaction language</text>
+  <text x="75" y="459" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">nature-inspired palette, generous spacing, subtle motion, no aggressive gamification loops.</text>
+  <text x="75" y="481" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">components should feel like a travel journal + control panel hybrid.</text>
+
+  <text x="60" y="519" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Anti-patterns to reject</text>
+  <text x="75" y="542" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">dashboard clutter, notification firehose, data-dump briefings, form-heavy planning friction.</text>
+
+  <rect x="620" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Screen Responsibility Map</text>
+  <text x="640" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Landing/Onboarding: value promise + low-friction auth entry.</text>
+  <text x="640" y="326" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Planning Chat: guided structured choice interaction with progress visibility.</text>
+  <text x="640" y="350" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Itinerary Dashboard: editable command center (cards, statuses, map links, reorder controls).</text>
+  <text x="640" y="374" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Day Detail: full operational detail for one day.</text>
+  <text x="640" y="398" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Daily Briefing: morning decision cockpit.</text>
+  <text x="640" y="422" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Activity Detail: prep/timing/safety/stories/deep context.</text>
+  <text x="640" y="446" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Swap Suggestion: before/after impact clarity + explicit accept/decline.</text>
+  <text x="640" y="470" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Map View: spatial awareness + condition-colored points.</text>
+  <text x="640" y="494" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Settings/Profile: notification timing, quiet hours, preference management.</text>
+
+  <text x="640" y="532" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#86efac">Interaction patterns</text>
+  <text x="655" y="555" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">chat pattern, expandable card pattern, notification deep-link pattern, map overlay pattern.</text>
+
+  <rect x="1200" y="240" width="560" height="560" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Information Hierarchy Contract</text>
+  <text x="1220" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Level 1 (always visible): day title, condition indicator, key time/action.</text>
+  <text x="1220" y="326" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Level 2 (one interaction): activity list, weather summary, packing preview.</text>
+  <text x="1220" y="350" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Level 3 (expanded): full guidance, pro tips, stories, detailed conditions.</text>
+  <text x="1220" y="374" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Level 4 (on demand): raw/extended data and map analytics.</text>
+
+  <text x="1220" y="412" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Behavioral objective</text>
+  <text x="1235" y="435" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">User should always know what to do next in under 3 seconds, with optional depth when curious.</text>
+
+  <text x="1220" y="473" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Mobile constraints to design for</text>
+  <text x="1235" y="496" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">outdoor readability, patchy connectivity, battery limits, large touch targets, quick-glance interactions.</text>
+  <text x="1235" y="518" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">PWA strategy bridges MVP before native app migration.</text>
+
+  <rect x="40" y="830" width="1720" height="580" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="862" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Emotional UX States Across Journey</text>
+  <text x="60" y="892" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Pre-trip: excitement + confidence -> progress indicators and crisp route framing.</text>
+  <text x="60" y="916" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Day-before departure: preparedness + calm -> checklists and reassuring summaries.</text>
+  <text x="60" y="940" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Good trip days: joy + discovery -> positive reinforcement and high-signal tips.</text>
+  <text x="60" y="964" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Challenging days: trust + adaptability -> clear alternatives with steady tone.</text>
+  <text x="60" y="988" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Post-trip: reflection + shareability -> memories/highlight exports.</text>
+
+  <text x="60" y="1025" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Quality failures that break user trust</text>
+  <text x="60" y="1049" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- mismatch between notification copy and in-app detail</text>
+  <text x="60" y="1071" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- too much required typing in planning flow</text>
+  <text x="60" y="1093" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- inability to quickly override AI recommendations</text>
+  <text x="60" y="1115" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- poor state continuity between chat, itinerary, map, and daily briefing screens</text>
+
+  <text x="60" y="1152" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Definition of "Great UX" for Journey Buddi</text>
+  <text x="60" y="1176" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Users feel in control, never overloaded, and continuously supported by context-aware expertise.</text>
+  <text x="60" y="1198" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">The interface disappears; the traveler experiences confident, calm decision-making throughout the trip lifecycle.</text>
+
+  <text x="60" y="1236" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">End of numbered SVG sequence. Re-read 03-07 when implementing backend systems.</text>
+</svg>

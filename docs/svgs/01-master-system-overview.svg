@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/></marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4ade80"/></marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/></marker>
+  </defs>
+  <rect width="1600" height="1100" rx="12" fill="#0f172a"/>
+  <text x="800" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#e2e8f0">01  -  Journey Buddi: Master System Overview</text>
+
+  
+  <rect x="520" y="80" width="560" height="100" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="800" y="115" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#93c5fd">CLIENT LAYER</text>
+  <rect x="545" y="130" width="150" height="36" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="620" y="154" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">Next.js PWA</text>
+  <rect x="715" y="130" width="150" height="36" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="790" y="154" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">Mapbox GL JS</text>
+  <rect x="885" y="130" width="170" height="36" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="970" y="154" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#e2e8f0">Zustand + React Query</text>
+
+  
+  <rect x="340" y="230" width="920" height="110" rx="14" fill="#1a2e1a" stroke="#4ade80" stroke-width="2"/>
+  <text x="800" y="262" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#86efac">API GATEWAY  -  FastAPI</text>
+  <rect x="365" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="415" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Auth</text>
+  <text x="415" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Magic Link</text>
+  <rect x="480" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="530" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Trips</text>
+  <text x="530" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">CRUD+State</text>
+  <rect x="595" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="645" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Chat</text>
+  <text x="645" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">WS Stream</text>
+  <rect x="710" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="760" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Itinerary</text>
+  <text x="760" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Gen+Adapt</text>
+  <rect x="825" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="875" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Conditions</text>
+  <text x="875" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Score+Alert</text>
+  <rect x="940" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="990" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Briefings</text>
+  <text x="990" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Generate</text>
+  <rect x="1055" y="278" width="100" height="48" rx="6" fill="#1e293b" stroke="#475569"/>
+  <text x="1105" y="300" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#e2e8f0">Swaps</text>
+  <text x="1105" y="316" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Eval+Apply</text>
+
+  
+  <rect x="80" y="400" width="1440" height="200" rx="14" fill="#2d1f3d" stroke="#a78bfa" stroke-width="2"/>
+  <text x="800" y="430" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#c4b5fd">SERVICE LAYER</text>
+
+  
+  <rect x="110" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="210" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">AI Agent Service</text>
+  <text x="210" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Planning Agent</text>
+  <text x="210" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Companion Agent</text>
+  <text x="210" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Chat Agent</text>
+  <text x="210" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Prompt Templates</text>
+  <text x="210" y="560" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fbbf24">Gemini / GPT / Claude</text>
+
+  <rect x="340" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="440" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Condition Service</text>
+  <text x="440" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Fetch + Normalize</text>
+  <text x="440" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache + TTL</text>
+  <text x="440" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Score vs Profile</text>
+  <text x="440" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Threshold Alerts</text>
+
+  <rect x="570" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="670" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Itinerary Service</text>
+  <text x="670" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Generate + Optimize</text>
+  <text x="670" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Adapt + Version</text>
+  <text x="670" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Swap Evaluation</text>
+  <text x="670" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Day CRUD</text>
+
+  <rect x="800" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="900" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Knowledge Service</text>
+  <text x="900" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">RAG Retrieval</text>
+  <text x="900" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Embeddings</text>
+  <text x="900" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Attraction Data</text>
+  <text x="900" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Pro Tips + Stories</text>
+
+  <rect x="1030" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="1130" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">External Data Svc</text>
+  <text x="1130" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Provider Adapters</text>
+  <text x="1130" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Rate Limiter</text>
+  <text x="1130" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Circuit Breaker</text>
+  <text x="1130" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Fallback Chains</text>
+
+  <rect x="1260" y="448" width="200" height="130" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="1360" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">Notification Svc</text>
+  <text x="1360" y="496" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Timezone Scheduling</text>
+  <text x="1360" y="512" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Push (Web Push API)</text>
+  <text x="1360" y="528" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Content Generation</text>
+  <text x="1360" y="544" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Delivery History</text>
+
+  
+  <rect x="80" y="660" width="1440" height="140" rx="14" fill="#1f2415" stroke="#fbbf24" stroke-width="2"/>
+  <text x="800" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#fde68a">DATA LAYER</text>
+
+  
+  <rect x="130" y="710" width="240" height="70" rx="12" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="250" y="740" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fde68a">PostgreSQL + PostGIS</text>
+  <text x="250" y="760" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Users, Trips, Itinerary, Briefings, Swaps</text>
+
+  <rect x="420" y="710" width="240" height="70" rx="12" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="540" y="740" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fde68a">Redis</text>
+  <text x="540" y="760" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Cache, Sessions, Rate Limits, Broker</text>
+
+  <rect x="710" y="710" width="240" height="70" rx="12" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="830" y="740" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fde68a">Vector Store</text>
+  <text x="830" y="760" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Chroma (MVP) / Pinecone (prod)</text>
+
+  <rect x="1000" y="710" width="240" height="70" rx="12" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="1120" y="740" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#fde68a">Celery Workers</text>
+  <text x="1120" y="760" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#94a3b8">Briefings, Monitoring, Notifications</text>
+
+  
+  <line x1="1130" y1="600" x2="1130" y2="850" stroke="#f87171" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="1130" y1="850" x2="1130" y2="870" stroke="#f87171" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="80" y="870" width="1440" height="180" rx="14" fill="#2d1515" stroke="#f87171" stroke-width="2"/>
+  <text x="800" y="900" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#fca5a5">EXTERNAL API PROVIDERS</text>
+
+  <rect x="110" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="200" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">Weather</text>
+  <text x="200" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">OWM / Open-Meteo / WeatherAPI</text>
+  <rect x="310" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="400" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">Tides</text>
+  <text x="400" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">WorldTides / NIWA</text>
+  <rect x="510" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="600" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">Solar / Aurora</text>
+  <text x="600" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">sunrise-sunset / NOAA / OpenUV</text>
+  <rect x="710" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="800" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">Maps / Routing</text>
+  <text x="800" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Mapbox / OSRM / Overpass</text>
+  <rect x="910" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="1000" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">Wildlife / Safety</text>
+  <text x="1000" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">iNaturalist / DOC / GeoNet</text>
+  <rect x="1110" y="918" width="180" height="55" rx="8" fill="#1e293b" stroke="#ef4444"/>
+  <text x="1200" y="942" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="600" fill="#fca5a5">LLM Providers</text>
+  <text x="1200" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Gemini / OpenAI / Anthropic</text>
+
+  
+  <path d="M 200 918 L 200 860 Q 200 848 212 848 L 440 616" stroke="#f87171" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <path d="M 1200 918 L 1200 860 Q 1200 848 1188 848 L 1130 616" stroke="#f87171" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+
+  
+  <rect x="1310" y="990" width="200" height="56" rx="10" fill="#111827" stroke="#475569"/>
+  <text x="1410" y="1014" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#86efac">MVP Deployment</text>
+  <text x="1410" y="1034" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Railway (all-in-one)</text>
+
+  
+  <rect x="80" y="1058" width="16" height="16" rx="3" fill="#3b82f6"/><text x="104" y="1072" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Client</text>
+  <rect x="180" y="1058" width="16" height="16" rx="3" fill="#4ade80"/><text x="204" y="1072" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">API Gateway</text>
+  <rect x="310" y="1058" width="16" height="16" rx="3" fill="#a78bfa"/><text x="334" y="1072" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Services</text>
+  <rect x="420" y="1058" width="16" height="16" rx="3" fill="#fbbf24"/><text x="444" y="1072" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">Data Stores</text>
+  <rect x="540" y="1058" width="16" height="16" rx="3" fill="#f87171"/><text x="564" y="1072" font-family="Arial,sans-serif" font-size="12" fill="#94a3b8">External APIs</text>
+</svg>

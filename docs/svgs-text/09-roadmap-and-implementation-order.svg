@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1450" viewBox="0 0 1800 1450">
+  <rect width="1800" height="1450" fill="#0b1220"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">09 - Roadmap and Implementation Order</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: phased delivery plan, done criteria, and execution risks for a two-person team.</text>
+
+  <rect x="40" y="120" width="1720" height="95" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Roadmap Philosophy</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Build minimum proof of core value first: AI planning + adaptive live companion. Delay non-core polish until value is real.</text>
+
+  <rect x="40" y="240" width="560" height="760" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Phase 1 (Weeks 1-3): Foundation</text>
+  <text x="60" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Build substrate:</text>
+  <text x="75" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">project scaffolding, CI/CD baseline, DB schema, auth, basic FE shell, deployment path.</text>
+  <text x="60" y="361" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Definition of done:</text>
+  <text x="75" y="384" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">user can authenticate, reach dashboard, and use starter chat surface against live backend.</text>
+
+  <text x="60" y="426" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Phase 2 (Weeks 4-8): Planning AI</text>
+  <text x="60" y="456" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Build planning loop:</text>
+  <text x="75" y="479" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">structured conversation, attraction curation, route building, itinerary generation, editable review UX.</text>
+  <text x="60" y="515" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Definition of done:</text>
+  <text x="75" y="538" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">complete NZ planning conversation yields persisted day-by-day itinerary that users can inspect/edit.</text>
+
+  <text x="60" y="580" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Phase 3 (Weeks 9-14): Live Companion</text>
+  <text x="60" y="610" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Build adaptation engine:</text>
+  <text x="75" y="633" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">condition integrations, scoring, briefings, notifications, swap evaluation + acceptance flow.</text>
+  <text x="60" y="669" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Definition of done:</text>
+  <text x="75" y="692" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">active trip receives reliable daily briefings and meaningful swap proposals based on real conditions.</text>
+
+  <text x="60" y="734" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Phase 4 (Weeks 15-18): Polish + Launch</text>
+  <text x="60" y="764" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">stability tuning, UX polish, onboarding quality, performance hardening, soft launch execution.</text>
+  <text x="60" y="800" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Definition of done: cohesive end-to-end user journey is demo-worthy and robust for real testers.</text>
+
+  <rect x="620" y="240" width="560" height="760" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#bfdbfe">Implementation Dependency Order</text>
+  <text x="640" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Priority path for maximal learning speed:</text>
+  <text x="655" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">1) Auth + trip persistence + itinerary schema</text>
+  <text x="655" y="347" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">2) Planning conversation orchestration with structured selections</text>
+  <text x="655" y="369" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">3) Route/itinerary generation engine + interactive dashboard</text>
+  <text x="655" y="391" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">4) Condition ingestion + scoring + forecast confidence model</text>
+  <text x="655" y="413" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">5) Morning briefing generator + push delivery</text>
+  <text x="655" y="435" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">6) Swap engine + acceptance/decline state transitions</text>
+  <text x="655" y="457" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">7) Fine-grained guidance, hidden gems, storytelling refinements</text>
+
+  <text x="640" y="495" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Risk Mitigation Plan</text>
+  <text x="655" y="518" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">AI quality risk -> start strongest model on critical tasks; optimize later.</text>
+  <text x="655" y="540" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">API cost risk -> use free/fallback providers + aggressive caching from day one.</text>
+  <text x="655" y="562" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">scope creep risk -> phase gates with strict done definitions.</text>
+  <text x="655" y="584" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">team capacity risk -> prioritize features that validate core hypothesis first.</text>
+
+  <text x="640" y="622" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">What Not To Build Early</text>
+  <text x="655" y="645" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- broad multi-destination expansion before NZ quality is proven</text>
+  <text x="655" y="667" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- deep marketplace/affiliate complexity before companion loop works</text>
+  <text x="655" y="689" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- advanced social features before planning/adaptation retention is validated</text>
+
+  <rect x="1200" y="240" width="560" height="760" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="272" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Success Metrics and Gates</text>
+  <text x="1220" y="302" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">MVP gate (end of Phase 4)</text>
+  <text x="1235" y="325" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">test users complete full planning + companion workflow with clear perceived uplift vs baseline tools.</text>
+  <text x="1235" y="347" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">at least one verified high-value swap event captured with positive user outcome.</text>
+
+  <text x="1220" y="383" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Growth gate (Phase 5+)</text>
+  <text x="1235" y="406" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">increasing monthly itinerary count, strong swap acceptance, briefing satisfaction, readiness for second destination.</text>
+
+  <text x="1220" y="444" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Execution Cadence</text>
+  <text x="1235" y="467" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">weekly goals mapped to phase scope, with explicit "defer" decisions for non-core asks.</text>
+  <text x="1235" y="489" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">end-of-week demos must show user-visible progress, not only backend plumbing.</text>
+
+  <text x="1220" y="527" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Failure signals to watch early</text>
+  <text x="1235" y="550" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">users abandon planning flow mid-way, low trust in swaps, generic briefings, poor editability of itinerary.</text>
+
+  <text x="1220" y="588" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#c4b5fd">Phase 5 direction</text>
+  <text x="1235" y="611" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">new destinations, mobile app track, revenue features (premium/B2B/affiliate), advanced intelligence upgrades.</text>
+
+  <rect x="40" y="1030" width="1720" height="370" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="1062" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fcd34d">Practical Build Advice for This Repo</text>
+  <text x="60" y="1092" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Treat each phase boundary as a production-quality API and data contract checkpoint.</text>
+  <text x="60" y="1116" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">When time is tight, prioritize end-to-end thin slices over isolated subsystem perfection.</text>
+  <text x="60" y="1140" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Track explicit "why deferred" decisions to avoid stealth scope growth.</text>
+  <text x="60" y="1177" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 10 - UX Information Architecture.</text>
+</svg>

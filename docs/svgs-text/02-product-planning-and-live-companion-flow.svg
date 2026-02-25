@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1600" viewBox="0 0 1800 1600">
+  <rect width="1800" height="1600" fill="#0f172a"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">02 - Product Flow: Planning and Live Companion</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: end-user product behavior, phase transitions, and operational rules Buddi follows.</text>
+
+  <rect x="40" y="120" width="1720" height="90" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">North Star Product Behavior</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Users do not "configure a travel app"; they collaborate with Buddi in conversation to build and continuously improve a trip.</text>
+
+  <rect x="40" y="235" width="840" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="267" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Phase A - Pre-Trip Planning Flow (10 steps)</text>
+  <text x="60" y="297" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">01) Quick profile (adventure, fitness, pace, interests, budget, group, max driving).</text>
+  <text x="60" y="321" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">02) Destination + dates + entry/exit + flight context + seasonal intelligence framing.</text>
+  <text x="60" y="345" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">03) Must-dos and must-not-dos become hard constraints and filters.</text>
+  <text x="60" y="369" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">04) Interest exploration via concrete curated options, not blank questions.</text>
+  <text x="60" y="393" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">05) Attraction curation with nationwide provider comparison and diversification logic.</text>
+  <text x="60" y="417" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">06) Route skeleton: geographic clusters, direction choice, ferry bottlenecks, detour trade-offs.</text>
+  <text x="60" y="441" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">07) Transport layer: multi-modal recommendations by segment (car/campervan/ferry/flight/bus).</text>
+  <text x="60" y="465" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">08) Pace and duration calibration with explicit trade-off options if days are constrained.</text>
+  <text x="60" y="489" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">09) Itinerary assembly as interactive dashboard (not chat dump) with editable day cards.</text>
+  <text x="60" y="513" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">10) Review/refine loop: reorder, add/remove, lock day, re-validate, then confirm.</text>
+
+  <text x="60" y="552" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Planning Design Rules</text>
+  <text x="60" y="576" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Conversation-first, structured choices, optional free text, and "you decide" autonomy path.</text>
+  <text x="60" y="598" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- User constraints are sacred: must-do/must-not-do and locked days always respected.</text>
+  <text x="60" y="620" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- 80-90% of initial plan can be AI-generated; user acts as director/editor.</text>
+  <text x="60" y="642" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Route quality targets: low backtracking, no impossible drives, balanced activity intensity.</text>
+  <text x="60" y="664" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Itinerary intelligence includes flex days, weather-sensitive distribution, and drive-time realism.</text>
+  <text x="60" y="686" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Dashboard cards include booking status, tightness score, conditions, transport, accommodation, maps.</text>
+
+  <text x="60" y="724" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#86efac">Output Contract at Confirmation</text>
+  <text x="60" y="748" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Trip status moves from planning to confirmed; monitoring warm-up starts; pre-departure guidance begins.</text>
+  <text x="60" y="770" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">This handoff state is what activates operational companion workflows downstream.</text>
+
+  <rect x="920" y="235" width="840" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="940" y="267" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fda4af">Phase B - Live Companion Operational Rhythm</text>
+  <text x="940" y="297" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Activation timeline:</text>
+  <text x="955" y="321" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">T-3 days: forecast monitoring starts.</text>
+  <text x="955" y="343" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">T-1 day: pre-departure briefing and first-day prep.</text>
+  <text x="955" y="365" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">T-0 onward: full companion mode active.</text>
+
+  <text x="940" y="401" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Daily cadence:</text>
+  <text x="955" y="425" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Evening preview (configurable): tomorrow summary, packing prep, departure hint.</text>
+  <text x="955" y="447" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Morning briefing (core touchpoint): scores, timing, packing, hidden gems, swap suggestion if needed.</text>
+  <text x="955" y="469" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">During-day live updates: meaningful changes only; no notification spam.</text>
+  <text x="955" y="491" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Evening wrap: recap + next-day adjustment context.</text>
+
+  <text x="940" y="527" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Condition Evaluation Semantics</text>
+  <text x="955" y="551" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">EXCELLENT / GOOD / FAIR / POOR / UNSAFE with activity-specific factor weighting.</text>
+  <text x="955" y="573" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Different activity classes look at different variables (hiking wind chill vs kayaking sea state).</text>
+  <text x="955" y="595" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Forecast confidence degrades with horizon, changing how forcefully Buddi recommends changes.</text>
+
+  <text x="940" y="631" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Swap Suggestion Gatekeeping</text>
+  <text x="955" y="655" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Suggest only when: meaningful gain + feasible logistics + clear narrative + user pattern-respecting behavior.</text>
+  <text x="955" y="677" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Never suggest on trivial deltas, locked-day conflicts, or where no better window exists.</text>
+  <text x="955" y="699" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Decision thresholds (example): strong recommendation when improvement &gt;70 and disruption &lt;40.</text>
+  <text x="955" y="721" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Responses: accept -> apply and regenerate affected outputs; decline -> record preference and continue.</text>
+  <text x="955" y="743" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Lookahead spans 3-5 days to capture weather windows, not just day-of-local optimum.</text>
+
+  <text x="940" y="779" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Safety layer is non-negotiable: severe weather/closure/emergency info bypasses convenience logic.</text>
+
+  <rect x="40" y="895" width="1720" height="650" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="927" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Feature Matrix by Lifecycle (Operational Ownership View)</text>
+  <text x="60" y="957" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Planning-heavy features: onboarding profile, itinerary building, transport design, review/refine dashboard.</text>
+  <text x="60" y="981" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Companion-heavy features: daily briefings, condition monitoring, adaptive swaps, activity guidance, alerts.</text>
+  <text x="60" y="1005" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Cross-cutting features: chat with Buddi, map integration, account persistence, notifications, storytelling.</text>
+
+  <text x="60" y="1042" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#86efac">Implementation Priorities (Product Reality)</text>
+  <text x="60" y="1066" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">MVP-defining: planning conversation, itinerary generation, interactive dashboard, account/auth, map baseline.</text>
+  <text x="60" y="1088" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">V1.1-defining: daily briefings, condition engine, adaptation logic, push notifications, deep guidance.</text>
+  <text x="60" y="1110" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">V2 candidates: richer marketplace, advanced audio companion, broader social/post-trip loops.</text>
+
+  <text x="60" y="1147" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Critical Product Risks if Implemented Poorly</text>
+  <text x="60" y="1171" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Over-chatty, low-value swap recommendations destroy trust.</text>
+  <text x="60" y="1193" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Generic guidance (non-specific tips) breaks the "expert companion" promise.</text>
+  <text x="60" y="1215" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Weak route realism (excessive driving/backtracking) makes plans feel fake.</text>
+  <text x="60" y="1237" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- UI that behaves like static text instead of editable control plane limits adoption.</text>
+  <text x="60" y="1259" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- Ignoring confidence horizons causes brittle over-optimization and wrong certainty tone.</text>
+
+  <text x="60" y="1298" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Success Signals</text>
+  <text x="60" y="1322" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Users should feel: "Buddi saved us from bad timing and made every day easier, richer, and less stressful."</text>
+  <text x="60" y="1344" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Operational KPIs: acceptance of high-value swaps, briefing engagement, edit-completion velocity, satisfaction after trip.</text>
+  <text x="60" y="1380" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 03 - AI Agent and Decision Engine.</text>
+</svg>

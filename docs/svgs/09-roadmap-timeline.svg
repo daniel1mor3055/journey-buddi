@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="1600" height="1100" rx="12" fill="#0f172a"/>
+  <text x="800" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#e2e8f0">09  -  Roadmap + Implementation Timeline</text>
+
+  
+  <line x1="100" y1="100" x2="1500" y2="100" stroke="#334155" stroke-width="4"/>
+  <circle cx="200" cy="100" r="12" fill="#3b82f6"/><text x="200" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#93c5fd">Phase 1</text>
+  <circle cx="500" cy="100" r="12" fill="#4ade80"/><text x="500" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#86efac">Phase 2</text>
+  <circle cx="800" cy="100" r="12" fill="#a78bfa"/><text x="800" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#c4b5fd">Phase 3</text>
+  <circle cx="1100" cy="100" r="12" fill="#f59e0b"/><text x="1100" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#fde68a">Phase 4</text>
+  <circle cx="1400" cy="100" r="12" fill="#f87171"/><text x="1400" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#fca5a5">Phase 5</text>
+
+  
+  <rect x="60" y="130" width="280" height="530" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="60" y="130" width="280" height="44" rx="12" fill="#1e3a5f"/>
+  <text x="200" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#93c5fd">Phase 1: Foundation</text>
+  <text x="200" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#60a5fa">6-8 weeks</text>
+
+  <rect x="80" y="190" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="209" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Backend scaffold (FastAPI)</text>
+  <rect x="80" y="224" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="243" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Database + Alembic setup</text>
+  <rect x="80" y="258" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="277" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Auth (magic link + JWT)</text>
+  <rect x="80" y="292" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="311" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">User profile + preferences</text>
+  <rect x="80" y="326" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="345" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Trip CRUD + state machine</text>
+  <rect x="80" y="360" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="379" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Frontend scaffold (Next.js)</text>
+  <rect x="80" y="394" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="413" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Chat UI + WebSocket</text>
+  <rect x="80" y="428" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="447" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Basic LLM integration</text>
+  <rect x="80" y="462" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="481" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Docker Compose local dev</text>
+  <rect x="80" y="496" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="515" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">CI/CD pipeline</text>
+  <rect x="80" y="530" width="240" height="28" rx="4" fill="#172554" stroke="#3b82f6"/><text x="90" y="549" font-family="Arial,sans-serif" font-size="11" fill="#93c5fd">Railway deployment</text>
+
+  <rect x="80" y="574" width="240" height="70" rx="6" fill="#111827" stroke="#3b82f6"/>
+  <text x="200" y="596" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#93c5fd">Done When:</text>
+  <text x="200" y="614" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">User signs in, creates trip,</text>
+  <text x="200" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">chats with LLM, sees response</text>
+
+  
+  <rect x="360" y="130" width="280" height="530" rx="12" fill="#1e293b" stroke="#4ade80" stroke-width="2"/>
+  <rect x="360" y="130" width="280" height="44" rx="12" fill="#14532d"/>
+  <text x="500" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#86efac">Phase 2: Planning AI</text>
+  <text x="500" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#4ade80">6-8 weeks</text>
+
+  <rect x="380" y="190" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="209" font-family="Arial,sans-serif" font-size="11" fill="#86efac">NZ knowledge base seed</text>
+  <rect x="380" y="224" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="243" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Vector store (Chroma)</text>
+  <rect x="380" y="258" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="277" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Planning agent + prompts</text>
+  <rect x="380" y="292" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="311" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Preference gathering flow</text>
+  <rect x="380" y="326" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="345" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Itinerary generation</text>
+  <rect x="380" y="360" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="379" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Route optimization</text>
+  <rect x="380" y="394" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="413" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Weather API integration</text>
+  <rect x="380" y="428" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="447" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Interactive dashboard UI</text>
+  <rect x="380" y="462" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="481" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Map integration (Mapbox)</text>
+  <rect x="380" y="496" width="240" height="28" rx="4" fill="#14532d" stroke="#4ade80"/><text x="390" y="515" font-family="Arial,sans-serif" font-size="11" fill="#86efac">Itinerary refinement loop</text>
+
+  <rect x="380" y="574" width="240" height="70" rx="6" fill="#111827" stroke="#4ade80"/>
+  <text x="500" y="596" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#86efac">Done When:</text>
+  <text x="500" y="614" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">User converses, gets personalized</text>
+  <text x="500" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">NZ itinerary, refines it, views on map</text>
+
+  
+  <rect x="660" y="130" width="280" height="530" rx="12" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <rect x="660" y="130" width="280" height="44" rx="12" fill="#2d1f3d"/>
+  <text x="800" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#c4b5fd">Phase 3: Live Companion</text>
+  <text x="800" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#a78bfa">8-10 weeks</text>
+
+  <rect x="680" y="190" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="209" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Celery + Redis workers</text>
+  <rect x="680" y="224" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="243" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Condition monitoring loop</text>
+  <rect x="680" y="258" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="277" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Condition scoring engine</text>
+  <rect x="680" y="292" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="311" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Daily briefing generation</text>
+  <rect x="680" y="326" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="345" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Swap evaluation engine</text>
+  <rect x="680" y="360" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="379" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Companion agent prompts</text>
+  <rect x="680" y="394" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="413" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Push notifications</text>
+  <rect x="680" y="428" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="447" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Tides + Solar APIs</text>
+  <rect x="680" y="462" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="481" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Circuit breaker + fallback</text>
+  <rect x="680" y="496" width="240" height="28" rx="4" fill="#2d1f3d" stroke="#a78bfa"/><text x="690" y="515" font-family="Arial,sans-serif" font-size="11" fill="#c4b5fd">Activity guidance UI</text>
+
+  <rect x="680" y="574" width="240" height="70" rx="6" fill="#111827" stroke="#a78bfa"/>
+  <text x="800" y="596" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#c4b5fd">Done When:</text>
+  <text x="800" y="614" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Active trip gets briefings, alerts,</text>
+  <text x="800" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">swap suggestions, condition badges</text>
+
+  
+  <rect x="960" y="130" width="280" height="530" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="960" y="130" width="280" height="44" rx="12" fill="#422006"/>
+  <text x="1100" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fde68a">Phase 4: Polish + Launch</text>
+  <text x="1100" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#f59e0b">4-6 weeks</text>
+
+  <rect x="980" y="190" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="209" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Performance optimization</text>
+  <rect x="980" y="224" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="243" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">PWA install + offline</text>
+  <rect x="980" y="258" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="277" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Error handling polish</text>
+  <rect x="980" y="292" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="311" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">UI/UX refinement</text>
+  <rect x="980" y="326" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="345" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Beta testing (10-20 users)</text>
+  <rect x="980" y="360" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="379" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Analytics + monitoring</text>
+  <rect x="980" y="394" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="413" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Cost optimization</text>
+  <rect x="980" y="428" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="447" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Security audit</text>
+  <rect x="980" y="462" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="481" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Landing page</text>
+  <rect x="980" y="496" width="240" height="28" rx="4" fill="#422006" stroke="#f59e0b"/><text x="990" y="515" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Public launch</text>
+
+  <rect x="980" y="574" width="240" height="70" rx="6" fill="#111827" stroke="#f59e0b"/>
+  <text x="1100" y="596" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#fde68a">Done When:</text>
+  <text x="1100" y="614" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">App is stable, performant,</text>
+  <text x="1100" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">public beta live for NZ trips</text>
+
+  
+  <rect x="1260" y="130" width="300" height="530" rx="12" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+  <rect x="1260" y="130" width="300" height="44" rx="12" fill="#2d1515"/>
+  <text x="1410" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fca5a5">Phase 5: Growth</text>
+  <text x="1410" y="168" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#f87171">Ongoing</text>
+
+  <rect x="1280" y="190" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="209" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">New destinations (Iceland...)</text>
+  <rect x="1280" y="224" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="243" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Mobile native app</text>
+  <rect x="1280" y="258" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="277" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Audio companion</text>
+  <rect x="1280" y="292" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="311" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Provider marketplace</text>
+  <rect x="1280" y="326" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="345" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Social features</text>
+  <rect x="1280" y="360" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="379" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Accommodation booking</text>
+  <rect x="1280" y="394" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="413" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Multi-language support</text>
+  <rect x="1280" y="428" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="447" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">B2B white-label</text>
+  <rect x="1280" y="462" width="260" height="28" rx="4" fill="#2d1515" stroke="#f87171"/><text x="1290" y="481" font-family="Arial,sans-serif" font-size="11" fill="#fca5a5">Post-trip memories</text>
+
+  <rect x="1280" y="574" width="260" height="70" rx="6" fill="#111827" stroke="#f87171"/>
+  <text x="1410" y="596" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#fca5a5">Done When:</text>
+  <text x="1410" y="614" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Revenue-generating, multi-dest,</text>
+  <text x="1410" y="630" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">sustainable growth metrics</text>
+
+  
+  <line x1="340" y1="400" x2="360" y2="400" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+  <line x1="640" y1="400" x2="660" y2="400" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+  <line x1="940" y1="400" x2="960" y2="400" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+  <line x1="1240" y1="400" x2="1260" y2="400" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+
+  
+  <rect x="60" y="690" width="1500" height="120" rx="14" fill="#111827" stroke="#ef4444" stroke-width="2"/>
+  <text x="800" y="720" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#fca5a5">Key Risks + Mitigations</text>
+
+  <rect x="90" y="735" width="280" height="55" rx="6" fill="#1e293b" stroke="#ef4444"/>
+  <text x="230" y="757" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">LLM Cost Explosion</text>
+  <text x="230" y="777" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Mitigate: Flash for simple, cache results</text>
+
+  <rect x="395" y="735" width="280" height="55" rx="6" fill="#1e293b" stroke="#ef4444"/>
+  <text x="535" y="757" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">API Rate Limit Exhaustion</text>
+  <text x="535" y="777" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Mitigate: Fallback chains, prefetch</text>
+
+  <rect x="700" y="735" width="280" height="55" rx="6" fill="#1e293b" stroke="#ef4444"/>
+  <text x="840" y="757" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">Bad Swap Suggestions</text>
+  <text x="840" y="777" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Mitigate: High threshold, user control</text>
+
+  <rect x="1005" y="735" width="280" height="55" rx="6" fill="#1e293b" stroke="#ef4444"/>
+  <text x="1145" y="757" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">Scope Creep</text>
+  <text x="1145" y="777" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8">Mitigate: NZ-only pilot, strict phases</text>
+
+  
+  <rect x="60" y="830" width="1500" height="90" rx="14" fill="#1e293b" stroke="#fbbf24"/>
+  <text x="800" y="860" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#fde68a">Do NOT Build Early</text>
+  <rect x="90" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="180" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Mobile native app</text>
+  <rect x="290" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="380" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Accommodation book</text>
+  <rect x="490" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="580" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Payment system</text>
+  <rect x="690" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="780" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Multi-destination</text>
+  <rect x="890" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="980" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Social features</text>
+  <rect x="1090" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="1180" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Admin panel</text>
+  <rect x="1290" y="875" width="180" height="30" rx="4" fill="#422006" stroke="#f59e0b"/><text x="1380" y="895" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#fde68a">Offline mode</text>
+
+  
+  <rect x="60" y="940" width="1500" height="130" rx="14" fill="#111827" stroke="#475569"/>
+  <text x="800" y="975" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#e2e8f0">Estimated Timeline to Public Launch</text>
+
+  <rect x="200" y="995" width="200" height="50" rx="8" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="300" y="1025" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#93c5fd">6-8 weeks</text>
+  <line x1="400" y1="1020" x2="450" y2="1020" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+
+  <rect x="455" y="995" width="200" height="50" rx="8" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+  <text x="555" y="1025" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">6-8 weeks</text>
+  <line x1="655" y1="1020" x2="705" y2="1020" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+
+  <rect x="710" y="995" width="200" height="50" rx="8" fill="#2d1f3d" stroke="#a78bfa" stroke-width="2"/>
+  <text x="810" y="1025" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#c4b5fd">8-10 weeks</text>
+  <line x1="910" y1="1020" x2="960" y2="1020" stroke="#fbbf24" stroke-width="3" marker-end="url(#a)"/>
+
+  <rect x="965" y="995" width="200" height="50" rx="8" fill="#422006" stroke="#f59e0b" stroke-width="2"/>
+  <text x="1065" y="1025" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#fde68a">4-6 weeks</text>
+
+  <rect x="1200" y="1000" width="200" height="40" rx="20" fill="#166534" stroke="#4ade80" stroke-width="2"/>
+  <text x="1300" y="1026" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#86efac">~24-32 weeks</text>
+
+  <text x="800" y="1060" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#94a3b8">Solo developer estimate  |  Phases can overlap by 1-2 weeks</text>
+</svg>

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1550" viewBox="0 0 1800 1550">
+  <rect width="1800" height="1550" fill="#0b1220"/>
+  <text x="40" y="55" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">07 - External Integrations, Caching, and Fallbacks</text>
+  <text x="40" y="88" font-family="Arial, sans-serif" font-size="17" fill="#93c5fd">What this covers: provider inventory, normalization, resilience mechanics, and cost posture.</text>
+
+  <rect x="40" y="120" width="1720" height="100" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="152" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#a7f3d0">Integration Goal</text>
+  <text x="60" y="179" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Turn heterogeneous third-party APIs into reliable canonical condition signals that Buddi can reason on safely.</text>
+  <text x="60" y="202" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Core pattern: provider adapters + rate budgets + circuit breakers + fallback chain + stale-data policy.</text>
+
+  <rect x="40" y="245" width="560" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fde68a">Provider Inventory (by domain)</text>
+  <text x="60" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Weather</text>
+  <text x="75" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Primary: OpenWeatherMap One Call 3.0</text>
+  <text x="75" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Fallback: Open-Meteo; Secondary/Marine enrichment: WeatherAPI</text>
+  <text x="60" y="388" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Tides</text>
+  <text x="75" y="411" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Primary global: WorldTides; NZ high-accuracy supplement: NIWA</text>
+  <text x="60" y="447" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Solar/Celestial/Aurora</text>
+  <text x="75" y="470" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">sunrise-sunset.org, NOAA SWPC (Kp), Astronomy sources, OpenUV</text>
+  <text x="60" y="506" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Maps/Routing/POI</text>
+  <text x="75" y="529" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Mapbox (primary), OSRM fallback, Overpass OSM primary POI, Google Places enrichment.</text>
+  <text x="60" y="565" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Wildlife + local signals</text>
+  <text x="75" y="588" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">iNaturalist + DOC/MetService/GeoNet style official feeds for domain-critical updates.</text>
+
+  <text x="60" y="625" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Why this mix works</text>
+  <text x="75" y="648" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Coverage breadth + free-tier viability at MVP + paid scale path when load increases.</text>
+  <text x="75" y="670" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Vendor diversity reduces single-provider outage risk.</text>
+
+  <rect x="620" y="245" width="560" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="640" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#c4b5fd">Normalization and Canonical Schemas</text>
+  <text x="640" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Adapters map provider-specific fields into canonical models:</text>
+  <text x="655" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">WeatherCondition (temp, feels_like, humidity, pressure, wind, precip, UV, visibility, icon)</text>
+  <text x="655" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">TideCondition/TideEvent (high/low, heights, station metadata, datum)</text>
+  <text x="655" y="374" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">SolarCondition (sunrise/sunset, golden hours, moon phase, Kp probability)</text>
+
+  <text x="640" y="410" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Unit standardization examples</text>
+  <text x="655" y="433" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">m/s->km/h, miles->km, feet->meters, Fahrenheit->Celsius, UTC ISO timestamps.</text>
+
+  <text x="640" y="469" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Forecast confidence by horizon</text>
+  <text x="655" y="492" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">0-24h high confidence, 24-72h moderate, 4-7 days trend-level only.</text>
+  <text x="655" y="514" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">This confidence directly tunes swap aggressiveness and phrasing certainty.</text>
+
+  <text x="640" y="550" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Caching tiers</text>
+  <text x="655" y="573" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">L1 in-memory hot cache, L2 Redis operational cache, L3 Postgres historical archive.</text>
+  <text x="655" y="595" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Location rounding improves hit rate while preserving practical spatial accuracy.</text>
+
+  <text x="640" y="631" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Prefetch behavior</text>
+  <text x="655" y="654" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Active-trip windows are proactively warmed so briefing generation avoids cold-start latency.</text>
+
+  <rect x="1200" y="245" width="560" height="630" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="1220" y="277" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fca5a5">Resilience and Cost Governance</text>
+  <text x="1220" y="307" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Rate budgets</text>
+  <text x="1235" y="330" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">per-provider minute/day limits in Redis sliding windows + burst allowances.</text>
+  <text x="1235" y="352" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">fallback provider consumption when primary quotas are exhausted.</text>
+
+  <text x="1220" y="388" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Circuit breaker states</text>
+  <text x="1235" y="411" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">CLOSED normal, OPEN failover, HALF_OPEN probe recovery after timeout.</text>
+
+  <text x="1220" y="447" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Fallback chains (examples)</text>
+  <text x="1235" y="470" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Weather: OWM -> Open-Meteo -> WeatherAPI -> stale cache (flagged).</text>
+  <text x="1235" y="492" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Tides: WorldTides -> NIWA (NZ context-specific priority rules) -> stale cache (flagged).</text>
+  <text x="1235" y="514" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Routing: Mapbox -> OSRM -> straight-line estimate fallback.</text>
+
+  <text x="1220" y="550" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Stale-data policy</text>
+  <text x="1235" y="573" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">if all providers fail: serve last good snapshot with explicit stale flag and caveated user messaging.</text>
+  <text x="1235" y="595" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">hard upper age warnings for weather/tide prevent silent bad guidance.</text>
+
+  <text x="1220" y="631" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">Cost posture</text>
+  <text x="1235" y="654" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">MVP expected near free-tier boundaries; at scale, map/places enrichment can dominate costs.</text>
+
+  <rect x="40" y="905" width="1720" height="610" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="60" y="937" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#86efac">Integration Implementation Sequence</text>
+  <text x="60" y="967" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">1) Build canonical schemas and adapter interfaces first.</text>
+  <text x="60" y="991" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">2) Implement primary providers + robust validation and retries.</text>
+  <text x="60" y="1015" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">3) Layer Redis rate-limiter + circuit-breaker control plane.</text>
+  <text x="60" y="1039" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">4) Add fallback adapters and stale-mode user messaging path.</text>
+  <text x="60" y="1063" font-family="Arial, sans-serif" font-size="16" fill="#e5e7eb">5) Add prefetch jobs and freshness metrics for operational confidence.</text>
+
+  <text x="60" y="1100" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#fcd34d">Monitoring Metrics That Matter</text>
+  <text x="60" y="1124" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">provider success rate, breaker state changes, fallback usage %, stale serve rate, cache hit %, normalized-data validation failures.</text>
+  <text x="60" y="1146" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">Business impact metric: missed or wrong condition calls that would have changed trip recommendations.</text>
+
+  <text x="60" y="1183" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#bfdbfe">Engineering Risk Notes</text>
+  <text x="60" y="1207" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- inconsistent provider timezones can silently break day-level planning if not normalized at ingestion.</text>
+  <text x="60" y="1229" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- absent schema checks allow malformed fallback responses to poison cache and downstream scoring.</text>
+  <text x="60" y="1251" font-family="Arial, sans-serif" font-size="15" fill="#cbd5e1">- no cache partitioning by data type/horizon causes accidental over/under freshness semantics.</text>
+
+  <text x="60" y="1289" font-family="Arial, sans-serif" font-size="15" fill="#93c5fd">Next recommended read: 08 - NZ Pilot Domain Intelligence.</text>
+</svg>
