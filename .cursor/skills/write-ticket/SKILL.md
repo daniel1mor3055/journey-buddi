@@ -1,11 +1,11 @@
 ---
 name: write-ticket
-description: Generates concise, binary-verified engineering tickets for Obsidian vault. Use when the user asks to create a ticket, task, engineering ticket, todo item for Obsidian, or mentions writing tickets for Journey Buddy.
+description: Generates concise, binary-verified engineering tickets for Obsidian vault. Use when the user asks to create a ticket, task, engineering ticket, todo item for Obsidian, or mentions writing tickets for any project.
 ---
 
 # Obsidian Ticket Generator
 
-Generate engineering tickets optimized for Obsidian. Enforces brevity, binary acceptance criteria, and specific frontmatter.
+Generate engineering tickets optimized for Obsidian. Enforces brevity, binary acceptance criteria, and specific frontmatter. Automatically adds tickets to Kanban board.
 
 ## Prerequisites
 
@@ -14,13 +14,23 @@ Generate engineering tickets optimized for Obsidian. Enforces brevity, binary ac
 1. Confirm `obsidian-tickets` MCP is available (provides `create_ticket` tool)
 2. If MCP not available, inform user and output markdown content only
 
+## Kanban Integration
+
+All tickets are automatically added to the project's Kanban.md board in the appropriate column:
+- **Backlog**: status = "todo" or "blocked"
+- **In Progress**: status = "in-progress"
+- **Done**: status = "done" (rarely used for new tickets)
+
+The Kanban board is created automatically if it doesn't exist.
+
 ## Output Rules (Strict)
 
 **Mode 1: MCP Available**
-- Use `create_ticket` MCP tool with `project: "Journy Buddy"` (exact Obsidian folder name)
-- The server resolves the path as `{OBSIDIAN_BASE_DIR}/Journy Buddy/`
+- Use `create_ticket` MCP tool with `project: "<exact Obsidian folder name>"`
+- The server resolves the path as `{OBSIDIAN_BASE_DIR}/<project>/`
 - Filename is auto-generated as `TICKET-{timestamp}-{slug}.md`
 - If unsure of the exact folder name, call `list_projects` first to see available projects
+- Ticket is automatically added to Kanban board
 - Confirm creation with user
 
 **Mode 2: No MCP**
@@ -99,6 +109,7 @@ Common area tags:
 1. **Gather Information**
    - Understand the task/feature/bug from user
    - Identify area, priority, and dependencies
+   - **Determine project**: Infer from context or workspace (e.g., "Journey Buddi", "Real Estate Investing")
    
 2. **Generate Ticket**
    - Apply template with specific, concrete details
@@ -106,12 +117,14 @@ Common area tags:
    - Keep requirements focused (3-7 items typical)
 
 3. **Create File**
-   - Use `create_ticket(project="Journy Buddy", title=..., description=..., ...)`
+   - Use `create_ticket(project="<Project Name>", title=..., description=..., ...)`
    - The `project` value must match the exact Obsidian folder name
    - Filename is auto-generated as `TICKET-{timestamp}-{slug}.md`
+   - Ticket is automatically added to Kanban board in appropriate column
 
 4. **Confirm**
    - Brief confirmation of creation
+   - Mention which Kanban column it was added to
    - No additional commentary
 
 ## Notes
@@ -120,6 +133,7 @@ Common area tags:
 - Keep each ticket focused on a single deliverable
 - Split large features into multiple tickets
 - Link related tickets in Dependencies section
+- Each project maintains its own Kanban.md board automatically
 
 ## Completing Tickets
 
@@ -127,5 +141,15 @@ Common area tags:
 - Update ticket status to ✅ Done
 - Add completion date
 - Move ticket to done/ directory
+- Remove ticket from Kanban board
 
-This ensures proper archival and tracking of completed work in Journey Buddy.
+This ensures proper archival and tracking of completed work.
+
+## Multi-Project Support
+
+This skill works across all projects that use Obsidian tickets:
+- **Journey Buddi**: Technical tasks for the travel app
+- **Real Estate Investing**: Property management and investment tracking
+- **Any future project**: Just ensure the project folder exists in Obsidian vault
+
+The MCP server dynamically resolves the correct project folder and maintains separate Kanban boards for each project.

@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --font-family: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Journey Buddi — Nature-Inspired Palette */
+  --forest: #1B4332;
+  --teal: #2D9CDB;
+  --amber: #F2994A;
+  --leaf: #27AE60;
+  --bark: #2C3E50;
+  --stone: #5D6D7E;
+  --driftwood: #95A5A6;
+  --sand: #ECE5D8;
+  --mist: #F5F0EB;
+  --cloud: #FAFAFA;
+  --gold: #F2C94C;
+  --purple: #9B59B6;
+
+  /* Condition colors */
+  --excellent: #27AE60;
+  --good: #8BC34A;
+  --fair: #F2994A;
+  --poor: #EB5757;
+  --unsafe: #7C2D12;
+
+  --background: var(--mist);
+  --foreground: var(--bark);
+}
+
+@theme inline {
+  --font-sans: var(--font-family);
+  --font-mono: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-forest: var(--forest);
+  --color-teal: var(--teal);
+  --color-amber: var(--amber);
+  --color-leaf: var(--leaf);
+  --color-bark: var(--bark);
+  --color-stone: var(--stone);
+  --color-driftwood: var(--driftwood);
+  --color-sand: var(--sand);
+  --color-mist: var(--mist);
+  --color-cloud: var(--cloud);
+  --color-gold: var(--gold);
+  --color-purple: var(--purple);
+
+  --color-excellent: var(--excellent);
+  --color-good: var(--good);
+  --color-fair: var(--fair);
+  --color-poor: var(--poor);
+  --color-unsafe: var(--unsafe);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-family);
+  }
+
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--bark);
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--bark);
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--bark);
+  }
+}
