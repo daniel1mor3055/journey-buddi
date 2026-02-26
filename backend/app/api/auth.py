@@ -32,7 +32,7 @@ async def send_magic_link(body: MagicLinkRequest):
 
     magic_link_url = f"{settings.frontend_url}/auth/verify?token={token}"
 
-    if settings.environment == "development":
+    if settings.environment in ("development", "test"):
         log.info("magic_link_generated", email=body.email, url=magic_link_url)
     else:
         try:
