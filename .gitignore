@@ -9,7 +9,12 @@ build/
 .eggs/
 
 .env
-.env.local
+.env.*
+!.env.example
+SECRETS_INVENTORY.md
+SETUP_TOKENS_GUIDE.md
+TOKENS_QUICK_REF.md
+TOKEN_STATUS.md
 
 node_modules/
 .next/
@@ -26,3 +31,4 @@ Thumbs.db
 htmlcov/
 
 *.log
+logs/

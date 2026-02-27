@@ -88,7 +88,10 @@ export default function DashboardPage() {
               Chat with Buddi to plan your first trip. Start with New Zealand —
               our pilot destination with 18 days of incredible experiences.
             </p>
-            <button className="bg-teal text-white rounded-xl py-3 px-8 font-semibold transition-all hover:shadow-md active:scale-[0.98] inline-flex items-center gap-2">
+            <button
+              onClick={() => router.push("/plan")}
+              className="bg-teal text-white rounded-xl py-3 px-8 font-semibold transition-all hover:shadow-md active:scale-[0.98] inline-flex items-center gap-2"
+            >
               <Plus size={20} />
               Plan a New Trip
             </button>

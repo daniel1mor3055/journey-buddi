@@ -34,3 +34,5 @@ class Trip(Base):
     )
 
     user = relationship("User", back_populates="trips")
+    conversations = relationship("Conversation", back_populates="trip", cascade="all, delete-orphan")
+    itinerary_days = relationship("ItineraryDay", back_populates="trip", cascade="all, delete-orphan", order_by="ItineraryDay.day_number")

@@ -51,7 +51,7 @@ The Kanban board is automatically updated throughout the process.
 
 1. **Identify Ticket**
    - Get ticket filename from user or context
-   - **Determine project**: Infer from workspace or context (e.g., "Journey Buddi", "Real Estate Investing")
+   - **Determine project**: Infer from workspace or context
    - If not specified, call `list_projects()` and then `list_tickets(project="<project>")` to ask user to confirm
 
 2. **Read Current Ticket**
@@ -97,7 +97,7 @@ priority: P2-Medium
 
 ## Error Handling
 
-- **Ticket Not Found**: Call `list_tickets(project="Journy Buddy")` and ask user to specify
+- **Ticket Not Found**: Call `list_tickets(project="<project>")` and ask user to specify
 - **Already Done**: Check if ticket is already in done/ and inform user
 - **Permission Issues**: Inform user and provide manual instructions
 - **MCP Unavailable**: Provide clear manual instructions
@@ -107,7 +107,7 @@ priority: P2-Medium
 **This skill works across all projects using Obsidian tickets.**
 - Target vault base: `/Users/danielmo/Desktop/Daniel/`
 - Always pass `project: "<exact project folder name>"` to all MCP tool calls
-- Supported projects: "Journey Buddi", "Real Estate Investing", or any other project folder
+- Works for any project folder in the Obsidian vault
 - Does not affect other Obsidian notes or projects outside the specified project folder
 
 ## Notes

@@ -52,7 +52,13 @@ async def health_check():
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 from app.api.trips import router as trips_router
+from app.api.conversations import router as conversations_router
+from app.api.attractions import router as attractions_router
+from app.api.itinerary import router as itinerary_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(trips_router, prefix="/api/v1")
+app.include_router(conversations_router, prefix="/api/v1")
+app.include_router(attractions_router, prefix="/api/v1")
+app.include_router(itinerary_router, prefix="/api/v1")

@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     environment: str = "development"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash-lite"
+
     access_token_expire_days: int = 30
     magic_link_expire_minutes: int = 15
 

@@ -109,7 +109,7 @@ Common area tags:
 1. **Gather Information**
    - Understand the task/feature/bug from user
    - Identify area, priority, and dependencies
-   - **Determine project**: Infer from context or workspace (e.g., "Journey Buddi", "Real Estate Investing")
+   - **Determine project**: Infer from context or workspace
    
 2. **Generate Ticket**
    - Apply template with specific, concrete details
@@ -147,9 +147,6 @@ This ensures proper archival and tracking of completed work.
 
 ## Multi-Project Support
 
-This skill works across all projects that use Obsidian tickets:
-- **Journey Buddi**: Technical tasks for the travel app
-- **Real Estate Investing**: Property management and investment tracking
-- **Any future project**: Just ensure the project folder exists in Obsidian vault
+This skill works across all projects that use Obsidian tickets. Each project maintains its own Kanban.md board automatically.
 
 The MCP server dynamically resolves the correct project folder and maintains separate Kanban boards for each project.
