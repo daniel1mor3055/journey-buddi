@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useTripStore, type ItineraryDay } from "@/stores/trip-store";
 import { useAuthStore } from "@/stores/auth-store";
+import { useCompanionStore } from "@/stores/companion-store";
+import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
 import { cn } from "@/lib/utils";
 
 interface DayCardProps {
@@ -19,11 +21,19 @@ interface DayCardProps {
   tripId: string;
 }
 
-function DayCard({ day, tripId }: DayCardProps) {
+const CONDITION_DOT: Record<string, string> = {
+  EXCELLENT: "bg-excellent",
+  GOOD: "bg-good",
+  FAIR: "bg-fair",
+  POOR: "bg-poor",
+  UNSAFE: "bg-unsafe",
+};
+
+function DayCard({ day, tripId, conditionReport }: DayCardProps & { conditionReport?: { overall_score: number; overall_assessment: string } }) {
   const router = useRouter();
-  const conditionScore = day.activities[0]?.condition_score ?? 0.8;
-  const dotColor =
-    conditionScore >= 0.7 ? "bg-green-500" : conditionScore >= 0.4 ? "bg-amber-500" : "bg-red-500";
+  const score = conditionReport?.overall_score ?? day.activities[0]?.condition_score ?? null;
+  const assessment = conditionReport?.overall_assessment ?? "GOOD";
+  const dotColor = CONDITION_DOT[assessment] || "bg-good";
 
   const accommodation = day.accommodation as { name?: string } | undefined;
   const transport = day.transport as {
@@ -47,7 +57,12 @@ function DayCard({ day, tripId }: DayCardProps) {
           <span className="text-bark font-semibold">Day {day.day_number}</span>
           <span className="text-stone text-sm ml-2">{day.location}</span>
         </div>
-        <div className={cn("w-2.5 h-2.5 rounded-full shrink-0", dotColor)} />
+        <div className="flex items-center gap-1.5">
+          {score !== null && (
+            <span className="text-[10px] font-mono text-stone">{score}</span>
+          )}
+          <div className={cn("w-2.5 h-2.5 rounded-full shrink-0", dotColor)} />
+        </div>
       </div>
 
       {day.activities.length > 0 && (
@@ -103,6 +118,7 @@ export default function TripItineraryPage() {
   } = useTripStore();
   const { user, isAuthenticated, isLoading: authLoading, initialize, logout } =
     useAuthStore();
+  const { conditions, fetchConditions } = useCompanionStore();
 
   const trip = trips.find((t) => t.id === tripId);
 
@@ -120,8 +136,9 @@ export default function TripItineraryPage() {
     if (tripId) {
       fetchTrips();
       fetchItinerary(tripId);
+      fetchConditions(tripId);
     }
-  }, [tripId, fetchTrips, fetchItinerary]);
+  }, [tripId, fetchTrips, fetchItinerary, fetchConditions]);
 
   const isGenerating = isLoading && !itinerary;
   const hasItinerary = itinerary && itinerary.days.length > 0;
@@ -230,22 +247,24 @@ export default function TripItineraryPage() {
 
             <div className="space-y-4">
               <AnimatePresence mode="popLayout">
-                {itinerary.days.map((day) => (
-                  <DayCard key={day.id} day={day} tripId={tripId} />
-                ))}
+                {itinerary.days.map((day) => {
+                  const dayCondition = conditions.find(c => c.day_number === day.day_number);
+                  return (
+                    <DayCard
+                      key={day.id}
+                      day={day}
+                      tripId={tripId}
+                      conditionReport={dayCondition ? { overall_score: dayCondition.overall_score, overall_assessment: dayCondition.overall_assessment } : undefined}
+                    />
+                  );
+                })}
               </AnimatePresence>
             </div>
           </>
         )}
       </main>
 
-      <button
-        onClick={() => {}}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-teal text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow active:scale-95 z-30"
-        aria-label="Add"
-      >
-        <Plus size={24} />
-      </button>
+      <BottomTabBar tripId={tripId} />
     </div>
   );
 }

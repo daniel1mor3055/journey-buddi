@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash-lite"
 
+    openweathermap_api_key: str = ""
+
     access_token_expire_days: int = 30
     magic_link_expire_minutes: int = 15
 

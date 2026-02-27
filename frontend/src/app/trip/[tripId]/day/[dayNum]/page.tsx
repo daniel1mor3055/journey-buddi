@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronDown, ChevronUp, Compass, LogOut } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Compass, LogOut, Sun } from "lucide-react";
 import {
   useTripStore,
   type ItineraryDay,
   type ItineraryActivity,
 } from "@/stores/trip-store";
 import { useAuthStore } from "@/stores/auth-store";
+import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
 import { cn } from "@/lib/utils";
 
 interface ActivityCardProps {
@@ -88,7 +89,7 @@ function ActivityCard({ activity, isExpanded, onToggle }: ActivityCardProps) {
             )}
             {activity.condition_score != null && (
               <p className="text-stone text-sm mt-1">
-                Condition score: {(activity.condition_score * 100).toFixed(0)}%
+                Condition score: <span className="font-mono font-semibold">{activity.condition_score}/100</span>
               </p>
             )}
           </motion.div>
@@ -186,7 +187,7 @@ export default function DayDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-mist pb-8">
+    <div className="min-h-screen bg-mist pb-24">
       <header className="bg-forest text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <button
@@ -327,7 +328,15 @@ export default function DayDetailPage() {
               </motion.div>
             )}
 
-            <div className="flex items-center justify-between gap-4 pt-4">
+            <button
+              onClick={() => router.push(`/trip/${tripId}/today`)}
+              className="w-full py-3 rounded-xl bg-forest/10 text-forest font-semibold flex items-center justify-center gap-2 hover:bg-forest/15 transition-colors"
+            >
+              <Sun size={18} />
+              View Daily Briefing
+            </button>
+
+            <div className="flex items-center justify-between gap-4 pt-2">
               <button
                 onClick={() =>
                   prevDay && router.push(`/trip/${tripId}/day/${prevDay}`)
@@ -360,6 +369,8 @@ export default function DayDetailPage() {
           </>
         )}
       </main>
+
+      <BottomTabBar tripId={tripId} />
     </div>
   );
 }

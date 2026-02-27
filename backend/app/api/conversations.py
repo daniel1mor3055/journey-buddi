@@ -28,6 +28,7 @@ from app.services.planning import (
     progress_percent,
     update_planning_state,
 )
+from app.services.companion_chat import generate_companion_response
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/conversations", tags=["conversations"])
@@ -254,6 +255,69 @@ async def go_back(
         planning_step=conv.planning_step,
         planning_state=conv.planning_state,
         progress_percent=progress_percent(conv.planning_step),
+    )
+
+
+@router.post("/{conversation_id}/companion", response_model=PlanningStepResponse)
+async def companion_message(
+    conversation_id: uuid.UUID,
+    body: MessageCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    conv = await _get_user_conversation(conversation_id, user.id, db)
+
+    trip_result = await db.execute(
+        select(Trip).where(Trip.id == conv.trip_id)
+    )
+    trip = trip_result.scalar_one_or_none()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    max_order = max((m.sort_order for m in conv.messages), default=-1)
+
+    user_msg = Message(
+        conversation_id=conv.id,
+        role="user",
+        content=body.content,
+        message_type="text",
+        metadata_={},
+        sort_order=max_order + 1,
+    )
+    db.add(user_msg)
+
+    history = [
+        {"role": m.role, "content": m.content}
+        for m in conv.messages[-20:]
+    ]
+    history.append({"role": "user", "content": body.content})
+
+    response_text = await generate_companion_response(
+        db=db,
+        trip=trip,
+        user_message=body.content,
+        conversation_history=history,
+    )
+
+    assistant_msg = Message(
+        conversation_id=conv.id,
+        role="assistant",
+        content=response_text,
+        message_type="text",
+        metadata_={},
+        sort_order=max_order + 2,
+    )
+    db.add(assistant_msg)
+    await db.flush()
+
+    return PlanningStepResponse(
+        messages=[
+            MessageRead.model_validate(user_msg),
+            MessageRead.model_validate(assistant_msg),
+        ],
+        planning_step=conv.planning_step,
+        planning_state=conv.planning_state,
+        progress_percent=100.0,
     )
 
 

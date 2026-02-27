@@ -55,6 +55,8 @@ from app.api.trips import router as trips_router
 from app.api.conversations import router as conversations_router
 from app.api.attractions import router as attractions_router
 from app.api.itinerary import router as itinerary_router
+from app.api.conditions import router as conditions_router
+from app.api.briefings import router as briefings_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
@@ -62,3 +64,5 @@ app.include_router(trips_router, prefix="/api/v1")
 app.include_router(conversations_router, prefix="/api/v1")
 app.include_router(attractions_router, prefix="/api/v1")
 app.include_router(itinerary_router, prefix="/api/v1")
+app.include_router(conditions_router, prefix="/api/v1")
+app.include_router(briefings_router, prefix="/api/v1")
