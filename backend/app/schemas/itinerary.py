@@ -49,6 +49,22 @@ class ItineraryDayRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ItineraryDayUpdate(BaseModel):
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    location: Optional[str] = None
+    is_locked: Optional[bool] = None
+    is_flex_day: Optional[bool] = None
+    accommodation: Optional[dict] = None
+    transport: Optional[dict] = None
+    notes: Optional[str] = None
+
+
+class ItinerarySwapRequest(BaseModel):
+    day_a: int
+    day_b: int
+
+
 class ItineraryOverview(BaseModel):
     trip_id: UUID
     total_days: int

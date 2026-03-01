@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, func
+from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, Boolean, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,6 +22,7 @@ class Conversation(Base):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
     title: Mapped[Optional[str]] = mapped_column(String(255))
+    conversation_type: Mapped[str] = mapped_column(String(20), default="planning")
     planning_step: Mapped[str] = mapped_column(String(50), nullable=False, default="GREETING")
     planning_state: Mapped[dict] = mapped_column(JSONB, default=dict)
     is_active: Mapped[bool] = mapped_column(default=True)

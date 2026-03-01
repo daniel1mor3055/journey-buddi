@@ -1,5 +1,6 @@
 import uuid
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,7 @@ from app.models.trip import Trip
 from app.models.user import User
 from app.schemas.trip import TripCreate, TripRead, TripUpdate
 
+log = structlog.get_logger()
 router = APIRouter(prefix="/trips", tags=["trips"])
 
 VALID_STATUSES = {"planning", "confirmed", "active", "completed", "archived"}
@@ -81,6 +83,50 @@ async def delete_trip(
 ):
     trip = await _get_user_trip(trip_id, user.id, db)
     await db.delete(trip)
+
+
+@router.post("/{trip_id}/activate")
+async def activate_trip(
+    trip_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    trip = await _get_user_trip(trip_id, user.id, db)
+
+    if trip.status not in ("confirmed", "planning"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip cannot be activated from status '{trip.status}'",
+        )
+
+    trip.status = "active"
+    await db.flush()
+    await db.refresh(trip)
+    log.info("trip_activated", trip_id=str(trip.id))
+
+    return {"status": "active", "trip_id": str(trip.id), "message": "Trip activated. Live companion mode enabled."}
+
+
+@router.post("/{trip_id}/complete")
+async def complete_trip(
+    trip_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    trip = await _get_user_trip(trip_id, user.id, db)
+
+    if trip.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip cannot be completed from status '{trip.status}'",
+        )
+
+    trip.status = "completed"
+    await db.flush()
+    await db.refresh(trip)
+    log.info("trip_completed", trip_id=str(trip.id))
+
+    return {"status": "completed", "trip_id": str(trip.id), "message": "Trip completed. Hope you had an amazing journey!"}
 
 
 async def _get_user_trip(

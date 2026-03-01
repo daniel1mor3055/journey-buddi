@@ -17,6 +17,10 @@ class Settings(BaseSettings):
 
     openweathermap_api_key: str = ""
 
+    vapid_private_key: str = ""
+    vapid_public_key: str = ""
+    vapid_claims_email: str = "mailto:admin@journeybuddi.com"
+
     access_token_expire_days: int = 30
     magic_link_expire_minutes: int = 15
 

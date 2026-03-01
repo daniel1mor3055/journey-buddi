@@ -14,6 +14,7 @@ from app.models.itinerary import ItineraryDay, ItineraryActivity
 from app.models.trip import Trip
 from app.models.user import User
 from app.schemas.conditions import (
+    ActivityConditionReport,
     CurrentConditionsResponse,
     DayConditionReport,
     ConditionForecastResponse,
@@ -21,7 +22,7 @@ from app.schemas.conditions import (
 )
 from app.services.weather import weather_service
 from app.services.solar import solar_service
-from app.services.condition_scorer import score_day_conditions
+from app.services.condition_scorer import score_activity_conditions, score_day_conditions
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/conditions", tags=["conditions"])
@@ -121,26 +122,65 @@ async def get_trip_condition_forecast(
     )
 
 
-@router.post("/trips/{trip_id}/activate")
-async def activate_trip(
-    trip_id: str,
+
+@router.get("/assess")
+async def assess_activity_conditions(
+    activity_id: str = Query(...),
+    date_str: str = Query(..., alias="date"),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> ActivityConditionReport:
     result = await db.execute(
-        select(Trip).where(Trip.id == trip_id, Trip.user_id == user.id)
+        select(ItineraryActivity)
+        .options(selectinload(ItineraryActivity.attraction))
+        .where(ItineraryActivity.id == activity_id)
     )
-    trip = result.scalar_one_or_none()
-    if not trip:
-        raise HTTPException(status_code=404, detail="Trip not found")
+    activity = result.scalar_one_or_none()
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
 
-    if trip.status not in ("confirmed", "planning"):
-        raise HTTPException(status_code=400, detail=f"Trip cannot be activated from status '{trip.status}'")
+    act_types = (
+        activity.attraction.types
+        if activity.attraction and activity.attraction.types
+        else ["hiking"]
+    )
 
-    trip.status = "active"
-    log.info("trip_activated", trip_id=str(trip.id))
+    if activity.attraction and activity.attraction.latitude and activity.attraction.longitude:
+        lat, lon = activity.attraction.latitude, activity.attraction.longitude
+    else:
+        lat, lon = -41.2865, 174.7762  # Wellington fallback
 
-    return {"status": "active", "trip_id": str(trip.id), "message": "Trip activated. Live companion mode enabled."}
+    target_date = date.fromisoformat(date_str)
+    hours_ahead = max(
+        0,
+        (
+            datetime.combine(target_date, datetime.min.time())
+            - datetime.combine(date.today(), datetime.min.time())
+        ).total_seconds()
+        / 3600,
+    )
+    if hours_ahead <= 48:
+        confidence = "high"
+    elif hours_ahead <= 120:
+        confidence = "medium"
+    else:
+        confidence = "low"
+
+    hourly = await weather_service.get_hourly_forecast(lat, lon, days=8)
+    day_hourly = [w for w in hourly if w.timestamp.date() == target_date]
+
+    if not day_hourly and hourly:
+        day_hourly = hourly[:24]
+
+    if not day_hourly:
+        raise HTTPException(status_code=404, detail="No weather data available for this date")
+
+    target_hour = int(activity.time_start.split(":")[0]) if activity.time_start and ":" in activity.time_start else 12
+    weather = min(day_hourly, key=lambda w: abs(w.timestamp.hour - target_hour))
+
+    report = score_activity_conditions(weather, activity.name, act_types, confidence)
+    report.activity_id = str(activity.id)
+    return report
 
 
 def _get_day_coords(day: ItineraryDay) -> tuple[float, float]:

@@ -156,7 +156,7 @@ export const useCompanionStore = create<CompanionState>((set) => ({
 
   fetchSwaps: async (tripId) => {
     try {
-      const swaps = await api.get<SwapSuggestion[]>(`/trips/${tripId}/briefings/swaps/list`);
+      const swaps = await api.get<SwapSuggestion[]>(`/trips/${tripId}/swaps`);
       set({ swaps });
     } catch {
       set({ swaps: [] });
@@ -165,8 +165,8 @@ export const useCompanionStore = create<CompanionState>((set) => ({
 
   handleSwap: async (tripId, swapId, action) => {
     try {
-      await api.post(`/trips/${tripId}/briefings/swaps/${swapId}/action`, { action });
-      const swaps = await api.get<SwapSuggestion[]>(`/trips/${tripId}/briefings/swaps/list`);
+      await api.post(`/trips/${tripId}/swaps/${swapId}/${action}`);
+      const swaps = await api.get<SwapSuggestion[]>(`/trips/${tripId}/swaps`);
       set({ swaps });
     } catch {
       set({ error: "Failed to process swap" });
@@ -175,7 +175,7 @@ export const useCompanionStore = create<CompanionState>((set) => ({
 
   activateTrip: async (tripId) => {
     try {
-      await api.post(`/conditions/trips/${tripId}/activate`);
+      await api.post(`/trips/${tripId}/activate`);
     } catch {
       set({ error: "Failed to activate trip" });
     }

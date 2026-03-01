@@ -4,6 +4,7 @@ import json
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
+import httpx
 import structlog
 
 from app.redis import redis_client
@@ -136,6 +137,61 @@ class SolarService:
             if solar:
                 results.append(solar)
         return results
+
+    async def get_aurora_kp(self) -> Optional[dict]:
+        """Fetch current and forecast Kp index from NOAA SWPC.
+
+        Kp >= 5 is typically needed for aurora visibility at NZ latitudes (~45°S).
+        """
+        cache_k = "aurora:kp:current"
+        try:
+            cached = await redis_client.get(cache_k)
+            if cached:
+                return json.loads(cached)
+        except Exception:
+            pass
+
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.get(
+                    "https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json"
+                )
+                resp.raise_for_status()
+                rows = resp.json()
+
+            # First row is the header: ["time_tag", "Kp", "observed", "noaa_scale"]
+            if not rows or len(rows) < 2:
+                return None
+
+            header = rows[0]
+            kp_idx = header.index("Kp") if "Kp" in header else 1
+            time_idx = header.index("time_tag") if "time_tag" in header else 0
+
+            data_rows = rows[1:]
+            current_kp = float(data_rows[0][kp_idx])
+
+            forecast = [
+                {"time": row[time_idx], "kp": float(row[kp_idx])}
+                for row in data_rows[:8]
+            ]
+
+            result = {
+                "current_kp": current_kp,
+                "forecast": forecast,
+                "is_visible_nz": current_kp >= 5,
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
+            }
+
+            try:
+                await redis_client.setex(cache_k, 10800, json.dumps(result))
+            except Exception:
+                pass
+
+            return result
+
+        except Exception:
+            log.exception("aurora_kp_fetch_failed")
+            return None
 
 
 solar_service = SolarService()

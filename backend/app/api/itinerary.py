@@ -14,7 +14,7 @@ from app.models.attraction import Attraction
 from app.models.itinerary import ItineraryActivity, ItineraryDay
 from app.models.trip import Trip
 from app.models.user import User
-from app.schemas.itinerary import ItineraryDayRead, ItineraryOverview
+from app.schemas.itinerary import ItineraryDayRead, ItineraryDayUpdate, ItineraryOverview, ItinerarySwapRequest
 from app.services.itinerary_generator import generate_itinerary
 
 log = structlog.get_logger()
@@ -161,6 +161,24 @@ async def generate_trip_itinerary(
     )
 
 
+@router.get("/days", response_model=list[ItineraryDayRead])
+async def list_days(
+    trip_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _get_user_trip(trip_id, user.id, db)
+
+    result = await db.execute(
+        select(ItineraryDay)
+        .options(selectinload(ItineraryDay.activities))
+        .where(ItineraryDay.trip_id == trip_id)
+        .order_by(ItineraryDay.day_number)
+    )
+    days = result.scalars().all()
+    return [ItineraryDayRead.model_validate(d) for d in days]
+
+
 @router.get("/days/{day_number}", response_model=ItineraryDayRead)
 async def get_day(
     trip_id: uuid.UUID,
@@ -179,6 +197,73 @@ async def get_day(
     if day is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day not found")
     return day
+
+
+@router.patch("/days/{day_number}", response_model=ItineraryDayRead)
+async def update_day(
+    trip_id: uuid.UUID,
+    day_number: int,
+    body: ItineraryDayUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _get_user_trip(trip_id, user.id, db)
+
+    result = await db.execute(
+        select(ItineraryDay)
+        .options(selectinload(ItineraryDay.activities))
+        .where(ItineraryDay.trip_id == trip_id, ItineraryDay.day_number == day_number)
+    )
+    day = result.scalar_one_or_none()
+    if day is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day not found")
+
+    update_data = body.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(day, field, value)
+
+    await db.flush()
+    await db.refresh(day)
+    return day
+
+
+@router.post("/swap")
+async def apply_itinerary_swap(
+    trip_id: uuid.UUID,
+    body: ItinerarySwapRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await _get_user_trip(trip_id, user.id, db)
+
+    result_a = await db.execute(
+        select(ItineraryDay)
+        .options(selectinload(ItineraryDay.activities))
+        .where(ItineraryDay.trip_id == trip_id, ItineraryDay.day_number == body.day_a)
+    )
+    day_a = result_a.scalar_one_or_none()
+
+    result_b = await db.execute(
+        select(ItineraryDay)
+        .options(selectinload(ItineraryDay.activities))
+        .where(ItineraryDay.trip_id == trip_id, ItineraryDay.day_number == body.day_b)
+    )
+    day_b = result_b.scalar_one_or_none()
+
+    if not day_a or not day_b:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="One or both days not found")
+
+    if day_a.is_locked or day_b.is_locked:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot swap locked days")
+
+    day_a.day_number, day_b.day_number = day_b.day_number, day_a.day_number
+    if day_a.date and day_b.date:
+        day_a.date, day_b.date = day_b.date, day_a.date
+
+    await db.flush()
+    log.info("itinerary_days_swapped", trip_id=str(trip_id), day_a=body.day_a, day_b=body.day_b)
+
+    return {"status": "swapped", "message": f"Days {body.day_a} and {body.day_b} have been swapped."}
 
 
 async def _get_user_trip(trip_id: uuid.UUID, user_id: uuid.UUID, db: AsyncSession) -> Trip:

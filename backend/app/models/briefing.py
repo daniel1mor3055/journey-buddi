@@ -18,6 +18,9 @@ class DailyBriefing(Base):
     trip_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("trips.id"), nullable=False, index=True
     )
+    day_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("itinerary_days.id")
+    )
     day_number: Mapped[int] = mapped_column(Integer, nullable=False)
     briefing_date: Mapped[date] = mapped_column(Date, nullable=False)
     location: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -36,7 +39,10 @@ class DailyBriefing(Base):
     ai_narrative: Mapped[Optional[str]] = mapped_column(Text)
 
     swap_suggestion: Mapped[Optional[dict]] = mapped_column(JSONB)
+    conditions_snapshot: Mapped[Optional[dict]] = mapped_column(JSONB)
 
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    viewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -45,6 +51,7 @@ class DailyBriefing(Base):
     )
 
     trip = relationship("Trip")
+    day = relationship("ItineraryDay")
 
 
 class SwapSuggestion(Base):
@@ -56,6 +63,12 @@ class SwapSuggestion(Base):
     )
     original_day: Mapped[int] = mapped_column(Integer, nullable=False)
     suggested_day: Mapped[int] = mapped_column(Integer, nullable=False)
+    original_day_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("itinerary_days.id")
+    )
+    swap_day_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("itinerary_days.id")
+    )
     reason: Mapped[str] = mapped_column(Text, nullable=False)
     improvement_score: Mapped[int] = mapped_column(Integer, default=0)
     disruption_score: Mapped[int] = mapped_column(Integer, default=0)
@@ -71,3 +84,5 @@ class SwapSuggestion(Base):
     )
 
     trip = relationship("Trip")
+    original_day_ref = relationship("ItineraryDay", foreign_keys=[original_day_id])
+    swap_day_ref = relationship("ItineraryDay", foreign_keys=[swap_day_id])

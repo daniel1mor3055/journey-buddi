@@ -49,6 +49,20 @@ async def get_attraction(
     return attraction
 
 
+@router.get("/{slug}/tips")
+async def get_attraction_tips(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Attraction).where(Attraction.slug == slug)
+    )
+    attraction = result.scalar_one_or_none()
+    if attraction is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Attraction not found")
+    return {"slug": slug, "name": attraction.name, "pro_tips": attraction.pro_tips or []}
+
+
 @router.post("/seed", status_code=status.HTTP_201_CREATED)
 async def seed_attractions(
     db: AsyncSession = Depends(get_db),

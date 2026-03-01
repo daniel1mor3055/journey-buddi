@@ -5,6 +5,8 @@ from app.models.attraction import Attraction
 from app.models.itinerary import ItineraryDay, ItineraryActivity
 from app.models.trip_attraction import TripAttraction
 from app.models.briefing import DailyBriefing, SwapSuggestion
+from app.models.condition_record import ConditionRecord
+from app.models.push_subscription import PushSubscription
 
 __all__ = [
     "User",
@@ -17,4 +19,6 @@ __all__ = [
     "TripAttraction",
     "DailyBriefing",
     "SwapSuggestion",
+    "ConditionRecord",
+    "PushSubscription",
 ]

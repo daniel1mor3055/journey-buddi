@@ -4,23 +4,15 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Sun, Cloud, Wind, Droplets, Thermometer, Sunrise, Sunset,
+  Cloud, Wind, Thermometer, Sunrise, Sunset,
   ChevronDown, ChevronUp, Compass, Sparkles, Eye,
   CheckCircle2, AlertTriangle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useCompanionStore, DailyBriefing, ActivityReport } from "@/stores/companion-store";
 import { useTripStore } from "@/stores/trip-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
-
-const ASSESSMENT_CONFIG: Record<string, { emoji: string; color: string; bg: string; label: string }> = {
-  EXCELLENT: { emoji: "🟢", color: "text-excellent", bg: "bg-excellent/10", label: "Great Conditions" },
-  GOOD: { emoji: "🟡", color: "text-good", bg: "bg-good/10", label: "Good Conditions" },
-  FAIR: { emoji: "🟠", color: "text-fair", bg: "bg-fair/10", label: "Mixed Conditions" },
-  POOR: { emoji: "🔴", color: "text-poor", bg: "bg-poor/10", label: "Poor Conditions" },
-  UNSAFE: { emoji: "⛔", color: "text-unsafe", bg: "bg-unsafe/10", label: "Unsafe Conditions" },
-};
+import { ConditionBadge, ConditionAssessment } from "@/components/ui/condition-badge";
 
 export default function TodayPage() {
   const params = useParams();
@@ -86,7 +78,6 @@ export default function TodayPage() {
     );
   }
 
-  const config = ASSESSMENT_CONFIG[currentBriefing.overall_assessment] || ASSESSMENT_CONFIG.GOOD;
   const ws = currentBriefing.weather_summary;
   const solar = currentBriefing.solar_data;
 
@@ -141,20 +132,16 @@ export default function TodayPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={cn("mx-4 mt-4 rounded-2xl p-4", config.bg)}
+        className="mx-4 mt-4"
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{config.emoji}</span>
-              <span className={cn("font-semibold", config.color)}>{config.label}</span>
-            </div>
-            <p className="text-stone text-sm mt-1">
-              {currentBriefing.ai_narrative || `Today's plan scores ${currentBriefing.overall_score}/100`}
-            </p>
-          </div>
-          <span className="font-mono text-2xl font-bold text-bark">{currentBriefing.overall_score}</span>
-        </div>
+        <ConditionBadge
+          variant="banner"
+          score={currentBriefing.overall_score}
+          assessment={currentBriefing.overall_assessment as ConditionAssessment}
+          confidence={currentBriefing.confidence as "high" | "medium" | "low"}
+          message={currentBriefing.ai_narrative || `Today's plan scores ${currentBriefing.overall_score}/100`}
+          className="rounded-2xl p-4"
+        />
       </motion.div>
 
       {/* Swap Banner */}
@@ -240,28 +227,26 @@ export default function TodayPage() {
         <div className="px-4 mt-6 mb-8">
           <h2 className="text-sm font-semibold text-bark uppercase tracking-wider mb-3">📅 Coming Up</h2>
           <div className="space-y-2">
-            {currentBriefing.lookahead.map((day, i) => {
-              const dayConfig = ASSESSMENT_CONFIG[day.assessment] || ASSESSMENT_CONFIG.GOOD;
-              return (
-                <div key={i} className="bg-cloud rounded-xl p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span>{dayConfig.emoji}</span>
-                    <div>
-                      <p className="text-sm font-medium text-bark">{day.date}</p>
-                      <p className="text-xs text-stone">{day.summary} · {day.temp_range}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-mono text-sm font-semibold text-bark">{day.score}</span>
-                    {day.confidence !== "high" && (
-                      <p className="text-[10px] text-driftwood">
-                        {day.confidence === "medium" ? "May change" : "Too early"}
-                      </p>
-                    )}
+            {currentBriefing.lookahead.map((day, i) => (
+              <div key={i} className="bg-cloud rounded-xl p-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <ConditionBadge
+                    variant="compact"
+                    score={day.score}
+                    assessment={day.assessment as ConditionAssessment}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-bark">{day.date}</p>
+                    <p className="text-xs text-stone">{day.summary} · {day.temp_range}</p>
                   </div>
                 </div>
-              );
-            })}
+                {day.confidence !== "high" && (
+                  <p className="text-[10px] text-driftwood">
+                    {day.confidence === "medium" ? "May change" : "Too early"}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -280,8 +265,6 @@ function ActivityCard({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
-  const config = ASSESSMENT_CONFIG[report.assessment] || ASSESSMENT_CONFIG.GOOD;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -301,9 +284,11 @@ function ActivityCard({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className={cn("text-xs font-mono font-semibold px-2 py-0.5 rounded-full", config.bg, config.color)}>
-              {config.emoji} {report.score}
-            </span>
+            <ConditionBadge
+              variant="compact"
+              score={report.score}
+              assessment={report.assessment as ConditionAssessment}
+            />
             {isExpanded ? <ChevronUp size={16} className="text-stone" /> : <ChevronDown size={16} className="text-stone" />}
           </div>
         </div>
