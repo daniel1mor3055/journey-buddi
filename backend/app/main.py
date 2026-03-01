@@ -88,7 +88,7 @@ async def websocket_chat(
     from app.models.user import User
     from app.models.conversation import Conversation, Message
     from app.models.trip import Trip
-    from app.services.gemini import gemini_client
+    from app.services.openai_client import openai_client as gemini_client
     from app.services.companion_chat import generate_companion_response
     from app.services.planning import generate_step_response, next_step, update_planning_state, progress_percent
 

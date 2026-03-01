@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     environment: str = "development"
 
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash-lite"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
 
     openweathermap_api_key: str = ""
 

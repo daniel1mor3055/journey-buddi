@@ -12,7 +12,7 @@ Journey Buddi is an AI-powered adaptive travel companion. It helps travelers pla
 - **Backend:** Python + FastAPI (async)
 - **Database:** PostgreSQL + PostGIS
 - **Cache:** Redis
-- **AI:** Google Gemini (primary LLM) + LangChain + Chroma (RAG)
+- **AI:** OpenAI ChatGPT (primary LLM, gpt-4o-mini) + LangChain + Chroma (RAG)
 - **Task Queue:** Celery + Redis
 - **Maps:** Mapbox GL JS
 - **Auth:** Magic link (JWT, no passwords)

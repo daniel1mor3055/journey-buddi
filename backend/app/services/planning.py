@@ -10,7 +10,8 @@ from typing import Optional
 
 import structlog
 
-from app.services.gemini import gemini_client
+from app.services.openai_client import openai_client as gemini_client
+from app.services.tell_me_more_options import ACTIVE_TELL_ME_MORE
 
 log = structlog.get_logger()
 
@@ -138,6 +139,22 @@ def get_step_prompt(step: str, planning_state: dict) -> str:
         ),
     }
     return prompts.get(step, "Continue the conversation naturally.")
+
+
+TELL_ME_MORE_RESPONSE: dict = {
+    "text": ACTIVE_TELL_ME_MORE,
+    "choices": [
+        {"emoji": "🎯", "label": "Let's do it!", "desc": ""},
+    ],
+    "multi_select": False,
+}
+
+_TELL_ME_MORE_LABELS = frozenset({"Tell me more first", "Tell me more"})
+
+
+def is_tell_me_more(step: str, user_input: str) -> bool:
+    """Check if the user chose 'Tell me more' during GREETING."""
+    return step == "GREETING" and user_input.strip() in _TELL_ME_MORE_LABELS
 
 
 def progress_percent(step: str) -> float:

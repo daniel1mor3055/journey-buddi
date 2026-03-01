@@ -22,7 +22,9 @@ from app.schemas.conversation import (
     PlanningStepResponse,
 )
 from app.services.planning import (
+    TELL_ME_MORE_RESPONSE,
     generate_step_response,
+    is_tell_me_more,
     next_step,
     prev_step,
     progress_percent,
@@ -106,26 +108,29 @@ async def send_message(
     )
     db.add(user_msg)
 
-    conv.planning_state = update_planning_state(
-        conv.planning_state, conv.planning_step, body.content
-    )
+    if is_tell_me_more(conv.planning_step, body.content):
+        ai_response = TELL_ME_MORE_RESPONSE
+    else:
+        conv.planning_state = update_planning_state(
+            conv.planning_state, conv.planning_step, body.content
+        )
 
-    new_step = next_step(conv.planning_step)
-    if new_step:
-        conv.planning_step = new_step
+        new_step = next_step(conv.planning_step)
+        if new_step:
+            conv.planning_step = new_step
 
-    history = [
-        {"role": m.role, "content": m.content}
-        for m in conv.messages
-    ]
-    history.append({"role": "user", "content": body.content})
+        history = [
+            {"role": m.role, "content": m.content}
+            for m in conv.messages
+        ]
+        history.append({"role": "user", "content": body.content})
 
-    ai_response = await generate_step_response(
-        step=conv.planning_step,
-        planning_state=conv.planning_state,
-        user_message=body.content,
-        conversation_history=history,
-    )
+        ai_response = await generate_step_response(
+            step=conv.planning_step,
+            planning_state=conv.planning_state,
+            user_message=body.content,
+            conversation_history=history,
+        )
 
     response_text = ai_response.get("text", "Let's continue!")
     response_metadata = {

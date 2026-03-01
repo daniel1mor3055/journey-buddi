@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 from app.models.itinerary import ItineraryDay, ItineraryActivity
 from app.models.briefing import DailyBriefing
 from app.models.trip import Trip
-from app.services.gemini import gemini_client
+from app.services.openai_client import openai_client as gemini_client
 from app.services.weather import weather_service
 
 log = structlog.get_logger()

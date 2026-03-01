@@ -368,7 +368,7 @@ function MessageBubble({
               className={
                 isUser
                   ? "bg-teal text-white rounded-[18px] rounded-br-[4px] px-4 py-3"
-                  : "bg-sand text-bark rounded-[18px] rounded-bl-[4px] px-4 py-3"
+                  : "bg-sand text-bark rounded-[18px] rounded-bl-[4px] px-4 py-3 whitespace-pre-wrap"
               }
               style={{ fontSize: "0.9375rem" }}
             >

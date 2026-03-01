@@ -15,7 +15,7 @@ from app.models.trip import Trip
 from app.services.weather import weather_service
 from app.services.solar import solar_service
 from app.services.condition_scorer import score_activity_conditions, score_to_assessment
-from app.services.gemini import gemini_client
+from app.services.openai_client import openai_client as gemini_client
 
 log = structlog.get_logger()
 
