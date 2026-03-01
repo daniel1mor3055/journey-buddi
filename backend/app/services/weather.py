@@ -177,9 +177,132 @@ class OpenMeteoAdapter:
         await self.client.aclose()
 
 
+OWM_ICON_MAP = {
+    "01d": "clear-day", "01n": "clear-night",
+    "02d": "partly-cloudy-day", "02n": "partly-cloudy-night",
+    "03d": "cloudy", "03n": "cloudy",
+    "04d": "overcast", "04n": "overcast",
+    "09d": "rain-showers", "09n": "rain-showers",
+    "10d": "rain", "10n": "rain",
+    "11d": "thunderstorm", "11n": "thunderstorm",
+    "13d": "snow", "13n": "snow",
+    "50d": "fog", "50n": "fog",
+}
+
+
+class OpenWeatherMapAdapter:
+    ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall"
+    CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather"
+    FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.client = httpx.AsyncClient(timeout=15.0)
+
+    async def fetch_hourly(self, lat: float, lon: float, days: int = 5) -> list[WeatherCondition]:
+        """Try One Call 3.0 first; fall back to free 2.5 forecast endpoint."""
+        try:
+            return await self._fetch_onecall(lat, lon)
+        except Exception:
+            log.warning("owm_onecall_failed_falling_back_to_25", lat=lat, lon=lon)
+            return await self._fetch_forecast25(lat, lon, days)
+
+    async def _fetch_onecall(self, lat: float, lon: float) -> list[WeatherCondition]:
+        params = {
+            "lat": lat, "lon": lon,
+            "units": "metric", "exclude": "minutely",
+            "appid": self.api_key,
+        }
+        resp = await self.client.get(self.ONECALL_URL, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+        conditions = []
+        for hour in data.get("hourly", []):
+            precip_type = None
+            precip_mm = 0.0
+            if "rain" in hour:
+                precip_type = "rain"
+                precip_mm = hour["rain"].get("1h", 0)
+            elif "snow" in hour:
+                precip_type = "snow"
+                precip_mm = hour["snow"].get("1h", 0)
+
+            conditions.append(WeatherCondition(
+                timestamp=datetime.utcfromtimestamp(hour["dt"]).replace(tzinfo=timezone.utc),
+                location_lat=lat, location_lon=lon,
+                provider="openweathermap",
+                temperature_c=hour["temp"],
+                feels_like_c=hour["feels_like"],
+                humidity_percent=hour["humidity"],
+                pressure_hpa=hour["pressure"],
+                wind_speed_kmh=round(hour["wind_speed"] * 3.6, 1),
+                wind_direction_deg=int(hour.get("wind_deg", 0)),
+                wind_gust_kmh=round(hour.get("wind_gust", 0) * 3.6, 1),
+                precipitation_probability_pct=round(hour.get("pop", 0) * 100, 1),
+                precipitation_intensity_mmh=precip_mm,
+                precipitation_type=precip_type,
+                cloud_cover_pct=hour["clouds"],
+                visibility_km=round(hour.get("visibility", 10000) / 1000, 1),
+                uv_index=hour.get("uvi"),
+                description=hour["weather"][0]["description"].capitalize(),
+                icon=OWM_ICON_MAP.get(hour["weather"][0]["icon"], "unknown"),
+            ))
+        return conditions
+
+    async def _fetch_forecast25(self, lat: float, lon: float, days: int) -> list[WeatherCondition]:
+        """Free 2.5 forecast — 3-hourly for 5 days, no subscription needed."""
+        params = {
+            "lat": lat, "lon": lon,
+            "units": "metric", "cnt": min(days * 8, 40),
+            "appid": self.api_key,
+        }
+        resp = await self.client.get(self.FORECAST_URL, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+        conditions = []
+        for entry in data.get("list", []):
+            precip_type = None
+            precip_mm = 0.0
+            if "rain" in entry:
+                precip_type = "rain"
+                precip_mm = entry["rain"].get("3h", 0) / 3
+            elif "snow" in entry:
+                precip_type = "snow"
+                precip_mm = entry["snow"].get("3h", 0) / 3
+
+            conditions.append(WeatherCondition(
+                timestamp=datetime.utcfromtimestamp(entry["dt"]).replace(tzinfo=timezone.utc),
+                location_lat=lat, location_lon=lon,
+                provider="openweathermap-2.5",
+                temperature_c=entry["main"]["temp"],
+                feels_like_c=entry["main"]["feels_like"],
+                humidity_percent=entry["main"]["humidity"],
+                pressure_hpa=entry["main"]["pressure"],
+                wind_speed_kmh=round(entry["wind"]["speed"] * 3.6, 1),
+                wind_direction_deg=int(entry["wind"].get("deg", 0)),
+                wind_gust_kmh=round(entry["wind"].get("gust", 0) * 3.6, 1),
+                precipitation_probability_pct=round(entry.get("pop", 0) * 100, 1),
+                precipitation_intensity_mmh=precip_mm,
+                precipitation_type=precip_type,
+                cloud_cover_pct=entry["clouds"]["all"],
+                visibility_km=round(entry.get("visibility", 10000) / 1000, 1),
+                uv_index=None,
+                description=entry["weather"][0]["description"].capitalize(),
+                icon=OWM_ICON_MAP.get(entry["weather"][0]["icon"], "unknown"),
+            ))
+        return conditions
+
+    async def close(self):
+        await self.client.aclose()
+
+
 class WeatherService:
     def __init__(self):
         self.open_meteo = OpenMeteoAdapter()
+        owm_key = settings.openweathermap_api_key
+        self.owm = OpenWeatherMapAdapter(owm_key) if owm_key else None
 
     async def get_hourly_forecast(
         self, lat: float, lon: float, days: int = 8, use_cache: bool = True
@@ -195,19 +318,32 @@ class WeatherService:
             except Exception:
                 log.warning("weather_cache_read_failed", key=cache_k)
 
-        try:
-            conditions = await self.open_meteo.fetch_hourly(lat, lon, days)
+        # OWM primary → Open-Meteo fallback
+        conditions: list[WeatherCondition] = []
+        if self.owm:
             try:
-                await redis_client.setex(
-                    cache_k, 1800,
-                    json.dumps([c.model_dump(mode="json") for c in conditions]),
-                )
+                conditions = await self.owm.fetch_hourly(lat, lon, days)
+                log.debug("weather_fetched_from_owm", lat=lat, lon=lon, count=len(conditions))
             except Exception:
-                log.warning("weather_cache_write_failed", key=cache_k)
-            return conditions
+                log.warning("owm_fetch_failed_using_open_meteo", lat=lat, lon=lon)
+
+        if not conditions:
+            try:
+                conditions = await self.open_meteo.fetch_hourly(lat, lon, days)
+                log.debug("weather_fetched_from_open_meteo", lat=lat, lon=lon, count=len(conditions))
+            except Exception:
+                log.exception("weather_fetch_failed_all_providers", lat=lat, lon=lon)
+                return []
+
+        try:
+            await redis_client.setex(
+                cache_k, 1800,
+                json.dumps([c.model_dump(mode="json") for c in conditions]),
+            )
         except Exception:
-            log.exception("weather_fetch_failed", lat=lat, lon=lon)
-            return []
+            log.warning("weather_cache_write_failed", key=cache_k)
+
+        return conditions
 
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 8, use_cache: bool = True

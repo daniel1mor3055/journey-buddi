@@ -1,0 +1,1339 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Journey Buddi API",
+    "description": "Complete API collection for Journey Buddi — AI-powered adaptive travel companion.\n\n## Quick Start\n1. Select your environment (DEV / STG / PROD) from the top-right dropdown\n2. Run **Auth → Request Magic Link** with your email\n3. In DEV: copy the token from the backend logs. In STG/PROD: check your inbox.\n4. Run **Auth → Verify Magic Link** — `access_token` is auto-captured into the environment\n5. All subsequent authenticated requests will use the token automatically\n\n## Variables Auto-Captured\n- `access_token` — from Auth / Verify Magic Link\n- `trip_id` — from Trips / Create Trip\n- `conversation_id` — from Conversations / Create Conversation\n- `swap_id` — from Briefings / List Swap Suggestions\n\n## Auth\nAll protected routes use **Bearer Token** inherited from the collection. No-auth routes override with `No Auth`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "description": "Overridden per environment — do not edit here"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "description": "Auto-populated by Auth / Verify Magic Link test script"
+    },
+    {
+      "key": "trip_id",
+      "value": "",
+      "description": "Auto-populated by Trips / Create Trip test script"
+    },
+    {
+      "key": "conversation_id",
+      "value": "",
+      "description": "Auto-populated by Conversations / Create Conversation test script"
+    },
+    {
+      "key": "swap_id",
+      "value": "",
+      "description": "Auto-populated by Briefings / List Swap Suggestions test script"
+    },
+    {
+      "key": "attraction_slug",
+      "value": "milford-sound-cruise",
+      "description": "Slug of the attraction to fetch — update as needed"
+    },
+    {
+      "key": "day_number",
+      "value": "1",
+      "description": "Itinerary day number (1-based)"
+    },
+    {
+      "key": "user_email",
+      "value": "you@example.com",
+      "description": "Email to use for magic-link auth"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "description": "Service liveness check — no auth required.",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Returns the API status and version. No auth required."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is healthy', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('healthy');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Magic-link authentication flow (no passwords). Tokens expire in 30 days.",
+      "item": [
+        {
+          "name": "Request Magic Link",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/magic-link",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "magic-link"]
+            },
+            "description": "Sends a magic link to the provided email. In DEV mode the link is printed to the backend logs instead of being emailed."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Message returned', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.message).to.include('Magic link');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Verify Magic Link",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_MAGIC_LINK_TOKEN_HERE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "verify"]
+            },
+            "description": "Exchanges the magic-link JWT for an access token. Creates the user account on first login. The `access_token` is auto-saved to the environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.access_token) {",
+                  "  pm.environment.set('access_token', body.access_token);",
+                  "  console.log('✅ access_token saved to environment');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            },
+            "description": "Issues a new access token for the currently authenticated user. Updates the environment `access_token`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.access_token) {",
+                  "  pm.environment.set('access_token', body.access_token);",
+                  "  console.log('✅ access_token refreshed');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "Stateless logout — the server returns a success message. The client must discard its token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "// Clear local token after logout",
+                  "pm.environment.set('access_token', '');",
+                  "console.log('🔓 access_token cleared from environment');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Current authenticated user profile management.",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Returns the full profile of the currently authenticated user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has user id', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"preferences\": {\n    \"theme\": \"dark\",\n    \"units\": \"metric\"\n  },\n  \"profile\": {\n    \"home_country\": \"NZ\",\n    \"travel_style\": \"adventure\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Partial update — only provided fields are changed. All fields optional."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Trips",
+      "description": "Trip lifecycle management — create, list, update, and delete travel trips.",
+      "item": [
+        {
+          "name": "Create Trip",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination\": \"New Zealand\",\n  \"destination_region\": \"South Island\",\n  \"start_date\": \"2026-04-01\",\n  \"end_date\": \"2026-04-14\",\n  \"entry_point\": \"Christchurch\",\n  \"exit_point\": \"Queenstown\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips"]
+            },
+            "description": "Creates a new trip. Only `destination` is required. The new `trip_id` is auto-saved to the environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.id) {",
+                  "  pm.environment.set('trip_id', body.id);",
+                  "  console.log('✅ trip_id saved:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Trips",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips"]
+            },
+            "description": "Lists all trips for the authenticated user, sorted newest first."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Trip",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}"]
+            },
+            "description": "Returns a single trip by UUID. Returns 404 if the trip belongs to another user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Trip id matches', () => {",
+                  "  pm.expect(pm.response.json().id).to.eql(pm.environment.get('trip_id'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Trip",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination_region\": \"North Island\",\n  \"status\": \"confirmed\",\n  \"entry_point\": \"Auckland\",\n  \"exit_point\": \"Wellington\",\n  \"transport_plan\": {\n    \"mode\": \"rental_car\"\n  },\n  \"flight_details\": {\n    \"inbound\": \"NZ123\",\n    \"outbound\": \"NZ456\"\n  },\n  \"planning_state\": {\n    \"pace\": \"relaxed\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}"]
+            },
+            "description": "Partial update of a trip. `status` must be one of: planning, confirmed, active, completed, archived."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Delete Trip",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}"]
+            },
+            "description": "Permanently deletes a trip. Returns 204 No Content."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conversations",
+      "description": "AI planning conversations and live companion chat, linked to a trip.",
+      "item": [
+        {
+          "name": "Create Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trip_id\": \"{{trip_id}}\",\n  \"title\": \"South Island Planning\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations"]
+            },
+            "description": "Creates a planning conversation linked to a trip. Starts at planning step GREETING. The new `conversation_id` is auto-saved."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.id) {",
+                  "  pm.environment.set('conversation_id', body.id);",
+                  "  console.log('✅ conversation_id saved:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Conversations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations?trip_id={{trip_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations"],
+              "query": [
+                {
+                  "key": "trip_id",
+                  "value": "{{trip_id}}",
+                  "description": "Filter by trip UUID (required)"
+                }
+              ]
+            },
+            "description": "Lists all conversations for the given trip, newest first."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Conversation (with Messages)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations", "{{conversation_id}}"]
+            },
+            "description": "Returns the conversation and its full message history."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has messages array', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('messages');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Initialize Conversation (AI Greeting)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/init",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations", "{{conversation_id}}", "init"]
+            },
+            "description": "Triggers the first AI greeting message with no user input. Idempotent — safe to call multiple times."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has messages', () => {",
+                  "  pm.expect(pm.response.json().messages).to.be.an('array').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Send Planning Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"I want a relaxed pace with lots of scenic stops\",\n  \"message_type\": \"text\",\n  \"metadata\": {}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations", "{{conversation_id}}", "messages"]
+            },
+            "description": "Sends a user message, advances the planning step, and returns the AI response. `message_type` and `metadata` are optional."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has messages and planning_step', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('messages');",
+                  "  pm.expect(body).to.have.property('planning_step');",
+                  "  pm.expect(body).to.have.property('progress_percent');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Go Back a Planning Step",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/back",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations", "{{conversation_id}}", "back"]
+            },
+            "description": "Moves back to the previous planning step and re-prompts the AI. Returns 400 if already at the first step."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 400', () => {",
+                  "  pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Send Companion Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"What should I do if it rains today?\",\n  \"message_type\": \"text\",\n  \"metadata\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/companion",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conversations", "{{conversation_id}}", "companion"]
+            },
+            "description": "Live trip companion chat (used during an active trip, not during planning). The AI answers context-aware questions about conditions, alternatives, etc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attractions",
+      "description": "NZ activity and attraction catalogue. Public endpoints — no auth required.",
+      "item": [
+        {
+          "name": "List Attractions",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions?destination=new-zealand",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "attractions"],
+              "query": [
+                {
+                  "key": "destination",
+                  "value": "new-zealand",
+                  "description": "Destination key (default: new-zealand)"
+                },
+                {
+                  "key": "region",
+                  "value": "",
+                  "description": "Filter by region (e.g. Southland, Canterbury)",
+                  "disabled": true
+                },
+                {
+                  "key": "types",
+                  "value": "",
+                  "description": "Comma-separated activity types (e.g. hiking,kayaking)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists attractions ordered by uniqueness score. Filter by region or activity types."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Attractions — Filtered by Region",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions?destination=new-zealand&region=Southland",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "attractions"],
+              "query": [
+                { "key": "destination", "value": "new-zealand" },
+                { "key": "region", "value": "Southland" }
+              ]
+            },
+            "description": "Example: filter attractions to Southland region only."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Attractions — Filtered by Types",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions?destination=new-zealand&types=hiking,kayaking",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "attractions"],
+              "query": [
+                { "key": "destination", "value": "new-zealand" },
+                { "key": "types", "value": "hiking,kayaking" }
+              ]
+            },
+            "description": "Example: filter by multiple activity types (comma-separated)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Attraction by Slug",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/{{attraction_slug}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "attractions", "{{attraction_slug}}"]
+            },
+            "description": "Returns full details for a single attraction. Set `attraction_slug` in the environment (e.g. milford-sound-cruise)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has slug', () => {",
+                  "  pm.expect(pm.response.json().slug).to.eql(pm.environment.get('attraction_slug'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Seed NZ Attractions",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/attractions/seed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "attractions", "seed"]
+            },
+            "description": "Seeds the database with NZ attraction data. Idempotent — safe to run multiple times. Returns 201 with seeded count."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 201', () => {",
+                  "  pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "pm.test('Has message', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Itinerary",
+      "description": "Trip itinerary — AI generation and day-by-day retrieval.",
+      "item": [
+        {
+          "name": "Get Itinerary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/itinerary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "itinerary"]
+            },
+            "description": "Returns the full itinerary overview including all days and activities."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has days array', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('days');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Generate Itinerary (AI)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/itinerary/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "itinerary", "generate"]
+            },
+            "description": "AI-generates a full itinerary from the trip's planning_state. Returns 409 if an itinerary already exists."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 or 409', () => {",
+                  "  pm.expect([201, 409]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Single Day",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/itinerary/days/{{day_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "itinerary", "days", "{{day_number}}"]
+            },
+            "description": "Returns a single itinerary day by its day number (1-based). Set `day_number` in the environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has activities', () => {",
+                  "  pm.expect(pm.response.json()).to.have.property('activities');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conditions",
+      "description": "Real-time weather, solar data, trip condition forecasts, and trip activation.",
+      "item": [
+        {
+          "name": "Current Conditions (lat/lon)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/conditions/current?lat=-43.532&lon=172.636",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conditions", "current"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "-43.532",
+                  "description": "Latitude (Christchurch, NZ)"
+                },
+                {
+                  "key": "lon",
+                  "value": "172.636",
+                  "description": "Longitude (Christchurch, NZ)"
+                }
+              ]
+            },
+            "description": "Returns current weather and solar data for the given coordinates. Try Queenstown: lat=-45.031, lon=168.662 or Auckland: lat=-36.847, lon=174.763."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has weather and solar', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('weather');",
+                  "  pm.expect(body).to.have.property('solar');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Current Conditions — Queenstown",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/conditions/current?lat=-45.031&lon=168.662",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conditions", "current"],
+              "query": [
+                { "key": "lat", "value": "-45.031" },
+                { "key": "lon", "value": "168.662" }
+              ]
+            },
+            "description": "Current conditions for Queenstown, NZ."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Trip Condition Forecast",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/conditions/forecast/{{trip_id}}?days_ahead=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conditions", "forecast", "{{trip_id}}"],
+              "query": [
+                {
+                  "key": "days_ahead",
+                  "value": "5",
+                  "description": "Number of days to forecast (1–8, default 5)"
+                }
+              ]
+            },
+            "description": "Returns a weather-scored condition forecast for the first N days of the trip's itinerary, with per-activity assessments."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has days array', () => {",
+                  "  pm.expect(pm.response.json().days).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Activate Trip",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/v1/conditions/trips/{{trip_id}}/activate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "conditions", "trips", "{{trip_id}}", "activate"]
+            },
+            "description": "Transitions the trip status to `active`, enabling live companion mode. Returns 400 if already in an incompatible status."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 400', () => {",
+                  "  pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Briefings",
+      "description": "AI-generated daily briefings with weather scoring, packing lists, and swap suggestions.",
+      "item": [
+        {
+          "name": "List Briefings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings"]
+            },
+            "description": "Lists all daily briefings for the trip."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Day Briefing",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/{{day_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "{{day_number}}"]
+            },
+            "description": "Returns the most recent briefing for the given day number. 404 if no briefing exists yet."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Generate Briefings (All Days)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force_refresh\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "generate"]
+            },
+            "description": "Generates briefings for all days. Set `force_refresh: true` to regenerate even if a recent briefing (< 1 hour old) exists."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Generate Briefings (Specific Day)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day_number\": {{day_number}},\n  \"force_refresh\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "generate"]
+            },
+            "description": "Generates or refreshes the briefing for a single day only."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Swap Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/swaps/list?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "swaps", "list"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "Filter by status: pending | accepted | declined"
+                }
+              ]
+            },
+            "description": "Lists swap suggestions for the trip. The first pending swap's `id` is auto-saved to the environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const swaps = pm.response.json();",
+                  "if (Array.isArray(swaps) && swaps.length > 0 && swaps[0].id) {",
+                  "  pm.environment.set('swap_id', swaps[0].id);",
+                  "  console.log('✅ swap_id saved:', swaps[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Accept Swap",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"accept\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/swaps/{{swap_id}}/action",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "swaps", "{{swap_id}}", "action"]
+            },
+            "description": "Accepts a swap suggestion and applies the itinerary change. Returns 400 if already actioned or 404 if not found."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 400', () => {",
+                  "  pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Decline Swap",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"decline\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/trips/{{trip_id}}/briefings/swaps/{{swap_id}}/action",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "trips", "{{trip_id}}", "briefings", "swaps", "{{swap_id}}", "action"]
+            },
+            "description": "Declines a swap suggestion. The itinerary remains unchanged."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 400', () => {",
+                  "  pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}
