@@ -1,7 +1,8 @@
 """Planning conversation state machine.
 
-Manages the structured flow: GREETING → PROFILE → DESTINATION → INTERESTS
-→ ATTRACTION_SELECTION → ROUTE_REVIEW → TRANSPORT → PACE → ITINERARY_REVIEW → CONFIRMED
+Manages the structured flow:
+Round 1 (Travel DNA): GREETING → GROUP → AGE_RANGE → ACCESSIBILITY → FITNESS
+Round 2+ (Logistics, Interests, etc.): DATES → DRIVING → FLIGHTS → INTERESTS → ...
 """
 from __future__ import annotations
 
@@ -17,8 +18,12 @@ log = structlog.get_logger()
 
 PLANNING_STEPS = [
     "GREETING",
-    "PROFILE",
+    # Round 1: Travel DNA
     "GROUP",
+    "AGE_RANGE",
+    "ACCESSIBILITY",
+    "FITNESS",
+    # Round 2+: Logistics, Interests, Deep Dive, Route
     "DATES",
     "DRIVING",
     "FLIGHTS",
@@ -29,6 +34,8 @@ PLANNING_STEPS = [
     "GENERATING",
     "CONFIRMED",
 ]
+
+FREE_TEXT_STEPS = frozenset({"AGE_RANGE"})
 
 STEP_INDEX = {step: i for i, step in enumerate(PLANNING_STEPS)}
 
@@ -60,8 +67,12 @@ Always respond with valid JSON matching the schema below. No markdown fences.
     {"emoji": "🏖️", "label": "Option name", "desc": "Brief description"}
   ],
   "multi_select": false,
+  "free_text": false,
   "provider_cards": null
 }
+
+For free-text steps (where the user types a response instead of choosing from options),
+set "choices" to null and "free_text" to true.
 
 If the step requires provider comparison cards, use:
 {
@@ -82,15 +93,49 @@ def get_step_prompt(step: str, planning_state: dict) -> str:
             "Tell them you'll help plan an incredible NZ adventure in about 10 minutes. "
             "Present two choices: 'Let's do it!' and 'Tell me more first'."
         ),
-        "PROFILE": (
-            "Ask about the user's adventure level. Present 3 options: "
-            "Chill (scenic drives & relaxation), Moderate (active but balanced), "
-            "Adventurous (push my limits!). Use emoji for each."
-        ),
         "GROUP": (
-            "Ask who's coming along. Present 4 options: "
-            "Just me (solo), With my partner, Family with kids, Group of friends. "
-            "Acknowledge their previous choice first."
+            "This is the FIRST planning question. Ask who's coming along on this adventure. "
+            "Present exactly 4 options: "
+            "'Flying solo' (just me and the open road), "
+            "'With my partner' (adventure for two), "
+            "'Family trip' (kids are coming along), "
+            "'Friends trip' (the crew is rolling deep). "
+            "Use appropriate emoji for each."
+        ),
+        "AGE_RANGE": (
+            "This is a FREE TEXT step — set choices to null and free_text to true. "
+            "Based on the user's group selection, ask about the ages of everyone traveling. "
+            "Make it conversational and explain WHY you're asking (e.g., helps with pacing, "
+            "activity suitability, etc.). Examples by group type: "
+            "Solo → ask their age or age range. "
+            "Couple → ask the age range for both. "
+            "Family → ask how old the kids are, mention it helps with pacing and rest stops. "
+            "Friends → ask the age range of the group. "
+            f"Group type selected: {planning_state.get('group_type', 'unknown')}. "
+            "Acknowledge their group choice first."
+        ),
+        "ACCESSIBILITY": (
+            "Ask about mobility and accessibility needs for the group. "
+            "Frame it naturally — e.g., 'let's talk about mobility.' "
+            "Present exactly 3 options: "
+            "'No special needs' (we can handle uneven terrain), "
+            "'Prefer flat, paved paths' (minimal stairs), "
+            "'Wheelchair/stroller accessible only'. "
+            "Use appropriate emoji for each. Acknowledge their previous answer first."
+        ),
+        "FITNESS": (
+            "Ask about the maximum comfortable hiking level for the group. "
+            "Reference NZ's range from 15-minute boardwalks to epic alpine crossings. "
+            "Mention you always build in plenty of easy, scenic stops. "
+            "Tailor the framing to their group type "
+            f"(group: {planning_state.get('group_type', 'unknown')}, "
+            f"ages: {planning_state.get('age_range', 'unknown')}). "
+            "Present exactly 4 options with these labels and descriptions: "
+            "'Keep it light' (mostly flat paths and viewpoints, under an hour max), "
+            "'Up for a moderate challenge' (3-4 hour hike with some hills, balanced with easier days), "
+            "'Bring on the big hikes' (full-day steep terrain, 8+ hours), "
+            "'A mix of everything' (surprise me Buddi, just balance hard days with rest). "
+            "Acknowledge their accessibility answer first."
         ),
         "DATES": (
             "Ask when they're thinking of visiting NZ. Suggest 3-4 date ranges "
@@ -181,8 +226,10 @@ def update_planning_state(state: dict, step: str, user_input: str) -> dict:
     updated = {**state}
 
     field_map = {
-        "PROFILE": "adventure_level",
         "GROUP": "group_type",
+        "AGE_RANGE": "age_range",
+        "ACCESSIBILITY": "accessibility",
+        "FITNESS": "fitness_level",
         "DATES": "travel_dates",
         "DRIVING": "driving_preference",
         "FLIGHTS": "flights_status",
@@ -242,22 +289,38 @@ def _fallback_step_response(step: str, planning_state: dict) -> dict:
             ],
             "multi_select": False,
         },
-        "PROFILE": {
-            "text": "First, your adventure level — how wild do you like it?",
+        "GROUP": {
+            "text": "First up — who's coming along on this adventure?",
             "choices": [
-                {"emoji": "🏖️", "label": "Chill", "desc": "Scenic drives & relaxation"},
-                {"emoji": "🥾", "label": "Moderate", "desc": "Active but balanced"},
-                {"emoji": "🧗", "label": "Adventurous", "desc": "Push my limits!"},
+                {"emoji": "🧑", "label": "Flying solo", "desc": "Just me and the open road"},
+                {"emoji": "💑", "label": "With my partner", "desc": "Adventure for two"},
+                {"emoji": "👨‍👩‍👧‍👦", "label": "Family trip", "desc": "Kids are coming along"},
+                {"emoji": "👯", "label": "Friends trip", "desc": "The crew is rolling deep"},
             ],
             "multi_select": False,
         },
-        "GROUP": {
-            "text": "Great choice! Now, who's coming along?",
+        "AGE_RANGE": {
+            "text": "Great! To make sure I recommend the right activities and pace, what are the ages of everyone traveling?",
+            "choices": None,
+            "free_text": True,
+            "multi_select": False,
+        },
+        "ACCESSIBILITY": {
+            "text": "Next, let's talk about mobility. Does anyone in your group have specific accessibility needs?",
             "choices": [
-                {"emoji": "🧑", "label": "Just me", "desc": "Solo adventure"},
-                {"emoji": "💑", "label": "With my partner", "desc": ""},
-                {"emoji": "👨‍👩‍👧‍👦", "label": "Family with kids", "desc": ""},
-                {"emoji": "👯", "label": "Group of friends", "desc": ""},
+                {"emoji": "🥾", "label": "No special needs", "desc": "We can handle uneven terrain"},
+                {"emoji": "🚶", "label": "Prefer flat, paved paths", "desc": "Minimal stairs"},
+                {"emoji": "♿", "label": "Wheelchair/stroller accessible only", "desc": ""},
+            ],
+            "multi_select": False,
+        },
+        "FITNESS": {
+            "text": "New Zealand is famous for its trails, ranging from 15-minute boardwalks to epic alpine crossings. I always build in plenty of easy, scenic stops — but what's the maximum level of hiking your group would comfortably tackle?",
+            "choices": [
+                {"emoji": "🚶", "label": "Keep it light", "desc": "Mostly flat paths and viewpoints, under an hour max"},
+                {"emoji": "🥾", "label": "Up for a moderate challenge", "desc": "3-4 hour hikes with some hills, balanced with easier days"},
+                {"emoji": "⛰️", "label": "Bring on the big hikes", "desc": "Full-day steep terrain, 8+ hours"},
+                {"emoji": "🎲", "label": "A mix of everything", "desc": "Surprise me, Buddi! Just balance hard days with rest"},
             ],
             "multi_select": False,
         },

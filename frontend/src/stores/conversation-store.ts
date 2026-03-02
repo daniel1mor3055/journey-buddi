@@ -28,6 +28,7 @@ export interface ChatMessage {
   metadata_: {
     choices?: ChoiceOption[];
     multi_select?: boolean;
+    free_text?: boolean;
     provider_cards?: ProviderCard[];
   };
   sort_order: number;

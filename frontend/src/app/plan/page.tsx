@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronRight, Compass, Check } from "lucide-react";
+import { ArrowLeft, ChevronRight, Compass, Check, Send } from "lucide-react";
 import Link from "next/link";
 import { useConversationStore } from "@/stores/conversation-store";
 import { useTripStore } from "@/stores/trip-store";
@@ -144,6 +144,47 @@ function ProviderCards({ cards, onSelect }: ProviderCardsProps) {
   );
 }
 
+interface FreeTextInputProps {
+  onSubmit: (text: string) => void;
+  disabled: boolean;
+}
+
+function FreeTextInput({ onSubmit, disabled }: FreeTextInputProps) {
+  const [value, setValue] = useState("");
+
+  const handleSubmit = () => {
+    const trimmed = value.trim();
+    if (!trimmed || disabled) return;
+    onSubmit(trimmed);
+    setValue("");
+  };
+
+  return (
+    <div className="flex gap-2 items-end">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+        placeholder="Type your answer..."
+        disabled={disabled}
+        className="flex-1 rounded-xl border-2 border-sand bg-cloud px-4 py-3 text-bark
+          placeholder:text-stone focus:outline-none focus:border-teal transition-colors"
+        style={{ fontSize: "0.9375rem" }}
+      />
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={disabled || !value.trim()}
+        className="shrink-0 w-11 h-11 rounded-xl bg-teal text-white flex items-center justify-center
+          disabled:opacity-40 transition-opacity hover:shadow-md active:scale-95"
+      >
+        <Send size={18} />
+      </button>
+    </div>
+  );
+}
+
 export default function PlanPage() {
   const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -253,6 +294,9 @@ export default function PlanPage() {
     planningStep === "GENERATING" || planningStep === "CONFIRMED";
   const tripId = currentTrip?.id;
 
+  const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant");
+  const showFreeText = !isLoading && lastAssistantMsg?.metadata_?.free_text === true;
+
   return (
     <div className="min-h-screen bg-mist flex flex-col">
       {/* Sticky header */}
@@ -297,6 +341,13 @@ export default function PlanPage() {
           </AnimatePresence>
 
           {isLoading && <TypingIndicator />}
+
+          {showFreeText && (
+            <div className="pt-2">
+              <FreeTextInput onSubmit={(text) => sendMessage(text)} disabled={isLoading} />
+            </div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
 
