@@ -61,7 +61,7 @@ interface ConversationState {
 export const useConversationStore = create<ConversationState>((set, get) => ({
   conversationId: null,
   messages: [],
-  planningStep: "GREETING",
+  planningStep: "greeting",
   planningState: {},
   progressPercent: 0,
   isLoading: false,
@@ -149,7 +149,7 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     set({
       conversationId: null,
       messages: [],
-      planningStep: "GREETING",
+      planningStep: "greeting",
       planningState: {},
       progressPercent: 0,
       isLoading: false,

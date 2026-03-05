@@ -21,19 +21,25 @@ from app.schemas.conversation import (
     MessageRead,
     PlanningStepResponse,
 )
-from app.services.planning import (
-    TELL_ME_MORE_RESPONSE,
-    generate_step_response,
-    is_tell_me_more,
-    next_step,
-    prev_step,
-    progress_percent,
-    update_planning_state,
-)
+from app.agents.context import PlanningContext
+from app.agents.orchestrator import orchestrator
 from app.services.companion_chat import generate_companion_response
+from app.services.tell_me_more_options import ACTIVE_TELL_ME_MORE
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/conversations", tags=["conversations"])
+
+
+def _msg_type_from(ai_response: dict) -> str:
+    if ai_response.get("choices"):
+        return "choices"
+    if ai_response.get("provider_cards"):
+        return "provider_cards"
+    return "text"
+
+
+def _response_metadata(ai_response: dict) -> dict:
+    return {k: v for k, v in ai_response.items() if k != "text" and v is not None}
 
 
 @router.post("", response_model=ConversationRead, status_code=status.HTTP_201_CREATED)
@@ -49,12 +55,13 @@ async def create_conversation(
     if trip is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
 
+    memory = PlanningContext()
     conv = Conversation(
         trip_id=body.trip_id,
         user_id=user.id,
         title=body.title or "Planning Conversation",
-        planning_step="GREETING",
-        planning_state={},
+        planning_step=memory.current_agent,
+        planning_state=memory.to_dict(),
     )
     db.add(conv)
     await db.flush()
@@ -108,63 +115,54 @@ async def send_message(
     )
     db.add(user_msg)
 
-    if is_tell_me_more(conv.planning_step, body.content):
-        ai_response = TELL_ME_MORE_RESPONSE
+    memory = PlanningContext.from_dict(conv.planning_state)
+
+    if (
+        memory.current_agent == "greeting"
+        and body.content.strip().lower() == "tell me more first"
+    ):
+        ai_response: dict = {
+            "text": ACTIVE_TELL_ME_MORE,
+            "choices": [
+                {"emoji": "🎯", "label": "Let's do it!", "desc": "Start planning your trip"},
+            ],
+        }
     else:
-        conv.planning_state = update_planning_state(
-            conv.planning_state, conv.planning_step, body.content
-        )
-
-        new_step = next_step(conv.planning_step)
-        if new_step:
-            conv.planning_step = new_step
-
-        history = [
-            {"role": m.role, "content": m.content}
-            for m in conv.messages
-        ]
+        history = [{"role": m.role, "content": m.content} for m in conv.messages]
         history.append({"role": "user", "content": body.content})
 
-        ai_response = await generate_step_response(
-            step=conv.planning_step,
-            planning_state=conv.planning_state,
+        ai_response, memory = await orchestrator.process_message(
+            ctx=memory,
             user_message=body.content,
             conversation_history=history,
+            conversation_id=str(conv.id),
         )
 
-    response_text = ai_response.get("text", "Let's continue!")
-    response_metadata = {
-        k: v for k, v in ai_response.items() if k != "text" and v is not None
-    }
+    conv.planning_state = memory.to_dict()
+    conv.planning_step = memory.current_agent
 
-    msg_type = "text"
-    if ai_response.get("choices"):
-        msg_type = "choices"
-    elif ai_response.get("provider_cards"):
-        msg_type = "provider_cards"
+    response_text = ai_response.get("text", "Let's continue!")
 
     assistant_msg = Message(
         conversation_id=conv.id,
         role="assistant",
         content=response_text,
-        message_type=msg_type,
-        metadata_=response_metadata,
+        message_type=_msg_type_from(ai_response),
+        metadata_=_response_metadata(ai_response),
         sort_order=max_order + 2,
     )
     db.add(assistant_msg)
 
     await db.flush()
 
-    new_messages = [
-        MessageRead.model_validate(user_msg),
-        MessageRead.model_validate(assistant_msg),
-    ]
-
     return PlanningStepResponse(
-        messages=new_messages,
+        messages=[
+            MessageRead.model_validate(user_msg),
+            MessageRead.model_validate(assistant_msg),
+        ],
         planning_step=conv.planning_step,
         planning_state=conv.planning_state,
-        progress_percent=progress_percent(conv.planning_step),
+        progress_percent=orchestrator.progress_percent(memory),
     )
 
 
@@ -174,35 +172,32 @@ async def init_conversation(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Initialize a conversation with the greeting step (no user message needed)."""
+    """Initialize a conversation with the greeting (no user message needed)."""
     conv = await _get_user_conversation(conversation_id, user.id, db)
+
+    memory = PlanningContext.from_dict(conv.planning_state)
 
     if conv.messages:
         return PlanningStepResponse(
             messages=[MessageRead.model_validate(m) for m in conv.messages],
             planning_step=conv.planning_step,
             planning_state=conv.planning_state,
-            progress_percent=progress_percent(conv.planning_step),
+            progress_percent=orchestrator.progress_percent(memory),
         )
 
-    ai_response = await generate_step_response(
-        step=conv.planning_step,
-        planning_state=conv.planning_state,
-    )
+    ai_response, memory = await orchestrator.init_conversation(memory, conversation_id=str(conv.id))
+
+    conv.planning_state = memory.to_dict()
+    conv.planning_step = memory.current_agent
 
     response_text = ai_response.get("text", "Hey there! Let's plan your trip!")
-    response_metadata = {
-        k: v for k, v in ai_response.items() if k != "text" and v is not None
-    }
-
-    msg_type = "choices" if ai_response.get("choices") else "text"
 
     msg = Message(
         conversation_id=conv.id,
         role="assistant",
         content=response_text,
-        message_type=msg_type,
-        metadata_=response_metadata,
+        message_type=_msg_type_from(ai_response),
+        metadata_=_response_metadata(ai_response),
         sort_order=0,
     )
     db.add(msg)
@@ -212,7 +207,7 @@ async def init_conversation(
         messages=[MessageRead.model_validate(msg)],
         planning_step=conv.planning_step,
         planning_state=conv.planning_state,
-        progress_percent=progress_percent(conv.planning_step),
+        progress_percent=orchestrator.progress_percent(memory),
     )
 
 
@@ -222,44 +217,41 @@ async def go_back(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Go back to the previous planning step."""
+    """Go back to the previous agent in the pipeline."""
     conv = await _get_user_conversation(conversation_id, user.id, db)
+    memory = PlanningContext.from_dict(conv.planning_state)
 
-    previous = prev_step(conv.planning_step)
-    if previous is None:
+    if not memory.completed_agents:
         raise HTTPException(status_code=400, detail="Already at the first step")
 
-    conv.planning_step = previous
+    previous_agent_name = memory.completed_agents.pop()
+    memory.current_agent = previous_agent_name
 
-    ai_response = await generate_step_response(
-        step=conv.planning_step,
-        planning_state=conv.planning_state,
-    )
+    ai_response, memory = await orchestrator.init_conversation(memory, conversation_id=str(conv.id))
+
+    conv.planning_state = memory.to_dict()
+    conv.planning_step = memory.current_agent
 
     response_text = ai_response.get("text", "Let's revisit this step.")
-    response_metadata = {
-        k: v for k, v in ai_response.items() if k != "text" and v is not None
-    }
-
-    msg_type = "choices" if ai_response.get("choices") else "text"
 
     max_order = max((m.sort_order for m in conv.messages), default=-1)
     msg = Message(
         conversation_id=conv.id,
         role="assistant",
         content=response_text,
-        message_type=msg_type,
-        metadata_=response_metadata,
+        message_type=_msg_type_from(ai_response),
+        metadata_=_response_metadata(ai_response),
         sort_order=max_order + 1,
     )
     db.add(msg)
     await db.flush()
 
     return PlanningStepResponse(
-        messages=[MessageRead.model_validate(m) for m in conv.messages] + [MessageRead.model_validate(msg)],
+        messages=[MessageRead.model_validate(m) for m in conv.messages]
+        + [MessageRead.model_validate(msg)],
         planning_step=conv.planning_step,
         planning_state=conv.planning_state,
-        progress_percent=progress_percent(conv.planning_step),
+        progress_percent=orchestrator.progress_percent(memory),
     )
 
 

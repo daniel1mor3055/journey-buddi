@@ -159,18 +159,32 @@ function FreeTextInput({ onSubmit, disabled }: FreeTextInputProps) {
     setValue("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+    // Shift+Enter inserts a newline naturally via textarea default behaviour
+  };
+
   return (
     <div className="flex gap-2 items-end">
-      <input
-        type="text"
+      <textarea
+        rows={1}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-        placeholder="Type your answer..."
+        onChange={(e) => {
+          setValue(e.target.value);
+          // Auto-grow: reset then set scrollHeight so it shrinks back too
+          e.target.style.height = "auto";
+          e.target.style.height = `${e.target.scrollHeight}px`;
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder="Type your answer… (Shift+Enter for new line)"
         disabled={disabled}
         className="flex-1 rounded-xl border-2 border-sand bg-cloud px-4 py-3 text-bark
-          placeholder:text-stone focus:outline-none focus:border-teal transition-colors"
-        style={{ fontSize: "0.9375rem" }}
+          placeholder:text-stone focus:outline-none focus:border-teal transition-colors
+          resize-none overflow-hidden leading-relaxed"
+        style={{ fontSize: "0.9375rem", minHeight: "2.75rem", maxHeight: "10rem" }}
       />
       <button
         type="button"
@@ -290,8 +304,7 @@ export default function PlanPage() {
     );
   }
 
-  const showViewDashboard =
-    planningStep === "GENERATING" || planningStep === "CONFIRMED";
+  const showViewDashboard = planningStep === "complete";
   const tripId = currentTrip?.id;
 
   const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant");
@@ -364,15 +377,13 @@ export default function PlanPage() {
             >
               View Full Dashboard
             </Link>
-            {planningStep === "CONFIRMED" && (
-              <button
-                type="button"
-                onClick={() => goBack()}
-                className="block w-full bg-sand text-bark rounded-xl py-3 px-6 font-semibold transition-all hover:shadow-md active:scale-[0.98]"
-              >
-                I Want to Make Changes
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => goBack()}
+              className="block w-full bg-sand text-bark rounded-xl py-3 px-6 font-semibold transition-all hover:shadow-md active:scale-[0.98]"
+            >
+              I Want to Make Changes
+            </button>
           </motion.div>
         )}
       </main>

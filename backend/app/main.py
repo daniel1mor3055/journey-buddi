@@ -88,9 +88,9 @@ async def websocket_chat(
     from app.models.user import User
     from app.models.conversation import Conversation, Message
     from app.models.trip import Trip
-    from app.services.openai_client import openai_client as gemini_client
     from app.services.companion_chat import generate_companion_response
-    from app.services.planning import generate_step_response, next_step, update_planning_state, progress_percent
+    from app.agents.context import PlanningContext
+    from app.agents.orchestrator import orchestrator
 
     user_id = decode_access_token(token)
     if not user_id:
@@ -179,19 +179,15 @@ async def websocket_chat(
                         chunk = response_text[i : i + 20]
                         await websocket.send_json({"type": "stream_token", "token": chunk})
                 else:
-                    conv.planning_state = update_planning_state(
-                        conv.planning_state, conv.planning_step, content,
-                    )
-                    new_step = next_step(conv.planning_step)
-                    if new_step:
-                        conv.planning_step = new_step
-
-                    ai_response = await generate_step_response(
-                        step=conv.planning_step,
-                        planning_state=conv.planning_state,
+                    memory = PlanningContext.from_dict(conv.planning_state)
+                    ai_response, memory = await orchestrator.process_message(
+                        ctx=memory,
                         user_message=content,
                         conversation_history=history,
+                        conversation_id=str(conv.id),
                     )
+                    conv.planning_state = memory.to_dict()
+                    conv.planning_step = memory.current_agent
                     response_text = ai_response.get("text", "Let's continue!")
 
                     for i in range(0, len(response_text), 20):
@@ -209,11 +205,12 @@ async def websocket_chat(
                 db.add(assistant_msg)
                 await db.flush()
 
+                memory = PlanningContext.from_dict(conv.planning_state)
                 await websocket.send_json({
                     "type": "stream_end",
                     "full_content": response_text,
                     "planning_step": conv.planning_step,
-                    "progress_percent": progress_percent(conv.planning_step),
+                    "progress_percent": orchestrator.progress_percent(memory),
                 })
 
     except WebSocketDisconnect:

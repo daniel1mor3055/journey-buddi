@@ -102,20 +102,36 @@ class OpenAIClient:
         user_message: str,
         conversation_history: Optional[list] = None,
     ) -> dict:
-        raw = await self.generate(
-            system_prompt=system_prompt + "\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no code fences.",
-            user_message=user_message,
-            conversation_history=conversation_history,
-            temperature=0.3,
-        )
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            lines = cleaned.split("\n")
-            cleaned = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+        client = await self._get_client()
+        if client is None:
+            return {}
+
         try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            log.warning("openai_json_parse_failed", raw=raw[:200])
+            messages = [{"role": "system", "content": system_prompt}]
+
+            if conversation_history:
+                for msg in conversation_history[-20:]:
+                    role = "user" if msg["role"] == "user" else "assistant"
+                    messages.append({"role": role, "content": msg["content"]})
+
+            messages.append({"role": "user", "content": user_message})
+
+            response = await client.chat.completions.create(
+                model=settings.openai_model,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=2048,
+                response_format={"type": "json_object"},
+            )
+            raw = response.choices[0].message.content or "{}"
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError:
+                log.warning("openai_json_parse_failed", raw=raw[:200])
+                return {}
+
+        except Exception:
+            log.exception("openai_json_generation_failed")
             return {}
 
     def _fallback_response(self, user_message: str) -> str:
