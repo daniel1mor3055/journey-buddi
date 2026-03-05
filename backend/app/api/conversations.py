@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.api.deps import get_current_user
 from app.database import get_db
@@ -140,6 +141,7 @@ async def send_message(
 
     conv.planning_state = memory.to_dict()
     conv.planning_step = memory.current_agent
+    flag_modified(conv, "planning_state")
 
     response_text = ai_response.get("text", "Let's continue!")
 
@@ -189,6 +191,7 @@ async def init_conversation(
 
     conv.planning_state = memory.to_dict()
     conv.planning_step = memory.current_agent
+    flag_modified(conv, "planning_state")
 
     response_text = ai_response.get("text", "Hey there! Let's plan your trip!")
 
@@ -231,6 +234,7 @@ async def go_back(
 
     conv.planning_state = memory.to_dict()
     conv.planning_step = memory.current_agent
+    flag_modified(conv, "planning_state")
 
     response_text = ai_response.get("text", "Let's revisit this step.")
 

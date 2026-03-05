@@ -6,6 +6,7 @@ Every agent, tool, and handoff callback receives this context via
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field, asdict
 from typing import Any
 
@@ -58,4 +59,4 @@ class PlanningContext:
             return cls()
         known_fields = {f.name for f in cls.__dataclass_fields__.values()}
         filtered = {k: v for k, v in data.items() if k in known_fields}
-        return cls(**filtered)
+        return cls(**copy.deepcopy(filtered))

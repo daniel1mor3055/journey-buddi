@@ -115,13 +115,33 @@ async def get_tell_me_more_info(ctx: RunContextWrapper[PlanningContext]) -> str:
 # Travel DNA tools
 # ═══════════════════════════════════════════════════════════════════════════
 
+_GROUP_TYPE_ALIASES: dict[str, str] = {
+    "solo": "solo",
+    "flying solo": "solo",
+    "just me": "solo",
+    "alone": "solo",
+    "couple": "couple",
+    "with my partner": "couple",
+    "partner": "couple",
+    "two": "couple",
+    "family": "family",
+    "family trip": "family",
+    "with family": "family",
+    "friends": "friends",
+    "friends trip": "friends",
+    "with friends": "friends",
+    "friend group": "friends",
+}
+
+
 @function_tool
 async def set_group_type(
     ctx: RunContextWrapper[PlanningContext],
     group_type: str,
 ) -> str:
-    """Set the travel group type. Must be one of: solo, couple, family, friends."""
-    normalized = group_type.strip().lower()
+    """Set the travel group type. Must be one of: solo, couple, family, friends.
+    Also accepts common phrases like 'Flying solo', 'With my partner', 'Family trip', 'Friends trip'."""
+    normalized = _GROUP_TYPE_ALIASES.get(group_type.strip().lower(), group_type.strip().lower())
     valid = {"solo", "couple", "family", "friends"}
     if normalized not in valid:
         return f"Invalid group type '{group_type}'. Must be one of: {', '.join(sorted(valid))}"
@@ -157,31 +177,77 @@ async def set_group_ages(
     return _status("Ages recorded", travel_dna_missing(ctx.context))
 
 
+_ACCESSIBILITY_ALIASES: dict[str, str] = {
+    "none": "none",
+    "no special needs": "none",
+    "no accessibility needs": "none",
+    "all good": "none",
+    "all good to go": "none",
+    "minimal": "minimal",
+    "prefer flat": "minimal",
+    "prefer flat, paved paths": "minimal",
+    "flat paths": "minimal",
+    "paved paths": "minimal",
+    "wheelchair": "wheelchair",
+    "wheelchair accessible": "wheelchair",
+    "wheelchair/stroller accessible only": "wheelchair",
+    "stroller": "wheelchair",
+    "full accessibility": "wheelchair",
+}
+
+_FITNESS_ALIASES: dict[str, tuple[str, bool]] = {
+    "light": ("light", False),
+    "keep it light": ("light", False),
+    "easy": ("light", False),
+    "gentle": ("light", False),
+    "moderate": ("moderate", True),
+    "up for a moderate challenge": ("moderate", True),
+    "moderate challenge": ("moderate", True),
+    "advanced": ("advanced", True),
+    "bring on the big hikes": ("advanced", True),
+    "hard hikes": ("advanced", True),
+    "mixed": ("mixed", True),
+    "a mix of everything": ("mixed", True),
+    "mix": ("mixed", True),
+    "some easy days, some big ones": ("mixed", True),
+}
+
+
 @function_tool
 async def set_accessibility(
     ctx: RunContextWrapper[PlanningContext],
     level: str,
     notes: str = "",
 ) -> str:
-    """Set accessibility requirements. Level should be: none, minimal, or wheelchair."""
-    ctx.context.accessibility_needs = {"level": level.strip().lower(), "notes": notes}
+    """Set accessibility requirements.
+    Call this whenever the user states their accessibility preference, even if they say
+    'No special needs' or 'All good to go' — those map to level='none'.
+    Accepted level values (also accepts full button labels):
+      'none'        → no accessibility needs ('No special needs', 'All good to go')
+      'minimal'     → prefers flat/paved paths ('Prefer flat, paved paths')
+      'wheelchair'  → wheelchair or stroller required"""
+    normalized = _ACCESSIBILITY_ALIASES.get(level.strip().lower(), level.strip().lower())
+    ctx.context.accessibility_needs = {"level": normalized, "notes": notes}
     return _status("Accessibility set", travel_dna_missing(ctx.context))
 
 
 @function_tool
 async def set_fitness_profile(
     ctx: RunContextWrapper[PlanningContext],
-    general_level: str,
-    can_handle_hard_hikes: bool,
+    level: str,
     notes: str = "",
 ) -> str:
     """Set the group's fitness profile.
-    general_level: light, moderate, advanced, or mixed.
-    can_handle_hard_hikes: whether the group can handle 1-2 hard hikes.
-    notes: any extra nuance from the user."""
+    Call this whenever the user states their fitness preference.
+    Accepted level values (also accepts full button labels):
+      'light'    → gentle walks, easy access ('Keep it light')
+      'moderate' → a few hours hiking is fine ('Up for a moderate challenge')
+      'advanced' → multi-hour treks, no problem ('Bring on the big hikes')
+      'mixed'    → mix of easy and hard days ('A mix of everything')"""
+    level_key, can_hike = _FITNESS_ALIASES.get(level.strip().lower(), (level.strip().lower(), level.strip().lower() in ("moderate", "advanced", "mixed")))
     ctx.context.fitness_profile = {
-        "general_level": general_level.strip().lower(),
-        "can_handle_hard_hikes": can_handle_hard_hikes,
+        "general_level": level_key,
+        "can_handle_hard_hikes": can_hike,
         "notes": notes,
     }
     return _status("Fitness profile set", travel_dna_missing(ctx.context))
