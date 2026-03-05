@@ -94,6 +94,7 @@ async def generate_trip_itinerary(
             "booking_required": a.booking_required,
             "uniqueness_score": a.uniqueness_score,
             "logistics": a.logistics,
+            "pro_tips": a.pro_tips,
         }
         for a in all_attractions
     ]

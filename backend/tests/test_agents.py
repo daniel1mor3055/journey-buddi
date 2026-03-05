@@ -144,7 +144,7 @@ class TestStatusHelpers:
     def test_travel_dna_missing_none_solo(self):
         ctx = PlanningContext(
             group_type="solo",
-            group_details={"count": 1},
+            group_details={"count": 1, "ages_raw": "30"},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
         )
@@ -262,6 +262,8 @@ class TestPipeline:
             "Logistics",
             "Interest Categories",
             "Interest Deep Dive",
+            "Activity Location",
+            "Location Summary",
             "Provider Selection",
             "Transport Route",
         ]
@@ -270,6 +272,7 @@ class TestPipeline:
         assert set(AGENT_NAME_MAP.keys()) == {
             "greeting", "travel_dna", "logistics",
             "interest_categories", "interest_deep_dive",
+            "activity_location", "location_summary",
             "provider_selection", "transport_route",
         }
 
@@ -282,9 +285,10 @@ class TestPipeline:
         for agent in PIPELINE:
             assert agent.output_type is PlanningResponse, f"{agent.name} missing output_type"
 
-    def test_all_non_last_agents_have_handoffs(self):
-        for agent in PIPELINE[:-1]:
-            assert len(agent.handoffs) > 0, f"{agent.name} has no handoffs"
+    def test_no_agents_have_handoffs(self):
+        """Transitions are managed by the orchestrator, not via agent handoffs."""
+        for agent in PIPELINE:
+            assert len(agent.handoffs) == 0, f"{agent.name} should not have handoffs"
 
     def test_greeting_has_tools(self):
         tool_names = [t.name for t in greeting_agent.tools]
@@ -325,6 +329,7 @@ class TestOrchestrator:
         ctx = PlanningContext(
             completed_agents=["greeting", "travel_dna", "logistics",
                               "interest_categories", "interest_deep_dive",
+                              "activity_location", "location_summary",
                               "provider_selection", "transport_route"],
             current_agent="complete",
         )
@@ -332,27 +337,25 @@ class TestOrchestrator:
 
     def test_fallback_greeting(self):
         ctx = PlanningContext(current_agent="greeting")
-        fb = self.orch._fallback(ctx)
-        assert "Buddi" in fb["text"]
-        assert fb["choices"] is not None
-        assert len(fb["choices"]) == 2
+        fb = self.orch._field_fallback("greeting", ctx)
+        assert "text" in fb
 
     def test_fallback_travel_dna(self):
         ctx = PlanningContext(current_agent="travel_dna")
-        fb = self.orch._fallback(ctx)
+        fb = self.orch._field_fallback("travel_dna", ctx)
         assert fb["choices"] is not None
         assert len(fb["choices"]) == 4
 
     def test_fallback_unknown_agent(self):
         ctx = PlanningContext(current_agent="nonexistent")
-        fb = self.orch._fallback(ctx)
+        fb = self.orch._field_fallback("nonexistent", ctx)
         assert "text" in fb
 
     def test_mark_all_complete(self):
         ctx = PlanningContext()
         self.orch._mark_all_complete(ctx)
         assert ctx.current_agent == "complete"
-        assert len(ctx.completed_agents) == 7
+        assert len(ctx.completed_agents) == 9
 
 
 # ═══════════════════════════════════════════════════════════════════════════

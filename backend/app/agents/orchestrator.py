@@ -31,6 +31,8 @@ from app.agents.tools import (
     logistics_missing,
     interest_categories_missing,
     interest_deep_dive_remaining,
+    activity_location_remaining,
+    location_summary_missing,
     provider_selection_remaining,
     transport_route_missing,
 )
@@ -64,6 +66,8 @@ def _agent_missing(agent_name: str, ctx: PlanningContext) -> list[str]:
         "logistics": lambda: logistics_missing(ctx),
         "interest_categories": lambda: interest_categories_missing(ctx),
         "interest_deep_dive": lambda: interest_deep_dive_remaining(ctx),
+        "activity_location": lambda: activity_location_remaining(ctx),
+        "location_summary": lambda: location_summary_missing(ctx),
         "provider_selection": lambda: provider_selection_remaining(ctx),
         "transport_route": lambda: transport_route_missing(ctx),
     }
@@ -91,7 +95,7 @@ def _enforce_single_item(
     If the LLM auto-filled multiple categories/activities in one run,
     keep only the first one and reset the rest.
     """
-    if agent_name not in ("interest_deep_dive", "provider_selection"):
+    if agent_name not in ("interest_deep_dive", "activity_location", "provider_selection"):
         return
 
     missing_after = _agent_missing(agent_name, ctx)
@@ -104,6 +108,8 @@ def _enforce_single_item(
     for item in filled[1:]:
         if agent_name == "interest_deep_dive":
             ctx.interest_details.pop(item, None)
+        elif agent_name == "activity_location":
+            ctx.activity_locations.pop(item, None)
         elif agent_name == "provider_selection":
             ctx.selected_providers.pop(item, None)
 
@@ -556,6 +562,43 @@ class PlanningOrchestrator:
                 }
             return {
                 "text": f"What specific **{category}** activities interest you?",
+                "choices": None,
+                "multi_select": False,
+                "free_text": True,
+            }
+
+        if agent_name == "activity_location" and missing:
+            activity = missing[0]
+            from app.agents.tools import ACTIVITY_LOCATION_MAP
+            options = ACTIVITY_LOCATION_MAP.get(activity, [])
+            if options:
+                choices = [
+                    {
+                        "emoji": "📍",
+                        "label": f"{opt['location']} — {opt['name']}",
+                        "desc": opt.get("highlight", ""),
+                    }
+                    for opt in options
+                ]
+                return {
+                    "text": f"Where would you like to do **{activity}**?",
+                    "choices": choices,
+                    "multi_select": False,
+                    "free_text": False,
+                }
+            return {
+                "text": f"Where in New Zealand would you like to do **{activity}**?",
+                "choices": None,
+                "multi_select": False,
+                "free_text": True,
+            }
+
+        if agent_name == "location_summary" and missing:
+            return {
+                "text": (
+                    "Let me put together your per-location plan — "
+                    "grouping activities, recommending days, and suggesting bonus sightseeing."
+                ),
                 "choices": None,
                 "multi_select": False,
                 "free_text": True,

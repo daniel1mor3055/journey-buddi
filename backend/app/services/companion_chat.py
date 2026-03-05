@@ -20,26 +20,31 @@ log = structlog.get_logger()
 COMPANION_SYSTEM_PROMPT = """You are Buddi, an expert New Zealand travel companion. The trip is now ACTIVE — the traveler is currently on their trip.
 
 CONTEXT:
-You have access to the current itinerary, today's conditions, and the traveler's preferences.
+You have access to the current itinerary, today's conditions, the traveler's preferences,
+and REAL PRO TIPS from experienced travelers for each activity.
 
 PERSONALITY:
 - Warm, knowledgeable, practical
 - Speak like a well-traveled friend riding along
 - Be specific with recommendations (times, places, distances)
 - Reference actual conditions when relevant
+- Use the pro tips provided — they are real, verified advice
 
 CAPABILITIES:
 - Answer questions about today's plan and conditions
-- Suggest adjustments if conditions change
-- Provide activity tips and hidden gems
-- Help with logistics (directions, nearest facilities)
-- Share stories about the area they're visiting
+- Suggest adjustments if conditions change — provide specific backup alternatives
+- Provide activity tips and hidden gems from the knowledge base
+- Help with logistics (directions, parking, food, nearest facilities)
+- Warn about logistics gaps (no food, no cell coverage, road conditions)
+- Share booking reminders and preparation tips
+- Suggest backup plans when weather doesn't cooperate
 
 RULES:
 - Keep responses concise and actionable
 - Reference real weather data when discussing conditions
-- Don't make up specific business names or phone numbers unless they're in the knowledge base
-- If you don't know something, say so honestly
+- Use the PRO TIPS provided for each activity — these are real, tested tips
+- If conditions are poor for an activity, suggest a specific backup from the knowledge base
+- Always mention logistics warnings (food gaps, parking, cell coverage)
 - Always prioritize safety
 
 Respond as plain text (not JSON) — this is a free-form chat, not structured planning."""
@@ -71,14 +76,39 @@ async def generate_companion_response(
 
         if today_day:
             activities_text = []
+            pro_tips_context = ""
+            logistics_context = ""
             for act in today_day.activities:
                 time_str = f" at {act.time_start}" if act.time_start else ""
                 activities_text.append(f"- {act.emoji} {act.name}{time_str}")
+
+                if act.attraction:
+                    tips = act.attraction.pro_tips or []
+                    if tips:
+                        tip_lines = [f"  [{t.get('category', '')}] {t.get('tip', '')}" for t in tips[:8]]
+                        pro_tips_context += f"\nPRO TIPS for {act.name}:\n" + "\n".join(tip_lines)
+
+                    att_logistics = act.attraction.logistics or {}
+                    warnings = []
+                    if att_logistics.get("parking"):
+                        warnings.append(f"Parking: {att_logistics['parking']}")
+                    if att_logistics.get("food_nearby"):
+                        warnings.append(f"Food: {att_logistics['food_nearby']}")
+                    if att_logistics.get("cell_coverage") and att_logistics["cell_coverage"] != "good":
+                        warnings.append(f"Cell coverage: {att_logistics['cell_coverage']}")
+                    if att_logistics.get("access"):
+                        warnings.append(f"Access: {att_logistics['access']}")
+                    if act.attraction.booking_required:
+                        warnings.append("BOOKING REQUIRED — traveler should have confirmation ready")
+                    if warnings:
+                        logistics_context += f"\nLOGISTICS for {act.name}:\n" + "\n".join(f"  - {w}" for w in warnings)
 
             itinerary_context = (
                 f"\nTODAY'S PLAN (Day {current_day_number}):\n"
                 f"Location: {today_day.location}\n"
                 f"Activities:\n" + "\n".join(activities_text)
+                + pro_tips_context
+                + logistics_context
             )
 
             if today_day.activities:

@@ -29,8 +29,14 @@ from app.agents.tools import (
     # interest deep dive
     get_activity_options, set_interest_activities,
     interest_deep_dive_remaining,
+    # activity-location ranking
+    get_location_options, set_activity_location,
+    activity_location_remaining,
+    # location summary
+    build_location_summary, adjust_location_days, confirm_location_plan,
+    location_summary_missing,
     # provider selection
-    set_provider, provider_selection_remaining, _all_activities,
+    get_real_providers, set_provider, provider_selection_remaining, _all_activities,
     # transport & route
     set_transport_mode, set_route_direction,
     transport_route_missing,
@@ -232,6 +238,85 @@ After user selects activities for a category, acknowledge and transition to next
 """
 
 
+def _activity_location_instructions(
+    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
+) -> str:
+    c = ctx.context
+    remaining = activity_location_remaining(c)
+    covered = [a for a in _all_activities(c) if a not in remaining]
+    next_act = remaining[0] if remaining else "none"
+    progress = f"{len(covered)}/{len(_all_activities(c))} activities placed"
+
+    return f"""{BUDDI_PERSONA}
+{QUESTION_PHILOSOPHY}
+{RESPONSE_RULES}
+
+YOUR ROLE: Activity-Location Agent
+GOAL: For each selected activity, show the 2-3 best NZ locations where it
+can be done, with a short comparison, and let the user choose WHERE to do it.
+
+CURRENT STATE:
+{_compact_state(c)}
+
+PROGRESS: {progress}
+ACTIVITIES PLACED: {json.dumps(covered)}
+NEXT ACTIVITY: {next_act}
+REMAINING: {json.dumps(remaining)}
+
+WORKFLOW:
+1. If the user's message contains an explicit location choice, call
+   set_activity_location to record it. Otherwise do NOT call any
+   data-setting tools.
+2. Call get_location_options for the NEXT unplaced activity.
+3. Present the ranked locations with:
+   - Location name and provider/experience name
+   - "On your route" / "Requires detour" note (use route_fit field)
+   - A one-line highlight of what makes each special
+4. Let the user pick one, or say "Let Buddi decide" / "Skip".
+5. When ALL activities have locations, say you're all set.
+
+Keep it conversational. Reference their route and existing location choices
+to help them cluster activities efficiently (e.g. "Since you're already
+going to Queenstown for bungy, you could add skydiving there too").
+"""
+
+
+def _location_summary_instructions(
+    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
+) -> str:
+    c = ctx.context
+    missing = location_summary_missing(c)
+    missing_str = ", ".join(missing) if missing else "NONE — ready to hand off!"
+
+    return f"""{BUDDI_PERSONA}
+{QUESTION_PHILOSOPHY}
+{RESPONSE_RULES}
+
+YOUR ROLE: Location Summary Agent
+GOAL: Group all chosen activities by location, recommend days per area,
+and show bonus sightseeing suggestions. Let the user adjust days.
+
+CURRENT STATE:
+{_compact_state(c)}
+
+STILL MISSING: {missing_str}
+
+WORKFLOW:
+1. If location_summary is empty, call build_location_summary to generate it.
+2. Present each location as a section:
+   "📍 Queenstown (3 days recommended)"
+   ✅ Bungy jumping — Nevis Bungy
+   ✅ Skydiving — NZONE
+   🎁 Also nearby: Skyline Gondola, Fergburger, Glenorchy drive
+3. Show the total trip duration and ask if they want to adjust any location's days.
+4. If the user wants changes, call adjust_location_days.
+5. When the user confirms, call confirm_location_plan.
+
+Present a clean, visual per-location breakdown. Use emojis.
+Mention if any location seems light (1 activity) or packed (4+ activities).
+"""
+
+
 def _provider_selection_instructions(
     ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
 ) -> str:
@@ -268,16 +353,18 @@ WORKFLOW:
 1. If the user's message contains an explicit provider selection, call
    set_provider to record it. Otherwise do NOT call any data-setting tools.
 2. Focus on ONE activity at a time ({next_act}).
-3. Use provider_cards in your response (set choices to null).
-4. Present 3-5 real providers from DIFFERENT NZ regions with:
-   emoji, name, location, rating, reviews, price (NZD), whatsSpecial, buddiPick.
-5. Include text mentioning a "Let Buddi decide" or "Skip" option.
-6. When user picks a provider (or defers), call set_provider.
-7. If more activities remain, present the next one.
-8. When ALL activities have providers, produce a response saying providers are set.
+3. Call get_real_providers to fetch REAL provider data from our database.
+4. Use provider_cards in your response (set choices to null) based on REAL data.
+   Present providers with: emoji, name, location, price (NZD), whatsSpecial, buddiPick.
+   Use the actual data returned — do NOT hallucinate providers or prices.
+5. Mark the highest uniqueness_score provider as buddiPick=true.
+6. Include text mentioning a "Let Buddi decide" or "Skip" option.
+7. When user picks a provider (or defers), call set_provider.
+8. If more activities remain, present the next one.
+9. When ALL activities have providers, produce a response saying providers are set.
 
-IMPORTANT: Recommend geographic diversity. If the user already has activities
-in certain locations, suggest providers in OTHER regions.
+IMPORTANT: Use ONLY providers returned by get_real_providers. Do NOT make up
+provider names, prices, or details. The data comes from our verified database.
 """
 
 
@@ -334,10 +421,24 @@ transport_route_agent: Agent[PlanningContext] = Agent(
     output_type=PlanningResponse,
 )
 
+location_summary_agent: Agent[PlanningContext] = Agent(
+    name="Location Summary",
+    instructions=_location_summary_instructions,
+    tools=[build_location_summary, adjust_location_days, confirm_location_plan],
+    output_type=PlanningResponse,
+)
+
+activity_location_agent: Agent[PlanningContext] = Agent(
+    name="Activity Location",
+    instructions=_activity_location_instructions,
+    tools=[get_location_options, set_activity_location],
+    output_type=PlanningResponse,
+)
+
 provider_selection_agent: Agent[PlanningContext] = Agent(
     name="Provider Selection",
     instructions=_provider_selection_instructions,
-    tools=[set_provider],
+    tools=[get_real_providers, set_provider],
     output_type=PlanningResponse,
 )
 
@@ -418,6 +519,8 @@ PIPELINE: list[Agent[PlanningContext]] = [
     logistics_agent,
     interest_categories_agent,
     interest_deep_dive_agent,
+    activity_location_agent,
+    location_summary_agent,
     provider_selection_agent,
     transport_route_agent,
 ]
@@ -428,6 +531,8 @@ AGENT_NAME_MAP: dict[str, Agent[PlanningContext]] = {
     "logistics": logistics_agent,
     "interest_categories": interest_categories_agent,
     "interest_deep_dive": interest_deep_dive_agent,
+    "activity_location": activity_location_agent,
+    "location_summary": location_summary_agent,
     "provider_selection": provider_selection_agent,
     "transport_route": transport_route_agent,
 }
@@ -438,6 +543,8 @@ AGENT_TO_NAME: dict[str, str] = {
     "Logistics": "logistics",
     "Interest Categories": "interest_categories",
     "Interest Deep Dive": "interest_deep_dive",
+    "Activity Location": "activity_location",
+    "Location Summary": "location_summary",
     "Provider Selection": "provider_selection",
     "Transport Route": "transport_route",
 }

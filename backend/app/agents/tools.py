@@ -71,6 +71,19 @@ def provider_selection_remaining(ctx: PlanningContext) -> list[str]:
     return [a for a in _all_activities(ctx) if a not in ctx.selected_providers]
 
 
+def activity_location_remaining(ctx: PlanningContext) -> list[str]:
+    return [a for a in _all_activities(ctx) if a not in ctx.activity_locations]
+
+
+def location_summary_missing(ctx: PlanningContext) -> list[str]:
+    missing: list[str] = []
+    if not ctx.location_summary:
+        missing.append("location_summary")
+    if not ctx.days_per_location:
+        missing.append("days_per_location")
+    return missing
+
+
 def transport_route_missing(ctx: PlanningContext) -> list[str]:
     missing: list[str] = []
     if not ctx.transport_plan:
@@ -356,6 +369,102 @@ async def set_interest_activities(
 # Provider Selection tools
 # ═══════════════════════════════════════════════════════════════════════════
 
+def _build_provider_db() -> dict[str, list[dict]]:
+    """Build a lookup of activity → real providers from the attractions data."""
+    from app.data.nz_attractions import NZ_ATTRACTIONS
+
+    providers: dict[str, list[dict]] = {}
+
+    activity_type_map = {
+        "bungy": "Bungy jumping",
+        "adrenaline": None,
+        "adventure": None,
+        "skydive": "Skydiving",
+        "jet-boat": "Jet boating",
+        "zipline": "Zip-lining",
+        "rafting": "White water rafting",
+        "canyoning": "Canyoning",
+        "paragliding": "Paragliding",
+        "horse-riding": "Horse riding",
+        "balloon": "Hot air balloon",
+        "hiking": "Day hikes to summits",
+        "kayaking": "Kayaking",
+        "cruise": "Cruises",
+        "wildlife": "Wildlife watching",
+        "wine": "Vineyard tours",
+        "spa": "Spa experiences",
+        "geothermal": "Geothermal parks",
+        "cultural": "Cultural experiences",
+        "cave": "Cave tours",
+        "stargazing": "Stargazing tours",
+    }
+
+    for att in NZ_ATTRACTIONS:
+        logistics = att.get("logistics", {})
+        cost_info = logistics.get("estimated_cost_nzd", {})
+        adult_price = cost_info.get("adult", 0) if isinstance(cost_info, dict) else 0
+        operator = att.get("metadata", {}).get("operator", "")
+
+        provider_entry = {
+            "name": att["name"],
+            "location": att.get("location_name", ""),
+            "region": att.get("region", ""),
+            "price_nzd": adult_price,
+            "price_notes": cost_info.get("notes", "") if isinstance(cost_info, dict) else "",
+            "operator": operator,
+            "booking_required": att.get("booking_required", False),
+            "uniqueness_score": att.get("uniqueness_score", 50),
+            "description": att.get("description", "")[:120],
+            "weather_sensitivity": att.get("weather_sensitivity", "moderate"),
+        }
+
+        for att_type in att.get("types", []):
+            activity_name = activity_type_map.get(att_type)
+            if activity_name:
+                providers.setdefault(activity_name, []).append(provider_entry)
+
+        providers.setdefault(att["name"], []).append(provider_entry)
+
+    return providers
+
+
+_PROVIDER_DB: dict[str, list[dict]] | None = None
+
+
+def _get_provider_db() -> dict[str, list[dict]]:
+    global _PROVIDER_DB
+    if _PROVIDER_DB is None:
+        _PROVIDER_DB = _build_provider_db()
+    return _PROVIDER_DB
+
+
+@function_tool
+async def get_real_providers(
+    ctx: RunContextWrapper[PlanningContext],
+    activity: str,
+) -> str:
+    """Get real provider options for an activity from the attractions database.
+    Returns actual operators with real prices, locations, and details."""
+    db = _get_provider_db()
+    chosen_location = ctx.context.activity_locations.get(activity, "")
+
+    candidates = db.get(activity, [])
+    if not candidates:
+        for key, providers in db.items():
+            if activity.lower() in key.lower() or key.lower() in activity.lower():
+                candidates = providers
+                break
+
+    if chosen_location:
+        loc_lower = chosen_location.lower()
+        local = [p for p in candidates if loc_lower in p.get("location", "").lower() or loc_lower in p.get("region", "").lower()]
+        if local:
+            candidates = local
+
+    candidates.sort(key=lambda p: p.get("uniqueness_score", 50), reverse=True)
+    return json.dumps(candidates[:5])
+
+
 @function_tool
 async def set_provider(
     ctx: RunContextWrapper[PlanningContext],
@@ -398,3 +507,247 @@ async def set_route_direction(
     """Set the route direction. Should be: clockwise, counter-clockwise, or custom."""
     ctx.context.route_direction = direction.strip().lower()
     return _status("Route direction set", transport_route_missing(ctx.context))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Activity-Location tools
+# ═══════════════════════════════════════════════════════════════════════════
+
+ACTIVITY_LOCATION_MAP: dict[str, list[dict[str, str]]] = {
+    "Bungy jumping": [
+        {"location": "Queenstown", "name": "Nevis Bungy (134m)", "region": "otago", "route_fit": "south-island", "highlight": "NZ's highest — 8.5 sec freefall"},
+        {"location": "Queenstown", "name": "Kawarau Bridge Bungy (43m)", "region": "otago", "route_fit": "south-island", "highlight": "Birthplace of commercial bungy"},
+        {"location": "Taupo", "name": "Taupo Cliff Bungy (47m)", "region": "waikato", "route_fit": "north-island", "highlight": "River water-touch option"},
+    ],
+    "Skydiving": [
+        {"location": "Queenstown", "name": "NZONE Skydive", "region": "otago", "route_fit": "south-island", "highlight": "Remarkables + Lake Wakatipu views"},
+        {"location": "Wanaka", "name": "Skydive Wanaka", "region": "otago", "route_fit": "south-island", "highlight": "Alpine lake panorama, less crowded"},
+    ],
+    "Jet boating": [
+        {"location": "Queenstown", "name": "Shotover Jet", "region": "otago", "route_fit": "south-island", "highlight": "Narrow canyon at 85 km/h"},
+        {"location": "Taupo", "name": "Huka Falls Jet", "region": "waikato", "route_fit": "north-island", "highlight": "Near NZ's most famous waterfall"},
+    ],
+    "Zip-lining": [
+        {"location": "Rotorua", "name": "Rotorua Canopy Tours", "region": "rotorua", "route_fit": "north-island", "highlight": "Best in NZ — ancient native bush, eco-focused"},
+        {"location": "Queenstown", "name": "Ziptrek Ecotours", "region": "otago", "route_fit": "south-island", "highlight": "Treehouse platforms, Skyline hill views"},
+        {"location": "Waiheke Island", "name": "EcoZip Adventures", "region": "auckland", "route_fit": "north-island", "highlight": "Dual ziplines over vineyards + forest walk"},
+    ],
+    "Canyoning": [
+        {"location": "Wanaka", "name": "Deep Canyon", "region": "otago", "route_fit": "south-island", "highlight": "Waterfall rappelling + cliff jumps"},
+    ],
+    "White water rafting": [
+        {"location": "Rotorua", "name": "Kaituna Cascades", "region": "rotorua", "route_fit": "north-island", "highlight": "7m Tutea Falls — highest commercially rafted waterfall"},
+    ],
+    "Paragliding": [
+        {"location": "Queenstown", "name": "Coronet Peak Tandems", "region": "otago", "route_fit": "south-island", "highlight": "Remarkables views, premier NZ site"},
+        {"location": "Wanaka", "name": "Wanaka Paragliding", "region": "otago", "route_fit": "south-island", "highlight": "Backup for Queenstown weather"},
+    ],
+    "Day hikes to summits": [
+        {"location": "Wanaka", "name": "Roys Peak Track", "region": "otago", "route_fit": "south-island", "highlight": "Famous Insta ridgeline, 1200m gain"},
+        {"location": "Tongariro", "name": "Tongariro Alpine Crossing", "region": "tongariro", "route_fit": "north-island", "highlight": "NZ's most famous day hike"},
+        {"location": "Tongariro", "name": "Tama Lakes Track", "region": "tongariro", "route_fit": "north-island", "highlight": "Dramatic volcanic lakes, less crowded"},
+    ],
+    "Glacier hikes": [
+        {"location": "Franz Josef", "name": "Franz Josef Heli-Hike", "region": "west-coast", "route_fit": "south-island", "highlight": "Helicopter onto glacier, blue ice caves"},
+    ],
+    "Coastal walks": [
+        {"location": "Abel Tasman", "name": "Abel Tasman Coast Track", "region": "nelson-tasman", "route_fit": "south-island", "highlight": "Golden beaches, turquoise water"},
+        {"location": "Hahei", "name": "Cathedral Cove Walk", "region": "coromandel", "route_fit": "north-island", "highlight": "Iconic rock arch, Narnia filming site"},
+    ],
+    "Whale watching": [
+        {"location": "Kaikoura", "name": "Whale Watch Kaikoura", "region": "marlborough", "route_fit": "south-island", "highlight": "95% sighting success, sperm whales"},
+    ],
+    "Swim with dolphins": [
+        {"location": "Akaroa", "name": "Black Cat Cruises", "region": "canterbury", "route_fit": "south-island", "highlight": "World's smallest dolphin — Hector's"},
+    ],
+    "Kayaking": [
+        {"location": "Abel Tasman", "name": "Abel Tasman Kayaks", "region": "nelson-tasman", "route_fit": "south-island", "highlight": "Seal colony, golden coast"},
+        {"location": "Milford Sound", "name": "Rosco's Milford Kayaks", "region": "southland-fiordland", "route_fit": "south-island", "highlight": "Fiord kayaking beneath waterfalls"},
+    ],
+    "Vineyard tours": [
+        {"location": "Waiheke Island", "name": "Wine Mile Self-Guided", "region": "auckland", "route_fit": "north-island", "highlight": "4 world-class wineries walkable"},
+        {"location": "Marlborough", "name": "Jade Tours", "region": "marlborough", "route_fit": "south-island", "highlight": "World-famous Sauvignon Blanc region"},
+        {"location": "Queenstown", "name": "Gibbston Valley Bike & Wine", "region": "otago", "route_fit": "south-island", "highlight": "Pinot Noir + mountain scenery + bungy bridge"},
+    ],
+    "Wine tasting": [
+        {"location": "Waiheke Island", "name": "Wine Mile Self-Guided", "region": "auckland", "route_fit": "north-island", "highlight": "4 world-class wineries walkable"},
+        {"location": "Marlborough", "name": "Jade Tours", "region": "marlborough", "route_fit": "south-island", "highlight": "World-famous Sauvignon Blanc region"},
+        {"location": "Queenstown", "name": "Gibbston Valley Bike & Wine", "region": "otago", "route_fit": "south-island", "highlight": "Pinot Noir + mountain scenery + bungy bridge"},
+    ],
+    "Natural hot springs": [
+        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "28 pools, lakeside, acidic + alkaline"},
+        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs, river + mountain views"},
+        {"location": "Lake Tekapo", "name": "Tekapo Springs", "region": "canterbury", "route_fit": "south-island", "highlight": "Hot pools + stargazing combo"},
+        {"location": "Taupo", "name": "Otumuheke Stream", "region": "waikato", "route_fit": "north-island", "highlight": "FREE natural thermal river"},
+    ],
+    "Thermal pools": [
+        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "28 pools, lakeside, acidic + alkaline"},
+        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs, river + mountain views"},
+        {"location": "Taupo", "name": "Wairakei Terraces", "region": "waikato", "route_fit": "north-island", "highlight": "Blue silica terraces + thermal pools"},
+    ],
+    "Spa experiences": [
+        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Luxury private cedar hot tubs"},
+        {"location": "Whitianga", "name": "The Lost Spring", "region": "coromandel", "route_fit": "north-island", "highlight": "Tropical landscaping, cocktails in-pool"},
+    ],
+    "Glowworm caves": [
+        {"location": "Waitomo", "name": "Waitomo Glowworm Caves", "region": "waikato", "route_fit": "north-island", "highlight": "Millions of glowworms, silent boat ride"},
+        {"location": "Waitomo", "name": "Spellbound Caves", "region": "waikato", "route_fit": "north-island", "highlight": "Intimate tour, fewer crowds"},
+    ],
+    "Hot springs": [
+        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "NZ's flagship spa, 28 pools"},
+        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs"},
+        {"location": "Taupo", "name": "Otumuheke Stream", "region": "waikato", "route_fit": "north-island", "highlight": "FREE natural thermal river"},
+    ],
+    "Geysers": [
+        {"location": "Rotorua", "name": "Te Puia (Pohutu Geyser)", "region": "rotorua", "route_fit": "north-island", "highlight": "NZ's most active geyser + Maori culture"},
+    ],
+    "Geothermal parks": [
+        {"location": "Rotorua", "name": "Wai-O-Tapu", "region": "rotorua", "route_fit": "north-island", "highlight": "Most colorful geothermal area in NZ"},
+        {"location": "Taupo", "name": "Craters of the Moon", "region": "waikato", "route_fit": "north-island", "highlight": "Steaming craters on supervolcano"},
+    ],
+    "Mud pools": [
+        {"location": "Rotorua", "name": "Hell's Gate Mud Bath", "region": "rotorua", "route_fit": "north-island", "highlight": "Only geothermal mud bath in NZ"},
+        {"location": "Rotorua", "name": "Wai-O-Tapu", "region": "rotorua", "route_fit": "north-island", "highlight": "Massive boiling mud bubbles (free roadside)"},
+    ],
+    "Penguin colonies": [
+        {"location": "Dunedin", "name": "Otago Peninsula Wildlife", "region": "otago", "route_fit": "south-island", "highlight": "Yellow-eyed + blue penguins, wild beach"},
+    ],
+    "Seal watching": [
+        {"location": "Kaikoura", "name": "Kaikoura Seal Colony Walk", "region": "marlborough", "route_fit": "south-island", "highlight": "Free, NZ fur seals on rocks"},
+    ],
+    "Māori cultural experiences": [
+        {"location": "Rotorua", "name": "Te Puia", "region": "rotorua", "route_fit": "north-island", "highlight": "Geyser + carving school + kiwi house + haka"},
+    ],
+    "Stargazing tours": [
+        {"location": "Lake Tekapo", "name": "Mt John Observatory", "region": "canterbury", "route_fit": "south-island", "highlight": "World's largest dark sky reserve"},
+    ],
+    "Landscape photography": [
+        {"location": "Wanaka", "name": "Roys Peak", "region": "otago", "route_fit": "south-island", "highlight": "Famous ridgeline photo"},
+        {"location": "Aoraki/Mt Cook", "name": "Hooker Valley Track", "region": "canterbury", "route_fit": "south-island", "highlight": "Swing bridges + icebergs + NZ's highest peak"},
+        {"location": "Fox Glacier", "name": "Lake Matheson", "region": "west-coast", "route_fit": "south-island", "highlight": "Mirror reflections of Mt Cook + Tasman"},
+    ],
+    "Sunrise / sunset spots": [
+        {"location": "Taranaki", "name": "Pouakai Tarn", "region": "taranaki", "route_fit": "north-island", "highlight": "Famous Mt Taranaki reflection"},
+        {"location": "Lake Tekapo", "name": "Church of the Good Shepherd", "region": "canterbury", "route_fit": "south-island", "highlight": "Milky Way over iconic church"},
+    ],
+}
+
+
+@function_tool
+async def get_location_options(
+    ctx: RunContextWrapper[PlanningContext],
+    activity: str,
+) -> str:
+    """Get ranked location options where an activity can be done, so you can
+    present them to the user for selection."""
+    options = ACTIVITY_LOCATION_MAP.get(activity)
+    if options:
+        return json.dumps(options)
+    return json.dumps([{
+        "location": "Unknown",
+        "name": activity,
+        "region": "varies",
+        "route_fit": "flexible",
+        "highlight": "Ask the user where they'd prefer to do this",
+    }])
+
+
+@function_tool
+async def set_activity_location(
+    ctx: RunContextWrapper[PlanningContext],
+    activity: str,
+    location: str,
+) -> str:
+    """Record which location the user chose for a specific activity."""
+    ctx.context.activity_locations[activity] = location
+    remaining = activity_location_remaining(ctx.context)
+    return _status(f"'{activity}' → {location}", remaining)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Location Summary tools
+# ═══════════════════════════════════════════════════════════════════════════
+
+SIGHTSEEING_BY_LOCATION: dict[str, list[str]] = {
+    "Queenstown": ["Skyline Gondola & Luge", "Glenorchy scenic drive", "Fergburger", "Lake Wakatipu waterfront walk"],
+    "Wanaka": ["That Wanaka Tree", "Puzzling World", "Lavender Farm", "Cinema Paradiso"],
+    "Rotorua": ["Kuirau Park geothermal", "Redwoods Treewalk", "Government Gardens", "Eat Street dining"],
+    "Taupo": ["Aratiatia Rapids", "Huka Falls walk", "Craters of the Moon", "Great Lake Taupo lookouts"],
+    "Tongariro": ["Meads Wall (LOTR)", "Taranaki Falls loop", "Chateau Tongariro tea"],
+    "Kaikoura": ["Seal Colony walk (free)", "Kaikoura Peninsula Walkway", "Seafood at Nin's Bin crayfish"],
+    "Franz Josef": ["Roberts Point Track", "Glacier Valley walk (free)", "West Coast Wildlife Centre"],
+    "Abel Tasman": ["Cleopatra's Pool", "Split Apple Rock", "Kaiteriteri beach"],
+    "Dunedin": ["Baldwin Street (steepest)", "Larnach Castle", "Tunnel Beach", "Cadbury World"],
+    "Milford Sound": ["The Chasm walk", "Mirror Lakes", "Key Summit Track"],
+    "Waiheke Island": ["Onetangi Beach", "Cable Bay walkway", "Batch Winery sunset"],
+    "Waitomo": ["Mangapohue Natural Bridge", "Marokopa Falls", "Piripiri Cave"],
+    "Matamata": ["Hobbiton", "Wairere Falls (NI's tallest)", "Firth Tower Museum"],
+    "Hahei": ["Hot Water Beach (tide dependent)", "Stingray Bay snorkelling", "Cathedral Cove"],
+    "Lake Tekapo": ["Church of the Good Shepherd", "Mt John walkway (free)", "Lupins (Nov-Dec)"],
+    "Aoraki/Mt Cook": ["Hooker Valley Track", "Tasman Glacier viewpoint", "Sir Edmund Hillary Centre"],
+    "Punakaiki": ["Pancake Rocks + Blowholes", "Truman Track hidden beach"],
+    "Taranaki": ["Pouakai Tarn", "Three Sisters", "New Plymouth coastal walkway"],
+    "Putaruru": ["Blue Spring / Te Waihou Walkway"],
+    "Whitianga": ["The Lost Spring", "Flaxmill Bay", "Mercury Bay"],
+    "Marlborough": ["Wine trail by bike", "Kenepuru Sound drive"],
+    "Canterbury": ["International Antarctic Centre", "Christchurch Botanic Gardens", "Port Hills walk"],
+    "Akaroa": ["Hector's dolphin swim", "French colonial architecture walk", "Giant's House"],
+}
+
+
+@function_tool
+async def build_location_summary(
+    ctx: RunContextWrapper[PlanningContext],
+) -> str:
+    """Build a per-location summary grouping all chosen activities and
+    recommending sightseeing and days per location. Call this once all
+    activity locations are set."""
+    activity_locs = ctx.context.activity_locations
+    if not activity_locs:
+        return "No activity locations set yet. Complete activity-location selection first."
+
+    summary: dict[str, dict] = {}
+    for activity, location in activity_locs.items():
+        if location not in summary:
+            summary[location] = {"activities": [], "sightseeing": [], "recommended_days": 0}
+        summary[location]["activities"].append(activity)
+
+    for location, data in summary.items():
+        data["sightseeing"] = SIGHTSEEING_BY_LOCATION.get(location, [])
+        act_count = len(data["activities"])
+        data["recommended_days"] = max(1, (act_count + 1) // 2) + (1 if data["sightseeing"] else 0)
+
+    ctx.context.location_summary = summary
+    ctx.context.days_per_location = {
+        loc: data["recommended_days"] for loc, data in summary.items()
+    }
+    total_days = sum(d["recommended_days"] for d in summary.values())
+    return json.dumps({
+        "summary": summary,
+        "total_activity_days": total_days,
+    })
+
+
+@function_tool
+async def adjust_location_days(
+    ctx: RunContextWrapper[PlanningContext],
+    location: str,
+    days: int,
+) -> str:
+    """Adjust the number of days allocated to a specific location."""
+    if location not in ctx.context.days_per_location:
+        return f"Location '{location}' not in the plan. Available: {list(ctx.context.days_per_location.keys())}"
+    ctx.context.days_per_location[location] = days
+    if location in ctx.context.location_summary:
+        ctx.context.location_summary[location]["recommended_days"] = days
+    total = sum(ctx.context.days_per_location.values())
+    return f"Days for {location} set to {days}. Total trip days: {total}."
+
+
+@function_tool
+async def confirm_location_plan(
+    ctx: RunContextWrapper[PlanningContext],
+) -> str:
+    """Confirm the location plan. Call when the user approves the summary."""
+    missing = location_summary_missing(ctx.context)
+    return _status("Location plan confirmed", missing)

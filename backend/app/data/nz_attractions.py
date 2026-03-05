@@ -1,6 +1,15 @@
-"""NZ attraction seed data for the Journey Buddi pilot."""
+"""NZ attraction seed data for the Journey Buddi pilot.
 
-NZ_ATTRACTIONS = [
+Combines the original 18 core attractions with expanded adventure, nature,
+thermal/spa, and cultural/wine modules — totalling 75+ attractions with
+deep pro tips sourced from real trip-planning conversations.
+"""
+from app.data.nz_attractions_adventure import NZ_ATTRACTIONS_ADVENTURE
+from app.data.nz_attractions_nature import NZ_ATTRACTIONS_NATURE
+from app.data.nz_attractions_thermal import NZ_ATTRACTIONS_THERMAL
+from app.data.nz_attractions_cultural import NZ_ATTRACTIONS_CULTURAL
+
+_NZ_ATTRACTIONS_CORE = [
     {
         "destination": "new-zealand",
         "region": "southland-fiordland",
@@ -21,13 +30,21 @@ NZ_ATTRACTIONS = [
         "uniqueness_score": 95,
         "metadata": {"island": "south", "national_park": "fiordland", "world_heritage": True},
         "pro_tips": [
-            {"category": "hidden_gem", "tip": "Rainy days create hundreds of temporary waterfalls — don't cancel because of rain."},
+            {"category": "hidden_gem", "tip": "Rainy days create hundreds of temporary waterfalls — don't cancel because of rain. Some say it's even more dramatic."},
             {"category": "timing", "tip": "The first cruise of the day has the calmest water for reflections and fewest boats."},
             {"category": "preparation", "tip": "Sandflies at the terminal are legendary. Apply insect repellent before getting out of the car."},
+            {"category": "logistics", "tip": "Homer Tunnel is single-lane with traffic lights — expect 15-20 min waits. Leave Te Anau early."},
+            {"category": "photography", "tip": "Stand at the bow for the best waterfall approach shots. Waterproof your camera — spray is heavy near Stirling Falls."},
+            {"category": "food", "tip": "Pack lunch. Milford Sound cafe is overpriced and often crowded. Eat at the viewpoint car park before boarding."},
+            {"category": "hidden_gem", "tip": "Stop at The Chasm on the drive — a short walk to sculpted rock gorges and falls. Most people skip it."},
+            {"category": "safety", "tip": "Milford Road can close in heavy rain. Check road conditions at milfordroad.com before leaving Te Anau."},
         ],
         "logistics": {
             "access": "Drive from Te Anau via SH94 (2 hours). Homer Tunnel is single-lane with traffic lights. Alternatively, scenic flight or bus from Queenstown.",
             "estimated_cost_nzd": {"adult": 85, "child": 25, "notes": "Standard 2-hour cruise. Premium cruises $120-180."},
+            "parking": "Free at Milford Sound terminal. Arrives early to secure a spot in peak season.",
+            "food_nearby": "Small cafe at terminal — overpriced. Pack your own.",
+            "cell_coverage": "none",
         },
     },
     {
@@ -53,10 +70,18 @@ NZ_ATTRACTIONS = [
             {"category": "viewpoint", "tip": "The best photo of Emerald Lakes is from the ridge about 50 metres before the official viewpoint."},
             {"category": "safety", "tip": "Summit winds can be 3-4x stronger than at the car park. Carry warm layers and a wind shell."},
             {"category": "timing", "tip": "Start early (6-7 AM shuttle) to avoid bottlenecks and afternoon weather deterioration."},
+            {"category": "preparation", "tip": "Carry 2+ litres of water per person. No water sources on track. Dehydration is the #1 issue."},
+            {"category": "hidden_gem", "tip": "If weather cancels the Crossing, try Tama Lakes or Taranaki Falls — both start from Whakapapa Village and are incredible alternatives."},
+            {"category": "logistics", "tip": "Book shuttle day before. Tongariro Expeditions and Adrift Tongariro are reliable operators."},
+            {"category": "food", "tip": "No food on the track. Pack lunch, snacks, and electrolytes. The descent section feels endless on an empty stomach."},
+            {"category": "safety", "tip": "DOC closes the track in bad weather. Check greatwalks.co.nz for alerts the night before and morning of."},
         ],
         "logistics": {
             "access": "One-way hike requires shuttle bus. Mangatepopo (start) to Ketetahi (finish). Shuttles from National Park Village, Tūrangi, Ōhakune.",
             "estimated_cost_nzd": {"adult": 45, "child": 25, "notes": "Shuttle bus cost. Track itself is free."},
+            "parking": "Park at shuttle pickup point. National Park Village has free parking near the train station.",
+            "food_nearby": "Schnapps Bar in National Park Village for post-hike meal. Limited options in Tūrangi.",
+            "cell_coverage": "none",
         },
     },
     {
@@ -283,12 +308,21 @@ NZ_ATTRACTIONS = [
         "metadata": {"island": "north", "lord_of_the_rings": True, "all_weather": True},
         "pro_tips": [
             {"category": "photography", "tip": "Overcast or lightly drizzly days look most 'Shire-like' — soft green light, no harsh shadows."},
-            {"category": "timing", "tip": "Book the last afternoon tour with Green Dragon Inn drink — smaller group, golden hour light."},
-            {"category": "logistics", "tip": "Tour is exactly 2 hours and heavily structured. You cannot wander freely."},
+            {"category": "timing", "tip": "Book the last afternoon tour — smaller group, golden hour light, and Green Dragon drink included."},
+            {"category": "logistics", "tip": "Tour is exactly 2 hours and heavily structured. You cannot wander freely. Check in 20 min before."},
+            {"category": "hidden_gem", "tip": "New Bagshot Row interiors are now included — 15-20 min inside a fully furnished Hobbit home. Let the group surge ahead in the hallway for empty photos."},
+            {"category": "preparation", "tip": "Working sheep farm with zero shade. Hat, sunscreen, and water bottle are essential even on mild days."},
+            {"category": "food", "tip": "At the Green Dragon, order the beef and ale pie immediately at the counter — they run out. Apple Cider is the most refreshing drink for a hot day; Ginger Beer is the famous non-alcoholic option."},
+            {"category": "photography", "tip": "Stay at front or back of the tour group — middle is worst for photos. At the Party Tree, go to the lake edge first for the Mill reflection shot, then photograph the tree when the crowd moves on."},
+            {"category": "logistics", "tip": "Combine with Waitomo Glowworm Caves — about 1.5 hours apart. Morning Hobbiton, afternoon caves works perfectly."},
+            {"category": "logistics", "tip": "Drive to Rotorua is ~1 hour after. Allow 3.5-4 hours total for the Hobbiton experience."},
         ],
         "logistics": {
             "access": "501 Buckland Road, Matamata. Check in at Shire's Rest cafe. Shuttle to the set.",
-            "estimated_cost_nzd": {"adult": 89, "child": 44, "notes": "Standard 2-hour guided tour. Evening Feast: $259."},
+            "estimated_cost_nzd": {"adult": 89, "child": 44, "notes": "Standard 2-hour guided tour. Evening Banquet: $259."},
+            "parking": "Free at Shire's Rest. Large lot but fills for midday tours in summer.",
+            "food_nearby": "Shire's Rest cafe on site. Green Dragon drink included in tour. Matamata township 10 min drive for full meals.",
+            "cell_coverage": "good",
         },
     },
     {
@@ -524,3 +558,11 @@ NZ_ATTRACTIONS = [
         },
     },
 ]
+
+NZ_ATTRACTIONS = (
+    _NZ_ATTRACTIONS_CORE
+    + NZ_ATTRACTIONS_ADVENTURE
+    + NZ_ATTRACTIONS_NATURE
+    + NZ_ATTRACTIONS_THERMAL
+    + NZ_ATTRACTIONS_CULTURAL
+)

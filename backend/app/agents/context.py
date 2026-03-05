@@ -31,6 +31,13 @@ class PlanningContext:
     interest_details: dict[str, list[str]] = field(default_factory=dict)
     selected_providers: dict[str, dict[str, Any]] = field(default_factory=dict)
 
+    # ── Activity-Location mapping (activity → chosen location) ────────
+    activity_locations: dict[str, str] = field(default_factory=dict)
+
+    # ── Per-location summary {location: {activities, sightseeing, recommended_days}} ─
+    location_summary: dict[str, dict[str, Any]] = field(default_factory=dict)
+    days_per_location: dict[str, int] = field(default_factory=dict)
+
     # ── Transport & Route ────────────────────────────────────────────────
     transport_plan: dict[str, Any] = field(default_factory=dict)
     route_direction: str | None = None

@@ -24,6 +24,8 @@ BRIEFING_SYSTEM_PROMPT = """You are Buddi, an expert New Zealand travel companio
 You will receive:
 - Day details (location, activities, weather conditions)
 - Condition scores for each activity
+- Per-activity PRO TIPS from our knowledge base (real traveler-tested advice)
+- Logistics warnings (parking, food, cell coverage)
 
 Generate a JSON response with these fields:
 {
@@ -32,10 +34,13 @@ Generate a JSON response with these fields:
   "activity_tips": [
     {
       "activity_name": "...",
-      "tip": "1-2 specific tips for this activity given today's conditions",
-      "timing_suggestion": "Suggested optimal time if relevant"
+      "tip": "1-2 specific tips for this activity given today's conditions — incorporate the most relevant pro tips provided",
+      "timing_suggestion": "Suggested optimal time if relevant",
+      "booking_reminder": "Reminder about booking confirmation if booking_required",
+      "backup_plan": "If conditions are poor, suggest a backup activity nearby"
     }
   ],
+  "logistics_warnings": ["Any important logistics warnings for today (food gaps, parking, cell coverage, road conditions)"],
   "hidden_gem": "One bonus recommendation near today's area that isn't in the itinerary (1-2 sentences)",
   "packing_additions": ["Any extra items to pack beyond the standard list"],
   "timeline": [
@@ -44,6 +49,9 @@ Generate a JSON response with these fields:
   ]
 }
 
+IMPORTANT: Use the PRO TIPS provided to give real, specific, experience-tested advice.
+For example: "Arrive 20min early for Hobbiton", "No food after 5PM on the Taranaki drive",
+"Bring your own towel to Polynesian Spa to save $10".
 Be specific, actionable, and personable. Reference actual weather numbers (temp, wind). Keep each field concise."""
 
 
@@ -63,9 +71,15 @@ async def generate_briefing_for_day(
                 "time_start": act.time_start,
                 "time_end": act.time_end,
                 "provider": act.provider,
+                "pro_tips": [],
+                "logistics": {},
+                "booking_required": False,
             }
             if act.attraction:
                 act_data["types"] = act.attraction.types or []
+                act_data["pro_tips"] = act.attraction.pro_tips or []
+                act_data["logistics"] = act.attraction.logistics or {}
+                act_data["booking_required"] = act.attraction.booking_required or False
             elif act.notes:
                 act_data["types"] = ["hiking"]
             else:
@@ -194,11 +208,34 @@ async def generate_briefing_for_day(
     timeline = []
     hidden_gem = None
     try:
+        pro_tips_section = ""
+        logistics_section = ""
+        for act_data in activities_data:
+            tips = act_data.get("pro_tips", [])
+            if tips:
+                tip_lines = [f"  - [{t.get('category', '')}] {t.get('tip', '')}" for t in tips[:6]]
+                pro_tips_section += f"\nPRO TIPS for {act_data['name']}:\n" + "\n".join(tip_lines)
+
+            act_logistics = act_data.get("logistics", {})
+            warnings = []
+            if act_logistics.get("parking"):
+                warnings.append(f"Parking: {act_logistics['parking']}")
+            if act_logistics.get("food_nearby"):
+                warnings.append(f"Food: {act_logistics['food_nearby']}")
+            if act_logistics.get("cell_coverage") and act_logistics["cell_coverage"] != "good":
+                warnings.append(f"Cell coverage: {act_logistics['cell_coverage']}")
+            if act_data.get("booking_required"):
+                warnings.append("BOOKING REQUIRED — remind traveler to bring confirmation")
+            if warnings:
+                logistics_section += f"\nLOGISTICS for {act_data['name']}:\n" + "\n".join(f"  - {w}" for w in warnings)
+
         ai_input = (
             f"Day {day.day_number} in {day.location}.\n"
             f"Weather: {weather_summary}\n"
             f"Activities: {[{r['activity_name']: r['assessment']} for r in activity_reports]}\n"
             f"Overall score: {overall_score}/100 ({overall_assessment})\n"
+            f"{pro_tips_section}\n"
+            f"{logistics_section}\n"
         )
         ai_result = await gemini_client.generate_json(
             BRIEFING_SYSTEM_PROMPT,
