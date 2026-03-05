@@ -25,8 +25,8 @@ def travel_dna_missing(ctx: PlanningContext) -> list[str]:
     elif ctx.group_type in ("family", "friends"):
         if not ctx.group_details.get("count"):
             missing.append("group_count")
-        elif not ctx.group_details.get("ages_raw"):
-            missing.append("ages")
+    if ctx.group_type and not ctx.group_details.get("ages_raw"):
+        missing.append("ages")
     if not ctx.accessibility_needs:
         missing.append("accessibility_needs")
     if not ctx.fitness_profile:

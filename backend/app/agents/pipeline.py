@@ -1,15 +1,15 @@
-"""Agent definitions, dynamic instruction builders, and handoff wiring.
+"""Agent definitions and dynamic instruction builders.
 
-All agents are defined here (bottom-up) so that handoffs can reference
-the next agent without circular imports.  The ``PIPELINE`` list at the
-bottom is the ordered sequence used by the orchestrator.
+Each agent is a self-contained question-asking unit with no handoffs.
+Transitions between agents are managed entirely by the orchestrator,
+which also restricts tool access to one field at a time.
 """
 from __future__ import annotations
 
 import json
 from typing import Any
 
-from agents import Agent, handoff, RunContextWrapper
+from agents import Agent, RunContextWrapper
 
 from app.agents.context import PlanningContext
 from app.agents.models import PlanningResponse
@@ -63,10 +63,9 @@ WORKFLOW:
    - "Tell me more first" (learn about Journey Buddi)
 2. If the user says "Tell me more first", call the get_tell_me_more_info tool,
    then share that information and present a single choice: "Let's do it!"
-3. When the user says "Let's do it!" or indicates readiness, hand off to the
-   Travel DNA agent using transfer_to_travel_dna.
-4. If the user says anything else (not "tell me more"), treat it as readiness
-   and hand off to Travel DNA.
+3. When the user says "Let's do it!" or indicates readiness, produce a
+   response acknowledging their readiness to begin.
+4. If the user says anything else (not "tell me more"), treat it as readiness.
 
 QUESTION FORMAT for greeting:
 - Present exactly: {json.dumps([
@@ -97,20 +96,22 @@ CURRENT STATE:
 STILL MISSING: {missing_str}
 
 WORKFLOW:
-1. Read the user's message. ONLY call tools if the message contains an EXPLICIT
-   answer to one of YOUR questions (e.g. "Flying solo", "family of 4",
-   "no special needs"). Generic messages like "Let's do it!" or "sure" contain
-   NO data for your domain — skip directly to step 4.
-2. After calling tools, check the tool result to see what's still missing.
-3. If everything is collected, hand off to the Logistics agent.
-4. If data is still missing, produce a response asking about ONE topic.
+1. Read the user's message. ONLY call the available tool if the message contains
+   an EXPLICIT answer (e.g. "Flying solo", "family of 4", "no special needs").
+   Generic messages contain NO data — skip directly to step 3.
+2. After calling the tool, acknowledge the user's answer.
+3. Produce a response asking about the NEXT missing topic (one at a time).
+   If nothing is missing, say you have everything and are ready to move on.
 
 QUESTION RULES:
 - group_type → present 4 choices:
   🧑 Flying solo | 💑 With my partner | 👨‍👩‍👧‍👦 Family trip | 👯 Friends trip
 - group_count (family/friends only) → present choices: 2, 3, 4, 5, 6+
-- ages (family/friends only) → free_text, ask them to list ages
-  (e.g. "Adults 35 & 38, kids 8 and 5")
+- ages (always) → free_text. Tailor the question to group type:
+  solo → "How old are you? This helps me match activity difficulty."
+  couple → "What are your ages? This helps me tailor activities."
+  family → "What are everyone's ages? e.g. Adults 35 & 38, kids 8 and 5"
+  friends → "What are everyone's ages? e.g. 28, 30, 32"
 - accessibility → 3 choices:
   ✅ No special needs | 🚶 Prefer flat, paved paths | ♿ Wheelchair/stroller accessible only
 - fitness → 4 choices:
@@ -142,12 +143,12 @@ CURRENT STATE:
 STILL MISSING: {missing_str}
 
 WORKFLOW:
-1. Read the user's message. ONLY call tools if the message contains an EXPLICIT
-   answer (e.g. a season, specific dates, driving preference, flight info).
-   Generic messages contain NO logistics data — skip to step 4.
-2. After calling tools, check what's still missing.
-3. If all logistics collected, hand off to Interest Categories.
-4. If missing, ask about ONE topic.
+1. Read the user's message. ONLY call the available tool if the message contains
+   an EXPLICIT answer (e.g. a season, specific dates, driving preference, flight info).
+   Generic messages contain NO logistics data — skip to step 3.
+2. After calling the tool, acknowledge the user's answer.
+3. Produce a response asking about the NEXT missing topic (one at a time).
+   If nothing is missing, say logistics are all set.
 
 QUESTION RULES:
 - travel_dates → present season choices:
@@ -185,7 +186,7 @@ WORKFLOW:
    present ALL categories as a multi-select gallery. Set multi_select=true.
    Do NOT call set_interest_categories until the user explicitly picks categories.
 2. When the user selects categories, call set_interest_categories with the list.
-3. Then hand off to the Interest Deep Dive agent.
+3. Produce a response acknowledging their selections.
 
 Present each category with an appropriate emoji. Acknowledge their travel profile
 before presenting the list. Tailor enthusiasm to their group type and fitness.
@@ -224,7 +225,7 @@ WORKFLOW:
 2. Call get_activity_options for the NEXT uncovered category to get options.
 3. Present those activities as a multi-select list (multi_select=true) and STOP.
 4. When the user responds with selections, record them and check remaining.
-5. When ALL categories are covered, hand off to Provider Selection.
+5. When ALL categories are covered, produce a response saying you're all set.
 
 Tailor options to the traveler's fitness profile and group composition.
 After user selects activities for a category, acknowledge and transition to next.
@@ -273,7 +274,7 @@ WORKFLOW:
 5. Include text mentioning a "Let Buddi decide" or "Skip" option.
 6. When user picks a provider (or defers), call set_provider.
 7. If more activities remain, present the next one.
-8. When ALL activities have providers, hand off to Transport & Route.
+8. When ALL activities have providers, produce a response saying providers are set.
 
 IMPORTANT: Recommend geographic diversity. If the user already has activities
 in certain locations, suggest providers in OTHER regions.
@@ -323,12 +324,11 @@ needed and are ready to build the itinerary!
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Agent definitions (bottom-up so handoff targets exist)
+# Agent definitions — no handoffs; orchestrator manages all transitions
 # ═══════════════════════════════════════════════════════════════════════════
 
 transport_route_agent: Agent[PlanningContext] = Agent(
     name="Transport Route",
-    handoff_description="Recommends transport modes and route direction.",
     instructions=_transport_route_instructions,
     tools=[set_transport_mode, set_route_direction],
     output_type=PlanningResponse,
@@ -336,122 +336,76 @@ transport_route_agent: Agent[PlanningContext] = Agent(
 
 provider_selection_agent: Agent[PlanningContext] = Agent(
     name="Provider Selection",
-    handoff_description="Presents provider options for each selected activity.",
     instructions=_provider_selection_instructions,
     tools=[set_provider],
     output_type=PlanningResponse,
-    handoffs=[transport_route_agent],
 )
 
 interest_deep_dive_agent: Agent[PlanningContext] = Agent(
     name="Interest Deep Dive",
-    handoff_description="Breaks each interest category into specific activities.",
     instructions=_interest_deep_dive_instructions,
     tools=[get_activity_options, set_interest_activities],
     output_type=PlanningResponse,
-    handoffs=[provider_selection_agent],
 )
 
 interest_categories_agent: Agent[PlanningContext] = Agent(
     name="Interest Categories",
-    handoff_description="Identifies high-level interest categories.",
     instructions=_interest_categories_instructions,
     tools=[set_interest_categories],
     output_type=PlanningResponse,
-    handoffs=[interest_deep_dive_agent],
 )
 
 logistics_agent: Agent[PlanningContext] = Agent(
     name="Logistics",
-    handoff_description="Locks down dates, driving hours, and flights.",
     instructions=_logistics_instructions,
     tools=[set_travel_dates, set_max_driving_hours, set_flight_details],
     output_type=PlanningResponse,
-    handoffs=[interest_categories_agent],
 )
 
 travel_dna_agent: Agent[PlanningContext] = Agent(
     name="Travel DNA",
-    handoff_description="Understands who is traveling, fitness, and accessibility.",
     instructions=_travel_dna_instructions,
     tools=[
         set_group_type, set_group_count, set_group_ages,
         set_accessibility, set_fitness_profile,
     ],
     output_type=PlanningResponse,
-    handoffs=[logistics_agent],
 )
 
 greeting_agent: Agent[PlanningContext] = Agent(
     name="Greeting",
-    handoff_description="Welcomes the user and gets commitment to start.",
     instructions=_greeting_instructions,
     tools=[get_tell_me_more_info],
     output_type=PlanningResponse,
-    handoffs=[travel_dna_agent],
 )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Handoff callbacks — update pipeline state when agents transition
+# Per-field tool restriction — orchestrator only exposes the tool for the
+# current missing field, preventing LLM from auto-filling multiple fields.
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _make_handoff_callback(source_name: str, target_name: str):
-    def _on_handoff(ctx: RunContextWrapper[PlanningContext]) -> None:
-        if source_name not in ctx.context.completed_agents:
-            ctx.context.completed_agents.append(source_name)
-        ctx.context.current_agent = target_name
-    return _on_handoff
-
-
-# Replace simple agent references with handoff() objects that have callbacks
-greeting_agent.handoffs = [
-    handoff(
-        agent=travel_dna_agent,
-        on_handoff=_make_handoff_callback("greeting", "travel_dna"),
-        tool_description_override="Hand off when the user confirms they want to start planning.",
-    )
-]
-
-travel_dna_agent.handoffs = [
-    handoff(
-        agent=logistics_agent,
-        on_handoff=_make_handoff_callback("travel_dna", "logistics"),
-        tool_description_override="Hand off when group type, ages, accessibility, and fitness are all recorded.",
-    )
-]
-
-logistics_agent.handoffs = [
-    handoff(
-        agent=interest_categories_agent,
-        on_handoff=_make_handoff_callback("logistics", "interest_categories"),
-        tool_description_override="Hand off when dates, driving hours, and flights are all recorded.",
-    )
-]
-
-interest_categories_agent.handoffs = [
-    handoff(
-        agent=interest_deep_dive_agent,
-        on_handoff=_make_handoff_callback("interest_categories", "interest_deep_dive"),
-        tool_description_override="Hand off when interest categories have been selected.",
-    )
-]
-
-interest_deep_dive_agent.handoffs = [
-    handoff(
-        agent=provider_selection_agent,
-        on_handoff=_make_handoff_callback("interest_deep_dive", "provider_selection"),
-        tool_description_override="Hand off when all categories have specific activities recorded.",
-    )
-]
-
-provider_selection_agent.handoffs = [
-    handoff(
-        agent=transport_route_agent,
-        on_handoff=_make_handoff_callback("provider_selection", "transport_route"),
-        tool_description_override="Hand off when all activities have providers selected.",
-    )
-]
+FIELD_TOOLS: dict[str, dict[str, list]] = {
+    "travel_dna": {
+        "group_type": [set_group_type],
+        "group_count": [set_group_count],
+        "ages": [set_group_ages],
+        "accessibility_needs": [set_accessibility],
+        "fitness_profile": [set_fitness_profile],
+    },
+    "logistics": {
+        "travel_dates": [set_travel_dates],
+        "max_driving_hours": [set_max_driving_hours],
+        "flight_details": [set_flight_details],
+    },
+    "interest_categories": {
+        "interest_categories": [set_interest_categories],
+    },
+    "transport_route": {
+        "transport_mode": [set_transport_mode],
+        "route_direction": [set_route_direction],
+    },
+}
 
 
 # ═══════════════════════════════════════════════════════════════════════════

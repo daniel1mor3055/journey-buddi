@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    openai_model: str = "gpt-4.1-mini"
 
     openweathermap_api_key: str = ""
 
