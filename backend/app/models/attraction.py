@@ -20,6 +20,8 @@ class Attraction(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text)
+    category: Mapped[Optional[str]] = mapped_column(String(50), index=True)
+    activity: Mapped[Optional[str]] = mapped_column(String(100), index=True)
     types: Mapped[list] = mapped_column(ARRAY(String), nullable=False, default=list)
     location_name: Mapped[Optional[str]] = mapped_column(String(255))
     latitude: Mapped[Optional[float]] = mapped_column(Float)
