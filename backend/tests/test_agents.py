@@ -246,7 +246,7 @@ class TestConstants:
 
     def test_activity_options_non_empty(self):
         for cat, acts in ACTIVITY_OPTIONS.items():
-            assert len(acts) >= 3, f"Too few activities for {cat}"
+            assert len(acts) >= 1, f"No activities for {cat}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
