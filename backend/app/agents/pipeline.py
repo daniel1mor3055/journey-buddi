@@ -19,16 +19,19 @@ from app.agents.tools import (
     get_tell_me_more_info,
     # travel dna
     set_group_type, set_group_count, set_group_ages,
-    set_accessibility, set_fitness_profile,
+    set_accessibility, set_fitness_profile, set_budget,
     travel_dna_missing,
     # logistics
-    set_travel_dates, set_max_driving_hours, set_flight_details,
+    set_travel_dates, set_trip_duration, set_max_driving_hours,
     logistics_missing,
     # interest categories
     set_interest_categories, CANONICAL_CATEGORIES,
     # interest deep dive
     get_activity_options, set_interest_activities,
     interest_deep_dive_remaining,
+    # island preference
+    get_island_analysis, set_island_preference,
+    island_preference_missing,
     # activity-location ranking
     get_location_options, set_activity_location,
     activity_location_remaining,
@@ -117,12 +120,16 @@ TOOL VALUE NORMALIZATION (IMPORTANT — always use these exact values):
 - set_group_type: "solo" | "couple" | "family" | "friends"
   "Flying solo" → "solo" | "With my partner" → "couple"
   "Family trip" → "family" | "Friends trip" → "friends"
-- set_accessibility: "none" | "minimal" | "wheelchair"
-  "No special needs" → "none" | "Prefer flat, paved paths" → "minimal"
-  "Wheelchair/stroller accessible only" → "wheelchair"
+- set_accessibility: "none" | "stroller" | "wheelchair"
+  "No accessibility needs" → "none" | "No special needs" → "none"
+  "Travelling with stroller/pram" → "stroller"
+  "Wheelchair or mobility aid" → "wheelchair"
 - set_fitness_profile: "light" | "moderate" | "advanced" | "mixed"
   "Keep it light" → "light" | "Up for a moderate challenge" → "moderate"
   "Bring on the big hikes" → "advanced" | "A mix of everything" → "mixed"
+- set_budget: "budget" | "midrange" | "premium" | "flexible"
+  "Budget-friendly" → "budget" | "Mid-range" → "midrange"
+  "Treat ourselves" → "premium" | "Flexible" → "flexible"
 
 QUESTION RULES:
 - group_type → present 4 choices:
@@ -134,9 +141,11 @@ QUESTION RULES:
   family → "What are everyone's ages? e.g. Adults 35 & 38, kids 8 and 5"
   friends → "What are everyone's ages? e.g. 28, 30, 32"
 - accessibility → 3 choices:
-  ✅ No special needs | 🚶 Prefer flat, paved paths | ♿ Wheelchair/stroller accessible only
+  ✅ No accessibility needs | 🍼 Travelling with stroller/pram | ♿ Wheelchair or mobility aid
 - fitness → 4 choices:
   🌿 Keep it light | 🥾 Up for a moderate challenge | ⛰️ Bring on the big hikes | 🎲 A mix of everything
+- budget → 4 choices:
+  💰 Budget-friendly | 💵 Mid-range | 💎 Treat ourselves | 🤷 Flexible
 
 Do NOT echo back the user's answer. Go straight to the next question.
 Tailor language to group type (e.g. "the kids" for families).
@@ -155,7 +164,7 @@ def _logistics_instructions(
 {RESPONSE_RULES}
 
 YOUR ROLE: Logistics Agent
-GOAL: Lock down travel dates, maximum driving hours per day, and flight status.
+GOAL: Lock down travel dates, trip duration, and maximum driving hours per day.
 Destination is always New Zealand (set it automatically).
 
 CURRENT STATE:
@@ -166,23 +175,32 @@ STILL MISSING: {missing_str}
 WORKFLOW:
 1. Read the user's message.
    - If the message is a BUTTON SELECTION or an explicit answer (a season, dates,
-     driving preference, flight status), call the available tool immediately.
+     duration, driving preference), call the available tool immediately.
      Button selections are ALWAYS explicit data that require a tool call.
    - Only skip the tool for generic readiness phrases: "sure", "yes", "next", "ready".
 2. Call the tool, then go straight to the next missing question.
    Do NOT echo back what the user just answered.
    If nothing is missing, say logistics are all set.
 
+TOOL VALUE NORMALIZATION for set_trip_duration:
+- "About a week" → duration_type="approximate", min_days=7, max_days=10
+- "About 2 weeks" → duration_type="approximate", min_days=12, max_days=16
+- "About 3 weeks" → duration_type="approximate", min_days=18, max_days=23
+- "A month or more" → duration_type="approximate", min_days=25, max_days=35
+- "I'm flexible" → duration_type="flexible"
+- If the user gives an exact number (e.g. "14 days"), use duration_type="fixed", days=14
+
 QUESTION RULES:
 - travel_dates → present season choices:
   ☀️ Dec–Feb (Summer) | 🍂 Mar–May (Autumn) | ❄️ Jun–Aug (Winter) |
   🌸 Sep–Nov (Spring) | 🤷 Flexible
   If they give specific dates, record those instead.
+- trip_duration → 5 choices:
+  📅 About a week | 🗓️ About 2 weeks | 📆 About 3 weeks |
+  🌏 A month or more | 🤷 I'm flexible — help me figure it out
+  Explain: if flexible, you'll suggest a duration later based on their activities.
 - max_driving_hours → 3 choices:
   🐢 Short (1-2 hours max) | 🚗 3-4 hours is fine | 🛣️ 5+ hours is OK
-- flight_details → 3 choices:
-  ✈️ Yes — I have details | 📅 Not yet — I'll add later | 🤔 Help me figure it out
-  If booked, follow up with free_text for arrival/departure info.
 """
 
 
@@ -255,6 +273,55 @@ After user selects activities for a category, move directly to the next category
 """
 
 
+def _island_preference_instructions(
+    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
+) -> str:
+    c = ctx.context
+    duration_info = "flexible" if not c.trip_duration else json.dumps(c.trip_duration)
+
+    return f"""{BUDDI_PERSONA}
+{QUESTION_PHILOSOPHY}
+{RESPONSE_RULES}
+
+YOUR ROLE: Island Preference Agent
+GOAL: Help the user decide which New Zealand island(s) to explore. Use their
+chosen activities, trip duration, and season to give an informed recommendation.
+
+CURRENT STATE:
+{_compact_state(c)}
+
+TRIP DURATION: {duration_info}
+
+WORKFLOW:
+1. Call get_island_analysis to see where the user's chosen activities fall
+   across the North and South Islands.
+2. Present a brief, insightful summary:
+   - "X of your activities are best on the South Island (e.g. glaciers, fjords)"
+   - "Y are on the North Island (e.g. geothermal, glowworms)"
+   - "Z are available on both"
+3. Based on their trip duration and activity distribution, give a clear
+   recommendation with reasoning:
+   - Short trips (≤10 days): suggest focusing on one island
+   - Medium trips (11-18 days): suggest one island + highlights of the other
+   - Long trips (19+ days): suggest both islands
+   - Flexible duration: recommend based on activity density
+4. Present choices and let the user decide:
+   🏔️ South Island | 🌋 North Island | 🗺️ Both islands
+5. If the user's choice means some activities won't be available in their
+   chosen island(s), flag those: "Heads up — [activity] is only on the
+   [other island]. Want to adjust, or skip that one?"
+6. When the user confirms, call set_island_preference.
+
+TOOL VALUE NORMALIZATION:
+- "South Island" → preference="south_only"
+- "North Island" → preference="north_only"
+- "Both islands" → preference="both"
+
+Keep it conversational. Reference specific activities to make the recommendation
+feel personal, not generic.
+"""
+
+
 def _activity_location_instructions(
     ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
 ) -> str:
@@ -304,6 +371,7 @@ def _location_summary_instructions(
     c = ctx.context
     missing = location_summary_missing(c)
     missing_str = ", ".join(missing) if missing else "NONE — ready to hand off!"
+    duration_info = json.dumps(c.trip_duration) if c.trip_duration else "not set"
 
     return f"""{BUDDI_PERSONA}
 {QUESTION_PHILOSOPHY}
@@ -316,6 +384,7 @@ and show bonus sightseeing suggestions. Let the user adjust days.
 CURRENT STATE:
 {_compact_state(c)}
 
+TRIP DURATION: {duration_info}
 STILL MISSING: {missing_str}
 
 WORKFLOW:
@@ -325,9 +394,15 @@ WORKFLOW:
    ✅ Bungy jumping — Nevis Bungy
    ✅ Skydiving — NZONE
    🎁 Also nearby: Skyline Gondola, Fergburger, Glenorchy drive
-3. Show the total trip duration and ask if they want to adjust any location's days.
-4. If the user wants changes, call adjust_location_days.
-5. When the user confirms, call confirm_location_plan.
+3. Show the total trip duration. If the user's trip_duration is:
+   - 'fixed' or 'approximate': compare total recommended days to their
+     available days. If recommended > available, note this and suggest
+     which locations could be shortened or combined.
+   - 'flexible': suggest total days as a recommendation, e.g.
+     "Based on your activities, I'd suggest about X days for the full experience."
+4. Ask if they want to adjust any location's days.
+5. If the user wants changes, call adjust_location_days.
+6. When the user confirms, call confirm_location_plan.
 
 Present a clean, visual per-location breakdown. Use emojis.
 Mention if any location seems light (1 activity) or packed (4+ activities).
@@ -430,10 +505,13 @@ the itinerary is built. Structure it like this:
 👥 **Group:** [group type, count, ages]
 ♿ **Accessibility:** [level]
 💪 **Fitness:** [level]
+💰 **Budget:** [level]
 
 📅 **Dates:** [season/dates]
+⏱️ **Duration:** [days or range]
 🚗 **Driving:** [max hours/day]
-✈️ **Flights:** [status]
+
+🏝️ **Islands:** [preference]
 
 🎯 **Interests & Activities:**
 [list each category with its chosen activities]
@@ -480,6 +558,13 @@ provider_selection_agent: Agent[PlanningContext] = Agent(
     output_type=PlanningResponse,
 )
 
+island_preference_agent: Agent[PlanningContext] = Agent(
+    name="Island Preference",
+    instructions=_island_preference_instructions,
+    tools=[get_island_analysis, set_island_preference],
+    output_type=PlanningResponse,
+)
+
 interest_deep_dive_agent: Agent[PlanningContext] = Agent(
     name="Interest Deep Dive",
     instructions=_interest_deep_dive_instructions,
@@ -497,7 +582,7 @@ interest_categories_agent: Agent[PlanningContext] = Agent(
 logistics_agent: Agent[PlanningContext] = Agent(
     name="Logistics",
     instructions=_logistics_instructions,
-    tools=[set_travel_dates, set_max_driving_hours, set_flight_details],
+    tools=[set_travel_dates, set_trip_duration, set_max_driving_hours],
     output_type=PlanningResponse,
 )
 
@@ -506,7 +591,7 @@ travel_dna_agent: Agent[PlanningContext] = Agent(
     instructions=_travel_dna_instructions,
     tools=[
         set_group_type, set_group_count, set_group_ages,
-        set_accessibility, set_fitness_profile,
+        set_accessibility, set_fitness_profile, set_budget,
     ],
     output_type=PlanningResponse,
 )
@@ -531,14 +616,18 @@ FIELD_TOOLS: dict[str, dict[str, list]] = {
         "ages": [set_group_ages],
         "accessibility_needs": [set_accessibility],
         "fitness_profile": [set_fitness_profile],
+        "budget": [set_budget],
     },
     "logistics": {
         "travel_dates": [set_travel_dates],
+        "trip_duration": [set_trip_duration],
         "max_driving_hours": [set_max_driving_hours],
-        "flight_details": [set_flight_details],
     },
     "interest_categories": {
         "interest_categories": [set_interest_categories],
+    },
+    "island_preference": {
+        "island_preference": [get_island_analysis, set_island_preference],
     },
     "transport_route": {
         "transport_mode": [set_transport_mode],
@@ -557,6 +646,7 @@ PIPELINE: list[Agent[PlanningContext]] = [
     logistics_agent,
     interest_categories_agent,
     interest_deep_dive_agent,
+    island_preference_agent,
     activity_location_agent,
     location_summary_agent,
     provider_selection_agent,
@@ -569,6 +659,7 @@ AGENT_NAME_MAP: dict[str, Agent[PlanningContext]] = {
     "logistics": logistics_agent,
     "interest_categories": interest_categories_agent,
     "interest_deep_dive": interest_deep_dive_agent,
+    "island_preference": island_preference_agent,
     "activity_location": activity_location_agent,
     "location_summary": location_summary_agent,
     "provider_selection": provider_selection_agent,
@@ -581,6 +672,7 @@ AGENT_TO_NAME: dict[str, str] = {
     "Logistics": "logistics",
     "Interest Categories": "interest_categories",
     "Interest Deep Dive": "interest_deep_dive",
+    "Island Preference": "island_preference",
     "Activity Location": "activity_location",
     "Location Summary": "location_summary",
     "Provider Selection": "provider_selection",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronRight, Compass, Check, Send } from "lucide-react";
 import Link from "next/link";
@@ -219,6 +219,12 @@ export default function PlanPage() {
     reset: resetConversation,
   } = useConversationStore();
 
+  const lastAssistantMsg = useMemo(
+    () => [...messages].reverse().find((m) => m.role === "assistant") ?? null,
+    [messages]
+  );
+  const lastAssistantMsgId = lastAssistantMsg?.id ?? null;
+
   const scrollToBottom = useCallback(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -226,6 +232,12 @@ export default function PlanPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading, scrollToBottom]);
+
+  // Clear multi-select state whenever messages advance so stale selections
+  // from a previous step don't carry over to the next question.
+  useEffect(() => {
+    setSelectedChoices(new Set());
+  }, [lastAssistantMsgId]);
 
   useEffect(() => {
     initialize();
@@ -307,7 +319,6 @@ export default function PlanPage() {
   const showViewDashboard = planningStep === "complete";
   const tripId = currentTrip?.id;
 
-  const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant");
   const showFreeText = !isLoading && lastAssistantMsg?.metadata_?.free_text === true;
 
   return (
@@ -321,7 +332,7 @@ export default function PlanPage() {
         >
           <ArrowLeft size={20} />
         </Link>
-        <h1 className="font-bold flex-1" style={{ fontSize: "0.9375rem" }}>
+        <h1 className="font-bold flex-1 text-white" style={{ fontSize: "0.9375rem" }}>
           Planning Your NZ Trip
         </h1>
       </header>
@@ -344,6 +355,7 @@ export default function PlanPage() {
               <MessageBubble
                 key={msg.id}
                 message={msg}
+                isActive={!isLoading && msg.id === lastAssistantMsgId}
                 onSingleChoice={handleSingleChoice}
                 onChoiceToggle={handleChoiceToggle}
                 onMultiSelectConfirm={handleMultiSelectConfirm}
@@ -393,6 +405,7 @@ export default function PlanPage() {
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  isActive: boolean;
   onSingleChoice: (label: string) => void;
   onChoiceToggle: (label: string) => void;
   onMultiSelectConfirm: () => void;
@@ -402,6 +415,7 @@ interface MessageBubbleProps {
 
 function MessageBubble({
   message,
+  isActive,
   onSingleChoice,
   onChoiceToggle,
   onMultiSelectConfirm,
@@ -437,7 +451,7 @@ function MessageBubble({
               {message.content}
             </div>
           )}
-          {choices.length > 0 && (
+          {choices.length > 0 && isActive && (
             <ChoiceCards
               choices={choices}
               multiSelect={multiSelect}
@@ -446,7 +460,7 @@ function MessageBubble({
               onConfirm={onMultiSelectConfirm}
             />
           )}
-          {providerCards.length > 0 && (
+          {providerCards.length > 0 && isActive && (
             <ProviderCards cards={providerCards} onSelect={onProviderSelect} />
           )}
         </div>

@@ -31,6 +31,8 @@ def travel_dna_missing(ctx: PlanningContext) -> list[str]:
         missing.append("accessibility_needs")
     if not ctx.fitness_profile:
         missing.append("fitness_profile")
+    if not ctx.budget:
+        missing.append("budget")
     return missing
 
 
@@ -38,10 +40,10 @@ def logistics_missing(ctx: PlanningContext) -> list[str]:
     missing: list[str] = []
     if not ctx.travel_dates:
         missing.append("travel_dates")
+    if not ctx.trip_duration:
+        missing.append("trip_duration")
     if ctx.max_driving_hours is None:
         missing.append("max_driving_hours")
-    if not ctx.flight_details:
-        missing.append("flight_details")
     return missing
 
 
@@ -82,6 +84,12 @@ def location_summary_missing(ctx: PlanningContext) -> list[str]:
     if not ctx.days_per_location:
         missing.append("days_per_location")
     return missing
+
+
+def island_preference_missing(ctx: PlanningContext) -> list[str]:
+    if not ctx.island_preference:
+        return ["island_preference"]
+    return []
 
 
 def transport_route_missing(ctx: PlanningContext) -> list[str]:
@@ -179,20 +187,29 @@ async def set_group_ages(
 
 _ACCESSIBILITY_ALIASES: dict[str, str] = {
     "none": "none",
-    "no special needs": "none",
     "no accessibility needs": "none",
+    "no special needs": "none",
+    "no restrictions": "none",
     "all good": "none",
     "all good to go": "none",
-    "minimal": "minimal",
-    "prefer flat": "minimal",
-    "prefer flat, paved paths": "minimal",
-    "flat paths": "minimal",
-    "paved paths": "minimal",
+    "stroller": "stroller",
+    "travelling with stroller/pram": "stroller",
+    "traveling with stroller/pram": "stroller",
+    "stroller/pram": "stroller",
+    "pram": "stroller",
+    "pushchair": "stroller",
     "wheelchair": "wheelchair",
+    "wheelchair or mobility aid": "wheelchair",
     "wheelchair accessible": "wheelchair",
+    "mobility aid": "wheelchair",
     "wheelchair/stroller accessible only": "wheelchair",
-    "stroller": "wheelchair",
     "full accessibility": "wheelchair",
+    # legacy aliases kept for backward compatibility
+    "minimal": "none",
+    "prefer flat": "none",
+    "prefer flat, paved paths": "none",
+    "flat paths": "none",
+    "paved paths": "none",
 }
 
 _FITNESS_ALIASES: dict[str, tuple[str, bool]] = {
@@ -221,11 +238,11 @@ async def set_accessibility(
 ) -> str:
     """Set accessibility requirements.
     Call this whenever the user states their accessibility preference, even if they say
-    'No special needs' or 'All good to go' — those map to level='none'.
+    'No accessibility needs' or 'No special needs' — those map to level='none'.
     Accepted level values (also accepts full button labels):
-      'none'        → no accessibility needs ('No special needs', 'All good to go')
-      'minimal'     → prefers flat/paved paths ('Prefer flat, paved paths')
-      'wheelchair'  → wheelchair or stroller required"""
+      'none'        → no accessibility requirements ('No accessibility needs', 'No special needs')
+      'stroller'    → travelling with stroller/pram — need pram-friendly paths and facilities
+      'wheelchair'  → wheelchair or mobility aid — need fully accessible facilities throughout"""
     normalized = _ACCESSIBILITY_ALIASES.get(level.strip().lower(), level.strip().lower())
     ctx.context.accessibility_needs = {"level": normalized, "notes": notes}
     return _status("Accessibility set", travel_dna_missing(ctx.context))
@@ -251,6 +268,50 @@ async def set_fitness_profile(
         "notes": notes,
     }
     return _status("Fitness profile set", travel_dna_missing(ctx.context))
+
+
+_BUDGET_ALIASES: dict[str, str] = {
+    "budget-friendly": "budget",
+    "budget": "budget",
+    "keep costs low": "budget",
+    "cheap": "budget",
+    "mid-range": "midrange",
+    "midrange": "midrange",
+    "happy to pay for great experiences": "midrange",
+    "treat ourselves": "premium",
+    "premium": "premium",
+    "luxury": "premium",
+    "splurge": "premium",
+    "flexible": "flexible",
+    "depends on the experience": "flexible",
+}
+
+
+@function_tool
+async def set_budget(
+    ctx: RunContextWrapper[PlanningContext],
+    level: str,
+    notes: str = "",
+) -> str:
+    """Set the travel budget comfort level.
+    Call this whenever the user states their budget preference.
+    Accepted level values (also accepts full button labels):
+      'budget'   → keep costs low, free/cheap activities ('Budget-friendly')
+      'midrange' → happy to pay for great experiences ('Mid-range')
+      'premium'  → treat ourselves, no stress about cost ('Treat ourselves')
+      'flexible' → depends on the experience ('Flexible')"""
+    normalized = _BUDGET_ALIASES.get(level.strip().lower(), level.strip().lower())
+    ctx.context.budget = {"level": normalized, "notes": notes}
+    return _status("Budget set", travel_dna_missing(ctx.context))
+
+
+# Public exports for direct-fill resolution in the orchestrator.
+# These alias dicts allow the orchestrator to resolve controlled-choice button
+# labels to their canonical values without needing an LLM call.
+GROUP_TYPE_ALIASES: dict[str, str] = _GROUP_TYPE_ALIASES
+ACCESSIBILITY_ALIASES: dict[str, str] = _ACCESSIBILITY_ALIASES
+FITNESS_ALIASES: dict[str, tuple[str, bool]] = _FITNESS_ALIASES
+BUDGET_ALIASES: dict[str, str] = _BUDGET_ALIASES
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -289,6 +350,32 @@ async def set_travel_dates(
 
 
 @function_tool
+async def set_trip_duration(
+    ctx: RunContextWrapper[PlanningContext],
+    duration_type: str,
+    days: int = 0,
+    min_days: int = 0,
+    max_days: int = 0,
+    notes: str = "",
+) -> str:
+    """Record the trip duration preference.
+    duration_type: 'fixed' (user has exact days), 'approximate' (rough range),
+    or 'flexible' (open to suggestions based on activities).
+    For 'fixed': provide days. For 'approximate': provide min_days and max_days."""
+    duration: dict = {"type": duration_type.strip().lower()}
+    if days:
+        duration["days"] = days
+    if min_days:
+        duration["min_days"] = min_days
+    if max_days:
+        duration["max_days"] = max_days
+    if notes:
+        duration["notes"] = notes
+    ctx.context.trip_duration = duration
+    return _status("Trip duration recorded", logistics_missing(ctx.context))
+
+
+@function_tool
 async def set_max_driving_hours(
     ctx: RunContextWrapper[PlanningContext],
     hours: int,
@@ -296,33 +383,6 @@ async def set_max_driving_hours(
     """Set the maximum comfortable driving hours per day."""
     ctx.context.max_driving_hours = hours
     return _status(f"Max driving set to {hours}h", logistics_missing(ctx.context))
-
-
-@function_tool
-async def set_flight_details(
-    ctx: RunContextWrapper[PlanningContext],
-    status: str,
-    arrival_city: str = "",
-    departure_city: str = "",
-    arrival_date: str = "",
-    departure_date: str = "",
-    notes: str = "",
-) -> str:
-    """Record flight booking status and details.
-    status: booked, not_yet, or need_help."""
-    details: dict = {"status": status}
-    if arrival_city:
-        details["arrival_city"] = arrival_city
-    if departure_city:
-        details["departure_city"] = departure_city
-    if arrival_date:
-        details["arrival_date"] = arrival_date
-    if departure_date:
-        details["departure_date"] = departure_date
-    if notes:
-        details["notes"] = notes
-    ctx.context.flight_details = details
-    return _status("Flight details recorded", logistics_missing(ctx.context))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -438,6 +498,86 @@ async def set_interest_activities(
     ctx.context.interest_details[category] = activities
     remaining = interest_deep_dive_remaining(ctx.context)
     return _status(f"Activities for '{category}' recorded", remaining)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Island Preference tools
+# ═══════════════════════════════════════════════════════════════════════════
+
+@function_tool
+async def get_island_analysis(
+    ctx: RunContextWrapper[PlanningContext],
+) -> str:
+    """Analyze which NZ islands the user's chosen activities are available on.
+    Call this to give the user an informed island recommendation."""
+    activities = _all_activities(ctx.context)
+    south_only: list[str] = []
+    north_only: list[str] = []
+    both_islands: list[str] = []
+
+    for activity in activities:
+        locations = ACTIVITY_LOCATION_MAP.get(activity, [])
+        islands: set[str] = set()
+        for loc in locations:
+            route_fit = loc.get("route_fit", "")
+            if "south" in route_fit:
+                islands.add("south")
+            elif "north" in route_fit:
+                islands.add("north")
+        if "south" in islands and "north" in islands:
+            both_islands.append(activity)
+        elif "south" in islands:
+            south_only.append(activity)
+        elif "north" in islands:
+            north_only.append(activity)
+        else:
+            both_islands.append(activity)
+
+    return json.dumps({
+        "south_island_only": south_only,
+        "north_island_only": north_only,
+        "available_on_both": both_islands,
+        "total_activities": len(activities),
+        "south_count": len(south_only) + len(both_islands),
+        "north_count": len(north_only) + len(both_islands),
+    })
+
+
+_ISLAND_ALIASES: dict[str, str] = {
+    "south island": "south_only",
+    "south island only": "south_only",
+    "south only": "south_only",
+    "south": "south_only",
+    "north island": "north_only",
+    "north island only": "north_only",
+    "north only": "north_only",
+    "north": "north_only",
+    "both": "both",
+    "both islands": "both",
+    "help me decide": "both",
+}
+
+
+@function_tool
+async def set_island_preference(
+    ctx: RunContextWrapper[PlanningContext],
+    preference: str,
+    notes: str = "",
+) -> str:
+    """Record the user's island preference.
+    preference: 'south_only', 'north_only', or 'both'."""
+    normalized = _ISLAND_ALIASES.get(preference.strip().lower(), preference.strip().lower())
+    islands_map = {
+        "south_only": ["south"],
+        "north_only": ["north"],
+        "both": ["south", "north"],
+    }
+    ctx.context.island_preference = {
+        "preference": normalized,
+        "islands": islands_map.get(normalized, ["south", "north"]),
+        "notes": notes,
+    }
+    return _status("Island preference set", island_preference_missing(ctx.context))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -582,6 +722,14 @@ async def get_location_options(
     present them to the user for selection."""
     options = ACTIVITY_LOCATION_MAP.get(activity)
     if options:
+        islands = ctx.context.island_preference.get("islands", [])
+        if islands and set(islands) != {"south", "north"}:
+            filtered = [
+                loc for loc in options
+                if any(island in loc.get("route_fit", "") for island in islands)
+            ]
+            if filtered:
+                options = filtered
         return json.dumps(options)
     return json.dumps([{
         "location": "Unknown",

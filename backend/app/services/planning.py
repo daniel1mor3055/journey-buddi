@@ -115,12 +115,12 @@ def get_step_prompt(step: str, planning_state: dict) -> str:
             "Acknowledge their group choice first."
         ),
         "ACCESSIBILITY": (
-            "Ask about mobility and accessibility needs for the group. "
-            "Frame it naturally — e.g., 'let's talk about mobility.' "
+            "Ask about accessibility requirements for the group. "
+            "Frame it naturally — e.g., 'Does anyone in your group have accessibility requirements?' "
             "Present exactly 3 options: "
-            "'No special needs' (we can handle uneven terrain), "
-            "'Prefer flat, paved paths' (minimal stairs), "
-            "'Wheelchair/stroller accessible only'. "
+            "'No accessibility needs' (no restrictions, full range of NZ activities), "
+            "'Travelling with stroller/pram' (need pram-friendly paths, accommodation & vehicles), "
+            "'Wheelchair or mobility aid' (need fully accessible facilities throughout). "
             "Use appropriate emoji for each. Acknowledge their previous answer first."
         ),
         "FITNESS": (
@@ -306,11 +306,11 @@ def _fallback_step_response(step: str, planning_state: dict) -> dict:
             "multi_select": False,
         },
         "ACCESSIBILITY": {
-            "text": "Next, let's talk about mobility. Does anyone in your group have specific accessibility needs?",
+            "text": "Does anyone in your group have accessibility requirements?",
             "choices": [
-                {"emoji": "🥾", "label": "No special needs", "desc": "We can handle uneven terrain"},
-                {"emoji": "🚶", "label": "Prefer flat, paved paths", "desc": "Minimal stairs"},
-                {"emoji": "♿", "label": "Wheelchair/stroller accessible only", "desc": ""},
+                {"emoji": "✅", "label": "No accessibility needs", "desc": "No restrictions — full range of activities"},
+                {"emoji": "🍼", "label": "Travelling with stroller/pram", "desc": "Need pram-friendly paths, accommodation & vehicles"},
+                {"emoji": "♿", "label": "Wheelchair or mobility aid", "desc": "Need fully accessible facilities throughout"},
             ],
             "multi_select": False,
         },

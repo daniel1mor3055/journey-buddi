@@ -26,7 +26,9 @@ class MasterAgent:
 
         sections.append(self._section("TRAVELER GROUP", self._group_section(ctx)))
         sections.append(self._section("FITNESS & ACCESSIBILITY", self._fitness_section(ctx)))
+        sections.append(self._section("BUDGET", self._budget_section(ctx)))
         sections.append(self._section("LOGISTICS", self._logistics_section(ctx)))
+        sections.append(self._section("ISLAND PREFERENCE", self._island_section(ctx)))
         sections.append(self._section("INTERESTS & ACTIVITIES", self._interests_section(ctx)))
         sections.append(self._section("SELECTED PROVIDERS", self._providers_section(ctx)))
         sections.append(self._section("TRANSPORT & ROUTE", self._transport_section(ctx)))
@@ -42,12 +44,14 @@ class MasterAgent:
             },
             "fitness": ctx.fitness_profile,
             "accessibility": ctx.accessibility_needs,
+            "budget": ctx.budget,
             "logistics": {
                 "destination": ctx.destination,
                 "dates": ctx.travel_dates,
+                "trip_duration": ctx.trip_duration,
                 "max_driving_hours": ctx.max_driving_hours,
-                "flights": ctx.flight_details,
             },
+            "island_preference": ctx.island_preference,
             "interests": {
                 "categories": ctx.interest_categories,
                 "details": ctx.interest_details,
@@ -78,12 +82,30 @@ class MasterAgent:
         return "\n".join(lines) if lines else "- No specific constraints"
 
     @staticmethod
+    def _budget_section(ctx: PlanningContext) -> str:
+        if ctx.budget:
+            return f"- Budget level: {ctx.budget.get('level', 'not specified')}"
+        return "- No budget preference specified"
+
+    @staticmethod
+    def _island_section(ctx: PlanningContext) -> str:
+        if ctx.island_preference:
+            pref = ctx.island_preference.get("preference", "both")
+            islands = ctx.island_preference.get("islands", [])
+            notes = ctx.island_preference.get("notes", "")
+            line = f"- Island preference: {pref} ({', '.join(islands)})"
+            if notes:
+                line += f"\n- Notes: {notes}"
+            return line
+        return "- Both islands (no specific preference)"
+
+    @staticmethod
     def _logistics_section(ctx: PlanningContext) -> str:
         lines = [
             f"- Destination: {ctx.destination or 'New Zealand'}",
             f"- Dates: {json.dumps(ctx.travel_dates, default=str) if ctx.travel_dates else 'flexible'}",
+            f"- Trip duration: {json.dumps(ctx.trip_duration, default=str) if ctx.trip_duration else 'flexible'}",
             f"- Max driving per day: {ctx.max_driving_hours or 'not specified'} hours",
-            f"- Flights: {json.dumps(ctx.flight_details, default=str) if ctx.flight_details else 'not booked'}",
         ]
         return "\n".join(lines)
 
@@ -121,14 +143,36 @@ class MasterAgent:
 
     @staticmethod
     def _constraints_section(ctx: PlanningContext) -> str:
-        return (
-            "## ITINERARY CONSTRAINTS\n"
-            "- Optimise the route to minimise backtracking.\n"
-            "- Spread activities geographically — don't cluster everything in one area.\n"
-            "- Include flex/rest days proportional to trip length.\n"
-            "- Balance hard and easy days based on the fitness profile.\n"
-            "- Account for accessibility needs in every day's plan.\n"
-            f"- Maximum driving per day: {ctx.max_driving_hours or 4} hours.\n"
-            "- Include accommodation suggestions appropriate for the transport mode.\n"
-            "- Note weather-sensitive activities and suggest optimal timing.\n"
-        )
+        lines = [
+            "## ITINERARY CONSTRAINTS",
+            "- Optimise the route to minimise backtracking.",
+            "- Spread activities geographically — don't cluster everything in one area.",
+            "- Include flex/rest days proportional to trip length.",
+            "- Balance hard and easy days based on the fitness profile.",
+            "- Account for accessibility needs in every day's plan.",
+            f"- Maximum driving per day: {ctx.max_driving_hours or 4} hours.",
+            "- Include accommodation suggestions appropriate for the transport mode.",
+            "- Note weather-sensitive activities and suggest optimal timing.",
+        ]
+        if ctx.island_preference:
+            islands = ctx.island_preference.get("islands", [])
+            if set(islands) != {"south", "north"}:
+                lines.append(f"- Restrict itinerary to: {', '.join(i.title() + ' Island' for i in islands)}.")
+            else:
+                lines.append("- Include inter-island ferry/flight in the route plan.")
+        duration = ctx.trip_duration
+        if duration:
+            dtype = duration.get("type", "")
+            if dtype == "fixed" and duration.get("days"):
+                lines.append(f"- HARD CONSTRAINT: Trip must fit within {duration['days']} days.")
+            elif dtype == "approximate":
+                min_d = duration.get("min_days", "?")
+                max_d = duration.get("max_days", "?")
+                lines.append(f"- Target trip length: {min_d}-{max_d} days.")
+        if ctx.budget:
+            level = ctx.budget.get("level", "")
+            if level == "budget":
+                lines.append("- Prefer free/low-cost activities and budget accommodation.")
+            elif level == "premium":
+                lines.append("- Include premium experiences and quality accommodation.")
+        return "\n".join(lines) + "\n"

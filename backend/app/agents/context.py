@@ -20,17 +20,21 @@ class PlanningContext:
     group_details: dict[str, Any] = field(default_factory=dict)
     accessibility_needs: dict[str, Any] = field(default_factory=dict)
     fitness_profile: dict[str, Any] = field(default_factory=dict)
+    budget: dict[str, Any] = field(default_factory=dict)
 
     # ── Logistics ────────────────────────────────────────────────────────
     destination: str | None = None
     travel_dates: dict[str, Any] = field(default_factory=dict)
+    trip_duration: dict[str, Any] = field(default_factory=dict)
     max_driving_hours: int | None = None
-    flight_details: dict[str, Any] = field(default_factory=dict)
 
     # ── Interests (three phases) ─────────────────────────────────────────
     interest_categories: list[str] = field(default_factory=list)
     interest_details: dict[str, list[str]] = field(default_factory=dict)
     selected_providers: dict[str, dict[str, Any]] = field(default_factory=dict)
+
+    # ── Island Preference ────────────────────────────────────────────────
+    island_preference: dict[str, Any] = field(default_factory=dict)
 
     # ── Activity-Location mapping (activity → chosen location) ────────
     activity_locations: dict[str, str] = field(default_factory=dict)

@@ -19,6 +19,7 @@ from app.agents.tools import (
     logistics_missing,
     interest_categories_missing,
     interest_deep_dive_remaining,
+    island_preference_missing,
     provider_selection_remaining,
     transport_route_missing,
     _all_activities,
@@ -34,6 +35,7 @@ from app.agents.pipeline import (
     logistics_agent,
     interest_categories_agent,
     interest_deep_dive_agent,
+    island_preference_agent,
     provider_selection_agent,
     transport_route_agent,
 )
@@ -130,6 +132,7 @@ class TestStatusHelpers:
         assert "group_type" in missing
         assert "accessibility_needs" in missing
         assert "fitness_profile" in missing
+        assert "budget" in missing
 
     def test_travel_dna_missing_family_needs_count(self):
         ctx = PlanningContext(group_type="family")
@@ -147,6 +150,7 @@ class TestStatusHelpers:
             group_details={"count": 1, "ages_raw": "30"},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
+            budget={"level": "midrange"},
         )
         assert travel_dna_missing(ctx) == []
 
@@ -156,6 +160,7 @@ class TestStatusHelpers:
             group_details={"count": 4, "ages_raw": "Adults 35, kids 8 and 5"},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
+            budget={"level": "midrange"},
         )
         assert travel_dna_missing(ctx) == []
 
@@ -163,14 +168,22 @@ class TestStatusHelpers:
         ctx = PlanningContext()
         missing = logistics_missing(ctx)
         assert len(missing) == 3
+        assert "travel_dates" in missing
+        assert "trip_duration" in missing
+        assert "max_driving_hours" in missing
 
     def test_logistics_missing_none(self):
         ctx = PlanningContext(
             travel_dates={"season": "summer"},
+            trip_duration={"type": "approximate", "min_days": 12, "max_days": 16},
             max_driving_hours=4,
-            flight_details={"status": "not_yet"},
         )
         assert logistics_missing(ctx) == []
+
+    def test_island_preference_missing(self):
+        assert island_preference_missing(PlanningContext()) == ["island_preference"]
+        ctx = PlanningContext(island_preference={"preference": "both", "islands": ["south", "north"]})
+        assert island_preference_missing(ctx) == []
 
     def test_interest_categories_missing(self):
         assert interest_categories_missing(PlanningContext()) == ["interest_categories"]
@@ -262,6 +275,7 @@ class TestPipeline:
             "Logistics",
             "Interest Categories",
             "Interest Deep Dive",
+            "Island Preference",
             "Activity Location",
             "Location Summary",
             "Provider Selection",
@@ -272,6 +286,7 @@ class TestPipeline:
         assert set(AGENT_NAME_MAP.keys()) == {
             "greeting", "travel_dna", "logistics",
             "interest_categories", "interest_deep_dive",
+            "island_preference",
             "activity_location", "location_summary",
             "provider_selection", "transport_route",
         }
@@ -323,12 +338,13 @@ class TestOrchestrator:
     def test_progress_percent_partial(self):
         ctx = PlanningContext(completed_agents=["greeting", "travel_dna"])
         pct = self.orch.progress_percent(ctx)
-        assert 20 < pct < 40
+        assert 10 < pct < 40
 
     def test_progress_percent_all(self):
         ctx = PlanningContext(
             completed_agents=["greeting", "travel_dna", "logistics",
                               "interest_categories", "interest_deep_dive",
+                              "island_preference",
                               "activity_location", "location_summary",
                               "provider_selection", "transport_route"],
             current_agent="complete",
@@ -355,7 +371,7 @@ class TestOrchestrator:
         ctx = PlanningContext()
         self.orch._mark_all_complete(ctx)
         assert ctx.current_agent == "complete"
-        assert len(ctx.completed_agents) == 9
+        assert len(ctx.completed_agents) == 10
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -372,10 +388,12 @@ class TestMasterAgent:
             group_details={"count": 2},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
+            budget={"level": "midrange"},
             destination="New Zealand",
             travel_dates={"season": "summer"},
+            trip_duration={"type": "approximate", "min_days": 12, "max_days": 16},
             max_driving_hours=4,
-            flight_details={"status": "booked", "arrival_city": "Auckland"},
+            island_preference={"preference": "both", "islands": ["south", "north"]},
             interest_categories=["Wildlife", "Hiking"],
             interest_details={
                 "Wildlife": ["whale watching"],
@@ -396,6 +414,9 @@ class TestMasterAgent:
         assert "campervan" in prompt
         assert "clockwise" in prompt
         assert "ITINERARY CONSTRAINTS" in prompt
+        assert "BUDGET" in prompt
+        assert "ISLAND PREFERENCE" in prompt
+        assert "12-16 days" in prompt
 
     def test_generate_summary(self):
         ctx = PlanningContext(group_type="solo", destination="New Zealand")

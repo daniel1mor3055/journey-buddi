@@ -31,10 +31,15 @@ from app.agents.tools import (
     logistics_missing,
     interest_categories_missing,
     interest_deep_dive_remaining,
+    island_preference_missing,
     activity_location_remaining,
     location_summary_missing,
     provider_selection_remaining,
     transport_route_missing,
+    GROUP_TYPE_ALIASES,
+    ACCESSIBILITY_ALIASES,
+    FITNESS_ALIASES,
+    BUDGET_ALIASES,
 )
 from app.config import get_settings
 
@@ -66,6 +71,7 @@ def _agent_missing(agent_name: str, ctx: PlanningContext) -> list[str]:
         "logistics": lambda: logistics_missing(ctx),
         "interest_categories": lambda: interest_categories_missing(ctx),
         "interest_deep_dive": lambda: interest_deep_dive_remaining(ctx),
+        "island_preference": lambda: island_preference_missing(ctx),
         "activity_location": lambda: activity_location_remaining(ctx),
         "location_summary": lambda: location_summary_missing(ctx),
         "provider_selection": lambda: provider_selection_remaining(ctx),
@@ -174,11 +180,11 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
             "free_text": True,
         },
         "accessibility_needs": {
-            "text": "Any accessibility needs I should know about?",
+            "text": "Does anyone in your group have accessibility requirements?",
             "choices": [
-                {"emoji": "✅", "label": "No special needs", "desc": "All good to go"},
-                {"emoji": "🚶", "label": "Prefer flat, paved paths", "desc": "Easy terrain please"},
-                {"emoji": "♿", "label": "Wheelchair/stroller accessible only", "desc": "Full accessibility needed"},
+                {"emoji": "✅", "label": "No accessibility needs", "desc": "No restrictions — full range of activities"},
+                {"emoji": "🍼", "label": "Travelling with stroller/pram", "desc": "Need pram-friendly paths, accommodation & vehicles"},
+                {"emoji": "♿", "label": "Wheelchair or mobility aid", "desc": "Need fully accessible facilities throughout"},
             ],
         },
         "fitness_profile": {
@@ -188,6 +194,15 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "🥾", "label": "Up for a moderate challenge", "desc": "A few hours hiking is fine"},
                 {"emoji": "⛰️", "label": "Bring on the big hikes", "desc": "Multi-hour treks, no problem"},
                 {"emoji": "🎲", "label": "A mix of everything", "desc": "Some easy days, some big ones"},
+            ],
+        },
+        "budget": {
+            "text": "Last thing — what's your rough budget comfort zone per person?",
+            "choices": [
+                {"emoji": "💰", "label": "Budget-friendly", "desc": "Free/cheap activities, keep costs low"},
+                {"emoji": "💵", "label": "Mid-range", "desc": "Happy to pay for great experiences"},
+                {"emoji": "💎", "label": "Treat ourselves", "desc": "Premium experiences, no stress about cost"},
+                {"emoji": "🤷", "label": "Flexible", "desc": "Depends on the experience"},
             ],
         },
     },
@@ -202,20 +217,22 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "🤷", "label": "Flexible", "desc": "Help me pick the best time!"},
             ],
         },
+        "trip_duration": {
+            "text": "How much time do you have for New Zealand?",
+            "choices": [
+                {"emoji": "📅", "label": "About a week", "desc": "7-10 days"},
+                {"emoji": "🗓️", "label": "About 2 weeks", "desc": "12-16 days"},
+                {"emoji": "📆", "label": "About 3 weeks", "desc": "18-23 days"},
+                {"emoji": "🌏", "label": "A month or more", "desc": "25+ days"},
+                {"emoji": "🤷", "label": "I'm flexible", "desc": "Help me figure out the right length"},
+            ],
+        },
         "max_driving_hours": {
             "text": "How much driving are you comfortable with per day?",
             "choices": [
                 {"emoji": "🐢", "label": "Short (1-2 hours max)", "desc": "More time at each stop"},
                 {"emoji": "🚗", "label": "3-4 hours is fine", "desc": "Good balance of driving and exploring"},
                 {"emoji": "🛣️", "label": "5+ hours is OK", "desc": "Happy to cover more ground"},
-            ],
-        },
-        "flight_details": {
-            "text": "Have you booked your flights to New Zealand yet?",
-            "choices": [
-                {"emoji": "✈️", "label": "Yes — I have details", "desc": "Ready to share arrival/departure"},
-                {"emoji": "📅", "label": "Not yet — I'll add later", "desc": "Still sorting flights"},
-                {"emoji": "🤔", "label": "Help me figure it out", "desc": "Need advice on flights"},
             ],
         },
     },
@@ -240,6 +257,19 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "♨️", "label": "Hot Springs & Relaxation", "desc": ""},
             ],
             "multi_select": True,
+        },
+    },
+    "island_preference": {
+        "island_preference": {
+            "text": (
+                "New Zealand has two main islands, each with its own character. "
+                "Which would you like to explore?"
+            ),
+            "choices": [
+                {"emoji": "🏔️", "label": "South Island", "desc": "Mountains, glaciers, fjords — the adventure hub"},
+                {"emoji": "🌋", "label": "North Island", "desc": "Volcanoes, geothermal, Māori culture, beaches"},
+                {"emoji": "🗺️", "label": "Both islands", "desc": "The full NZ experience"},
+            ],
         },
     },
     "transport_route": {
@@ -350,6 +380,33 @@ class PlanningOrchestrator:
                 response_dict, ctx = await self._advance_pipeline(
                     ctx, response_dict, conversation_history, conversation_id
                 )
+            elif missing_after == missing_before:
+                # LLM made zero progress (no tool was called).  First try to
+                # resolve the user message directly against the known alias
+                # tables so the conversation can advance without an extra
+                # round-trip.  If resolution succeeds we show the next field's
+                # fallback question; if it fails we re-show the current one.
+                log.warning(
+                    "orchestrator_no_progress",
+                    agent=agent_name,
+                    stuck_on=missing_after[0],
+                )
+                if self._try_direct_fill(agent_name, missing_after[0], user_message, ctx):
+                    log.info(
+                        "orchestrator_direct_fill",
+                        agent=agent_name,
+                        field=missing_after[0],
+                        value=user_message,
+                    )
+                    missing_after = _agent_missing(agent_name, ctx)
+                    if not missing_after:
+                        response_dict, ctx = await self._advance_pipeline(
+                            ctx, response_dict, conversation_history, conversation_id
+                        )
+                    else:
+                        response_dict = self._field_fallback(agent_name, ctx)
+                else:
+                    response_dict = self._field_fallback(agent_name, ctx)
             else:
                 # Override choices with the controlled fallback for the
                 # next missing field so the LLM can't show wrong options.
@@ -622,6 +679,181 @@ class PlanningOrchestrator:
             "multi_select": False,
             "free_text": False,
         }
+
+    # ── Alias tables for every controlled-choice step ─────────────────────
+    # These mirror the fallback choices in _FIELD_FALLBACKS so we can
+    # resolve button clicks directly if the LLM skips the tool call.
+    _TRAVEL_DATE_ALIASES: dict[str, dict] = {
+        "dec–feb (summer)": {"season": "summer"},
+        "mar–may (autumn)": {"season": "autumn"},
+        "jun–aug (winter)": {"season": "winter"},
+        "sep–nov (spring)": {"season": "spring"},
+        "flexible": {"flexibility": "flexible"},
+    }
+    _TRIP_DURATION_ALIASES: dict[str, dict] = {
+        "about a week": {"type": "approximate", "min_days": 7, "max_days": 10},
+        "about 2 weeks": {"type": "approximate", "min_days": 12, "max_days": 16},
+        "about 3 weeks": {"type": "approximate", "min_days": 18, "max_days": 23},
+        "a month or more": {"type": "approximate", "min_days": 25, "max_days": 60},
+        "i'm flexible": {"type": "flexible"},
+    }
+    _MAX_DRIVING_ALIASES: dict[str, int] = {
+        "short (1-2 hours max)": 2,
+        "3-4 hours is fine": 4,
+        "5+ hours is ok": 5,
+    }
+    _ISLAND_ALIASES: dict[str, str] = {
+        "south island": "south_only",
+        "north island": "north_only",
+        "both islands": "both",
+        "south": "south_only",
+        "north": "north_only",
+        "both": "both",
+    }
+    _TRANSPORT_MODE_ALIASES: dict[str, str] = {
+        "campervan": "campervan",
+        "rental car": "car",
+        "mix of both": "mix",
+        "public transport": "public",
+    }
+    _ROUTE_DIRECTION_ALIASES: dict[str, str] = {
+        "clockwise": "clockwise",
+        "counter-clockwise": "counter-clockwise",
+        "custom": "custom",
+        "let buddi optimise the route": "custom",
+    }
+
+    @staticmethod
+    def _try_direct_fill(agent_name: str, field: str, user_message: str, ctx: PlanningContext) -> bool:
+        """Resolve a controlled-choice button label directly without an LLM call.
+
+        When the LLM skips a tool call for a field that has a known alias table,
+        we can resolve the user's button selection ourselves and update the context.
+        Returns True if the field was successfully filled, False otherwise.
+        """
+        msg = user_message.strip().lower()
+        inst = PlanningOrchestrator
+
+        if agent_name == "travel_dna":
+            if field == "group_type":
+                normalized = GROUP_TYPE_ALIASES.get(msg)
+                if normalized:
+                    ctx.group_type = normalized
+                    if normalized == "solo":
+                        ctx.group_details = {"count": 1}
+                    elif normalized == "couple":
+                        ctx.group_details = {"count": 2}
+                    return True
+
+            elif field == "accessibility_needs":
+                level = ACCESSIBILITY_ALIASES.get(msg)
+                if level is not None:
+                    ctx.accessibility_needs = {"level": level, "notes": ""}
+                    return True
+
+            elif field == "fitness_profile":
+                alias_result = FITNESS_ALIASES.get(msg)
+                if alias_result:
+                    level_key, can_hike = alias_result
+                    ctx.fitness_profile = {
+                        "general_level": level_key,
+                        "can_handle_hard_hikes": can_hike,
+                        "notes": "",
+                    }
+                    return True
+
+            elif field == "budget":
+                level = BUDGET_ALIASES.get(msg)
+                if level is not None:
+                    ctx.budget = {"level": level, "notes": ""}
+                    return True
+
+        elif agent_name == "logistics":
+            if field == "travel_dates":
+                dates = inst._TRAVEL_DATE_ALIASES.get(msg)
+                if dates:
+                    ctx.travel_dates = dates
+                    if not ctx.destination:
+                        ctx.destination = "New Zealand"
+                    return True
+
+            elif field == "trip_duration":
+                duration = inst._TRIP_DURATION_ALIASES.get(msg)
+                if duration:
+                    ctx.trip_duration = duration
+                    return True
+
+            elif field == "max_driving_hours":
+                hours = inst._MAX_DRIVING_ALIASES.get(msg)
+                if hours is not None:
+                    ctx.max_driving_hours = hours
+                    return True
+
+        elif agent_name == "interest_categories":
+            if field == "interest_categories":
+                # Multi-select: user message is comma-separated category labels
+                cats = [c.strip() for c in user_message.split(",") if c.strip()]
+                if cats:
+                    ctx.interest_categories = cats
+                    return True
+
+        elif agent_name == "interest_deep_dive":
+            # field == category name; user message is comma-separated activity labels
+            activities = [a.strip() for a in user_message.split(",") if a.strip()]
+            if activities:
+                ctx.interest_details[field] = activities
+                return True
+
+        elif agent_name == "island_preference":
+            if field == "island_preference":
+                normalized = inst._ISLAND_ALIASES.get(msg)
+                if normalized:
+                    islands_map = {
+                        "south_only": ["south"],
+                        "north_only": ["north"],
+                        "both": ["south", "north"],
+                    }
+                    ctx.island_preference = {
+                        "preference": normalized,
+                        "islands": islands_map.get(normalized, ["south", "north"]),
+                        "notes": "",
+                    }
+                    return True
+
+        elif agent_name == "activity_location":
+            # field = activity name; user message = chosen location string.
+            # Any non-empty value is valid — we mirror exactly what set_activity_location does.
+            location = user_message.strip()
+            if location:
+                ctx.activity_locations[field] = location
+                return True
+
+        elif agent_name == "provider_selection":
+            # field = activity name; user message = chosen provider name.
+            # Mirror set_provider behaviour: store a provider dict directly.
+            provider = user_message.strip()
+            if provider:
+                ctx.selected_providers[field] = {
+                    "name": provider,
+                    "location": "",
+                    "notes": "",
+                }
+                return True
+
+        elif agent_name == "transport_route":
+            if field == "transport_mode":
+                mode = inst._TRANSPORT_MODE_ALIASES.get(msg)
+                if mode:
+                    ctx.transport_plan = {"mode": mode, "details": ""}
+                    return True
+
+            elif field == "route_direction":
+                direction = inst._ROUTE_DIRECTION_ALIASES.get(msg)
+                if direction:
+                    ctx.route_direction = direction
+                    return True
+
+        return False
 
     @staticmethod
     def _mark_all_complete(ctx: PlanningContext) -> None:
