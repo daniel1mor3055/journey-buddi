@@ -329,12 +329,69 @@ async def set_flight_details(
 # Interest Categories tools
 # ═══════════════════════════════════════════════════════════════════════════
 
-CANONICAL_CATEGORIES = [
-    "Mountains & Hiking", "Ocean & Marine Life", "Beaches & Coast",
-    "Volcanoes & Geothermal", "Nature & Wildlife", "Food & Wine",
-    "Adrenaline & Thrills", "Culture & History", "Photography & Scenery",
-    "Stargazing & Dark Skies", "Water Sports", "Hot Springs & Relaxation",
-]
+from app.data.activity_taxonomy import (
+    CATEGORIES as _TAX_CATEGORIES,
+    get_activities_for_category,
+    get_activity,
+    get_category_slug_for_label,
+)
+from app.data.nz_attractions import NZ_ATTRACTIONS as _NZ_ATTRACTIONS
+
+CANONICAL_CATEGORIES = [c.label for c in _TAX_CATEGORIES]
+
+
+def _build_activity_options() -> dict[str, list[str]]:
+    """Derive ACTIVITY_OPTIONS from taxonomy + data.
+
+    Only includes activities that have at least one real attraction.
+    """
+    activities_with_data: set[str] = {a["activity"] for a in _NZ_ATTRACTIONS if a.get("activity")}
+    result: dict[str, list[str]] = {}
+    for cat in _TAX_CATEGORIES:
+        acts = get_activities_for_category(cat.slug)
+        labels = [a.label for a in acts if a.slug in activities_with_data]
+        if labels:
+            result[cat.label] = labels
+    return result
+
+
+def _build_activity_location_map() -> dict[str, list[dict[str, str]]]:
+    """Derive ACTIVITY_LOCATION_MAP from attraction data.
+
+    Maps activity labels to their real locations/providers.
+    """
+    result: dict[str, list[dict[str, str]]] = {}
+    for att in _NZ_ATTRACTIONS:
+        act_slug = att.get("activity")
+        if not act_slug:
+            continue
+        act = get_activity(act_slug)
+        if not act:
+            continue
+
+        island = att.get("metadata", {}).get("island", "")
+        route_fit = f"{island}-island" if island else "flexible"
+
+        entry = {
+            "location": att.get("location_name", ""),
+            "name": att["name"],
+            "region": att.get("region", ""),
+            "route_fit": route_fit,
+            "highlight": att.get("description", "")[:80],
+        }
+        result.setdefault(act.label, []).append(entry)
+
+    for entries in result.values():
+        entries.sort(key=lambda e: next(
+            (a.get("uniqueness_score", 50) for a in _NZ_ATTRACTIONS if a["name"] == e["name"]),
+            50,
+        ), reverse=True)
+
+    return result
+
+
+ACTIVITY_OPTIONS: dict[str, list[str]] = _build_activity_options()
+ACTIVITY_LOCATION_MAP: dict[str, list[dict[str, str]]] = _build_activity_location_map()
 
 
 @function_tool
@@ -354,56 +411,8 @@ async def set_interest_categories(
 # Interest Deep Dive tools
 # ═══════════════════════════════════════════════════════════════════════════
 
-ACTIVITY_OPTIONS: dict[str, list[str]] = {
-    "Mountains & Hiking": [
-        "Day hikes to summits", "Multi-day treks", "Coastal walks",
-        "Forest walks", "Glacier hikes", "Ridge walks",
-    ],
-    "Ocean & Marine Life": [
-        "Whale watching", "Swim with dolphins", "Snorkeling",
-        "Scuba diving", "Kayaking", "Sailing", "Surfing",
-    ],
-    "Beaches & Coast": [
-        "Beach walks", "Coastal hikes", "Rock pooling",
-        "Beach camping", "Hidden coves exploration",
-    ],
-    "Volcanoes & Geothermal": [
-        "Hot springs", "Mud pools", "Geysers",
-        "Volcanic crater walks", "Geothermal parks",
-    ],
-    "Nature & Wildlife": [
-        "Whale watching", "Swim with dolphins", "Penguin colonies",
-        "Seal watching", "Birdwatching", "Glowworm caves", "Kiwi spotting",
-    ],
-    "Food & Wine": [
-        "Vineyard tours", "Wine tasting", "Cooking classes",
-        "Food markets", "Craft beer tours", "Farm-to-table dining",
-    ],
-    "Adrenaline & Thrills": [
-        "Skydiving", "Bungy jumping", "Jet boating",
-        "White water rafting", "Zip-lining", "Canyoning", "Paragliding",
-    ],
-    "Culture & History": [
-        "Māori cultural experiences", "Museums", "Historical sites",
-        "Art galleries", "Heritage trails",
-    ],
-    "Photography & Scenery": [
-        "Landscape photography", "Sunrise / sunset spots",
-        "Aerial photography", "Wildlife photography",
-    ],
-    "Stargazing & Dark Skies": [
-        "Stargazing tours", "Dark sky reserves",
-        "Astrophotography", "Aurora viewing",
-    ],
-    "Water Sports": [
-        "Kayaking", "Surfing", "Stand-up paddleboarding",
-        "Jet skiing", "Fishing", "Sailing",
-    ],
-    "Hot Springs & Relaxation": [
-        "Natural hot springs", "Spa experiences",
-        "Thermal pools", "Wellness retreats",
-    ],
-}
+
+
 
 
 @function_tool
@@ -436,36 +445,21 @@ async def set_interest_activities(
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _build_provider_db() -> dict[str, list[dict]]:
-    """Build a lookup of activity → real providers from the attractions data."""
-    from app.data.nz_attractions import NZ_ATTRACTIONS
+    """Build a lookup from activity-label → list of real provider dicts.
 
+    Uses the canonical taxonomy: each attraction's ``activity`` field maps
+    directly to the activity label via the taxonomy registry.
+    """
     providers: dict[str, list[dict]] = {}
 
-    activity_type_map = {
-        "bungy": "Bungy jumping",
-        "adrenaline": None,
-        "adventure": None,
-        "skydive": "Skydiving",
-        "jet-boat": "Jet boating",
-        "zipline": "Zip-lining",
-        "rafting": "White water rafting",
-        "canyoning": "Canyoning",
-        "paragliding": "Paragliding",
-        "horse-riding": "Horse riding",
-        "balloon": "Hot air balloon",
-        "hiking": "Day hikes to summits",
-        "kayaking": "Kayaking",
-        "cruise": "Cruises",
-        "wildlife": "Wildlife watching",
-        "wine": "Vineyard tours",
-        "spa": "Spa experiences",
-        "geothermal": "Geothermal parks",
-        "cultural": "Cultural experiences",
-        "cave": "Cave tours",
-        "stargazing": "Stargazing tours",
-    }
+    for att in _NZ_ATTRACTIONS:
+        act_slug = att.get("activity")
+        if not act_slug:
+            continue
+        act = get_activity(act_slug)
+        if not act:
+            continue
 
-    for att in NZ_ATTRACTIONS:
         logistics = att.get("logistics", {})
         cost_info = logistics.get("estimated_cost_nzd", {})
         adult_price = cost_info.get("adult", 0) if isinstance(cost_info, dict) else 0
@@ -484,11 +478,7 @@ def _build_provider_db() -> dict[str, list[dict]]:
             "weather_sensitivity": att.get("weather_sensitivity", "moderate"),
         }
 
-        for att_type in att.get("types", []):
-            activity_name = activity_type_map.get(att_type)
-            if activity_name:
-                providers.setdefault(activity_name, []).append(provider_entry)
-
+        providers.setdefault(act.label, []).append(provider_entry)
         providers.setdefault(att["name"], []).append(provider_entry)
 
     return providers
@@ -579,124 +569,8 @@ async def set_route_direction(
 # Activity-Location tools
 # ═══════════════════════════════════════════════════════════════════════════
 
-ACTIVITY_LOCATION_MAP: dict[str, list[dict[str, str]]] = {
-    "Bungy jumping": [
-        {"location": "Queenstown", "name": "Nevis Bungy (134m)", "region": "otago", "route_fit": "south-island", "highlight": "NZ's highest — 8.5 sec freefall"},
-        {"location": "Queenstown", "name": "Kawarau Bridge Bungy (43m)", "region": "otago", "route_fit": "south-island", "highlight": "Birthplace of commercial bungy"},
-        {"location": "Taupo", "name": "Taupo Cliff Bungy (47m)", "region": "waikato", "route_fit": "north-island", "highlight": "River water-touch option"},
-    ],
-    "Skydiving": [
-        {"location": "Queenstown", "name": "NZONE Skydive", "region": "otago", "route_fit": "south-island", "highlight": "Remarkables + Lake Wakatipu views"},
-        {"location": "Wanaka", "name": "Skydive Wanaka", "region": "otago", "route_fit": "south-island", "highlight": "Alpine lake panorama, less crowded"},
-    ],
-    "Jet boating": [
-        {"location": "Queenstown", "name": "Shotover Jet", "region": "otago", "route_fit": "south-island", "highlight": "Narrow canyon at 85 km/h"},
-        {"location": "Taupo", "name": "Huka Falls Jet", "region": "waikato", "route_fit": "north-island", "highlight": "Near NZ's most famous waterfall"},
-    ],
-    "Zip-lining": [
-        {"location": "Rotorua", "name": "Rotorua Canopy Tours", "region": "rotorua", "route_fit": "north-island", "highlight": "Best in NZ — ancient native bush, eco-focused"},
-        {"location": "Queenstown", "name": "Ziptrek Ecotours", "region": "otago", "route_fit": "south-island", "highlight": "Treehouse platforms, Skyline hill views"},
-        {"location": "Waiheke Island", "name": "EcoZip Adventures", "region": "auckland", "route_fit": "north-island", "highlight": "Dual ziplines over vineyards + forest walk"},
-    ],
-    "Canyoning": [
-        {"location": "Wanaka", "name": "Deep Canyon", "region": "otago", "route_fit": "south-island", "highlight": "Waterfall rappelling + cliff jumps"},
-    ],
-    "White water rafting": [
-        {"location": "Rotorua", "name": "Kaituna Cascades", "region": "rotorua", "route_fit": "north-island", "highlight": "7m Tutea Falls — highest commercially rafted waterfall"},
-    ],
-    "Paragliding": [
-        {"location": "Queenstown", "name": "Coronet Peak Tandems", "region": "otago", "route_fit": "south-island", "highlight": "Remarkables views, premier NZ site"},
-        {"location": "Wanaka", "name": "Wanaka Paragliding", "region": "otago", "route_fit": "south-island", "highlight": "Backup for Queenstown weather"},
-    ],
-    "Day hikes to summits": [
-        {"location": "Wanaka", "name": "Roys Peak Track", "region": "otago", "route_fit": "south-island", "highlight": "Famous Insta ridgeline, 1200m gain"},
-        {"location": "Tongariro", "name": "Tongariro Alpine Crossing", "region": "tongariro", "route_fit": "north-island", "highlight": "NZ's most famous day hike"},
-        {"location": "Tongariro", "name": "Tama Lakes Track", "region": "tongariro", "route_fit": "north-island", "highlight": "Dramatic volcanic lakes, less crowded"},
-    ],
-    "Glacier hikes": [
-        {"location": "Franz Josef", "name": "Franz Josef Heli-Hike", "region": "west-coast", "route_fit": "south-island", "highlight": "Helicopter onto glacier, blue ice caves"},
-    ],
-    "Coastal walks": [
-        {"location": "Abel Tasman", "name": "Abel Tasman Coast Track", "region": "nelson-tasman", "route_fit": "south-island", "highlight": "Golden beaches, turquoise water"},
-        {"location": "Hahei", "name": "Cathedral Cove Walk", "region": "coromandel", "route_fit": "north-island", "highlight": "Iconic rock arch, Narnia filming site"},
-    ],
-    "Whale watching": [
-        {"location": "Kaikoura", "name": "Whale Watch Kaikoura", "region": "marlborough", "route_fit": "south-island", "highlight": "95% sighting success, sperm whales"},
-    ],
-    "Swim with dolphins": [
-        {"location": "Akaroa", "name": "Black Cat Cruises", "region": "canterbury", "route_fit": "south-island", "highlight": "World's smallest dolphin — Hector's"},
-    ],
-    "Kayaking": [
-        {"location": "Abel Tasman", "name": "Abel Tasman Kayaks", "region": "nelson-tasman", "route_fit": "south-island", "highlight": "Seal colony, golden coast"},
-        {"location": "Milford Sound", "name": "Rosco's Milford Kayaks", "region": "southland-fiordland", "route_fit": "south-island", "highlight": "Fiord kayaking beneath waterfalls"},
-    ],
-    "Vineyard tours": [
-        {"location": "Waiheke Island", "name": "Wine Mile Self-Guided", "region": "auckland", "route_fit": "north-island", "highlight": "4 world-class wineries walkable"},
-        {"location": "Marlborough", "name": "Jade Tours", "region": "marlborough", "route_fit": "south-island", "highlight": "World-famous Sauvignon Blanc region"},
-        {"location": "Queenstown", "name": "Gibbston Valley Bike & Wine", "region": "otago", "route_fit": "south-island", "highlight": "Pinot Noir + mountain scenery + bungy bridge"},
-    ],
-    "Wine tasting": [
-        {"location": "Waiheke Island", "name": "Wine Mile Self-Guided", "region": "auckland", "route_fit": "north-island", "highlight": "4 world-class wineries walkable"},
-        {"location": "Marlborough", "name": "Jade Tours", "region": "marlborough", "route_fit": "south-island", "highlight": "World-famous Sauvignon Blanc region"},
-        {"location": "Queenstown", "name": "Gibbston Valley Bike & Wine", "region": "otago", "route_fit": "south-island", "highlight": "Pinot Noir + mountain scenery + bungy bridge"},
-    ],
-    "Natural hot springs": [
-        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "28 pools, lakeside, acidic + alkaline"},
-        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs, river + mountain views"},
-        {"location": "Lake Tekapo", "name": "Tekapo Springs", "region": "canterbury", "route_fit": "south-island", "highlight": "Hot pools + stargazing combo"},
-        {"location": "Taupo", "name": "Otumuheke Stream", "region": "waikato", "route_fit": "north-island", "highlight": "FREE natural thermal river"},
-    ],
-    "Thermal pools": [
-        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "28 pools, lakeside, acidic + alkaline"},
-        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs, river + mountain views"},
-        {"location": "Taupo", "name": "Wairakei Terraces", "region": "waikato", "route_fit": "north-island", "highlight": "Blue silica terraces + thermal pools"},
-    ],
-    "Spa experiences": [
-        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Luxury private cedar hot tubs"},
-        {"location": "Whitianga", "name": "The Lost Spring", "region": "coromandel", "route_fit": "north-island", "highlight": "Tropical landscaping, cocktails in-pool"},
-    ],
-    "Glowworm caves": [
-        {"location": "Waitomo", "name": "Waitomo Glowworm Caves", "region": "waikato", "route_fit": "north-island", "highlight": "Millions of glowworms, silent boat ride"},
-        {"location": "Waitomo", "name": "Spellbound Caves", "region": "waikato", "route_fit": "north-island", "highlight": "Intimate tour, fewer crowds"},
-    ],
-    "Hot springs": [
-        {"location": "Rotorua", "name": "Polynesian Spa", "region": "rotorua", "route_fit": "north-island", "highlight": "NZ's flagship spa, 28 pools"},
-        {"location": "Queenstown", "name": "Onsen Hot Pools", "region": "otago", "route_fit": "south-island", "highlight": "Private cedar tubs"},
-        {"location": "Taupo", "name": "Otumuheke Stream", "region": "waikato", "route_fit": "north-island", "highlight": "FREE natural thermal river"},
-    ],
-    "Geysers": [
-        {"location": "Rotorua", "name": "Te Puia (Pohutu Geyser)", "region": "rotorua", "route_fit": "north-island", "highlight": "NZ's most active geyser + Maori culture"},
-    ],
-    "Geothermal parks": [
-        {"location": "Rotorua", "name": "Wai-O-Tapu", "region": "rotorua", "route_fit": "north-island", "highlight": "Most colorful geothermal area in NZ"},
-        {"location": "Taupo", "name": "Craters of the Moon", "region": "waikato", "route_fit": "north-island", "highlight": "Steaming craters on supervolcano"},
-    ],
-    "Mud pools": [
-        {"location": "Rotorua", "name": "Hell's Gate Mud Bath", "region": "rotorua", "route_fit": "north-island", "highlight": "Only geothermal mud bath in NZ"},
-        {"location": "Rotorua", "name": "Wai-O-Tapu", "region": "rotorua", "route_fit": "north-island", "highlight": "Massive boiling mud bubbles (free roadside)"},
-    ],
-    "Penguin colonies": [
-        {"location": "Dunedin", "name": "Otago Peninsula Wildlife", "region": "otago", "route_fit": "south-island", "highlight": "Yellow-eyed + blue penguins, wild beach"},
-    ],
-    "Seal watching": [
-        {"location": "Kaikoura", "name": "Kaikoura Seal Colony Walk", "region": "marlborough", "route_fit": "south-island", "highlight": "Free, NZ fur seals on rocks"},
-    ],
-    "Māori cultural experiences": [
-        {"location": "Rotorua", "name": "Te Puia", "region": "rotorua", "route_fit": "north-island", "highlight": "Geyser + carving school + kiwi house + haka"},
-    ],
-    "Stargazing tours": [
-        {"location": "Lake Tekapo", "name": "Mt John Observatory", "region": "canterbury", "route_fit": "south-island", "highlight": "World's largest dark sky reserve"},
-    ],
-    "Landscape photography": [
-        {"location": "Wanaka", "name": "Roys Peak", "region": "otago", "route_fit": "south-island", "highlight": "Famous ridgeline photo"},
-        {"location": "Aoraki/Mt Cook", "name": "Hooker Valley Track", "region": "canterbury", "route_fit": "south-island", "highlight": "Swing bridges + icebergs + NZ's highest peak"},
-        {"location": "Fox Glacier", "name": "Lake Matheson", "region": "west-coast", "route_fit": "south-island", "highlight": "Mirror reflections of Mt Cook + Tasman"},
-    ],
-    "Sunrise / sunset spots": [
-        {"location": "Taranaki", "name": "Pouakai Tarn", "region": "taranaki", "route_fit": "north-island", "highlight": "Famous Mt Taranaki reflection"},
-        {"location": "Lake Tekapo", "name": "Church of the Good Shepherd", "region": "canterbury", "route_fit": "south-island", "highlight": "Milky Way over iconic church"},
-    ],
-}
+
+
 
 
 @function_tool
