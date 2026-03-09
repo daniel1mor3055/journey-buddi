@@ -232,7 +232,7 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
             "choices": [
                 {"emoji": "🐢", "label": "Short (1-2 hours max)", "desc": "More time at each stop"},
                 {"emoji": "🚗", "label": "3-4 hours is fine", "desc": "Good balance of driving and exploring"},
-                {"emoji": "🛣️", "label": "5+ hours is OK", "desc": "Happy to cover more ground"},
+                {"emoji": "🏎️", "label": "5+ hours is OK", "desc": "Happy to cover more ground"},
             ],
         },
     },

@@ -336,8 +336,8 @@ def _fallback_step_response(step: str, planning_state: dict) -> dict:
         "DRIVING": {
             "text": "How do you feel about driving?",
             "choices": [
-                {"emoji": "🚗", "label": "Short", "desc": "1-2 hours max per day"},
-                {"emoji": "🛣️", "label": "3-4 hours is fine", "desc": "Road trips are part of the fun"},
+                {"emoji": "🐢", "label": "Short", "desc": "1-2 hours max per day"},
+                {"emoji": "🚗", "label": "3-4 hours is fine", "desc": "Road trips are part of the fun"},
                 {"emoji": "🏎️", "label": "5+ hours is OK", "desc": "See as much as possible"},
             ],
             "multi_select": False,

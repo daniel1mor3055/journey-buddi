@@ -205,7 +205,7 @@ QUESTION RULES:
   🌏 A month or more | 🤷 I'm flexible — help me figure it out
   Explain: if flexible, you'll suggest a duration later based on their activities.
 - max_driving_hours → 3 choices:
-  🐢 Short (1-2 hours max) | 🚗 3-4 hours is fine | 🛣️ 5+ hours is OK
+  🐢 Short (1-2 hours max) | 🚗 3-4 hours is fine | 🏎️ 5+ hours is OK
 """
 
 
