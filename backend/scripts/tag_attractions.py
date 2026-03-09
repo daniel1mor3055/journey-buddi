@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """One-shot script to add category + activity tags and normalize location_names.
 
+Tags use the 9 TripAdvisor-aligned categories introduced in the 3-level
+activity design shift (2026-03-09). All 75 attractions are already tagged
+in the data files; this script can be re-run to validate or to re-apply
+tags after a data reset.
+
 Run from backend/:
     PYTHONPATH=. venv/bin/python3 scripts/tag_attractions.py
 """
@@ -10,89 +15,89 @@ from pathlib import Path
 
 SLUG_TAGS: dict[str, tuple[str, str]] = {
     # ── Core ─────────────────────────────────────────────────────────────
-    "nz-milford-sound-cruise":         ("nature-wildlife", "scenic-cruise"),
-    "nz-tongariro-alpine-crossing":    ("mountains-hiking", "day-hike"),
-    "nz-franz-josef-glacier-heli-hike":("mountains-hiking", "glacier-hike"),
-    "nz-kaikoura-whale-watching":      ("ocean-marine", "whale-watching"),
-    "nz-abel-tasman-day":              ("beaches-coast", "coastal-walk"),
-    "nz-lake-tekapo-stargazing":       ("stargazing-dark-skies", "stargazing-tour"),
-    "nz-hooker-valley-track":          ("mountains-hiking", "day-hike"),
-    "nz-wai-o-tapu":                   ("volcanoes-geothermal", "geothermal-park"),
-    "nz-waitomo-glowworm-caves":       ("nature-wildlife", "glowworm-caves"),
-    "nz-hobbiton":                     ("culture-history", "film-location"),
-    "nz-cathedral-cove":               ("beaches-coast", "coastal-walk"),
-    "nz-kawarau-bungy":                ("adrenaline-thrills", "bungy-jumping"),
-    "nz-otago-peninsula-wildlife":     ("nature-wildlife", "wildlife-watching"),
-    "nz-hot-water-beach":              ("volcanoes-geothermal", "hot-springs"),
-    "nz-roys-peak":                    ("mountains-hiking", "day-hike"),
-    "nz-te-puia-rotorua":              ("culture-history", "maori-cultural-experience"),
-    "nz-pancake-rocks-punakaiki":      ("photography-scenery", "scenic-viewpoint"),
-    "nz-doubtful-sound-overnight":     ("nature-wildlife", "scenic-cruise"),
+    "nz-milford-sound-cruise":          ("tours", "scenic-cruises"),
+    "nz-tongariro-alpine-crossing":     ("attractions", "hiking-trails"),
+    "nz-franz-josef-glacier-heli-hike": ("outdoor-activities", "glacier-hiking"),
+    "nz-kaikoura-whale-watching":       ("outdoor-activities", "whale-watching"),
+    "nz-abel-tasman-day":               ("day-trips", "coastal-day-trips"),
+    "nz-lake-tekapo-stargazing":        ("concerts-shows", "stargazing-experiences"),
+    "nz-hooker-valley-track":           ("attractions", "hiking-trails"),
+    "nz-wai-o-tapu":                    ("attractions", "hot-springs-geysers"),
+    "nz-waitomo-glowworm-caves":        ("tours", "guided-cave-tours"),
+    "nz-hobbiton":                      ("tours", "film-location-tours"),
+    "nz-cathedral-cove":                ("attractions", "scenic-viewpoints"),
+    "nz-kawarau-bungy":                 ("outdoor-activities", "bungy-jumping"),
+    "nz-otago-peninsula-wildlife":      ("tours", "wildlife-tours"),
+    "nz-hot-water-beach":               ("attractions", "hot-springs-geysers"),
+    "nz-roys-peak":                     ("attractions", "hiking-trails"),
+    "nz-te-puia-rotorua":               ("tours", "cultural-tours"),
+    "nz-pancake-rocks-punakaiki":       ("attractions", "scenic-viewpoints"),
+    "nz-doubtful-sound-overnight":      ("tours", "scenic-cruises"),
 
     # ── Adventure ────────────────────────────────────────────────────────
-    "nz-nevis-bungy":                  ("adrenaline-thrills", "bungy-jumping"),
-    "nz-nevis-swing":                  ("adrenaline-thrills", "canyon-swing"),
-    "nz-shotover-canyon-swing":        ("adrenaline-thrills", "canyon-swing"),
-    "nz-taupo-bungy-swing":           ("adrenaline-thrills", "bungy-jumping"),
-    "nz-skydive-queenstown":           ("adrenaline-thrills", "skydiving"),
-    "nz-skydive-wanaka":               ("adrenaline-thrills", "skydiving"),
-    "nz-shotover-jet":                 ("adrenaline-thrills", "jet-boating"),
-    "nz-huka-falls-jet":              ("adrenaline-thrills", "jet-boating"),
-    "nz-flyboard-queenstown":          ("water-sports", "flyboarding"),
-    "nz-flyboard-taupo":              ("water-sports", "flyboarding"),
-    "nz-canyoning-wanaka":             ("adrenaline-thrills", "canyoning"),
-    "nz-rotorua-canopy-tours":         ("adrenaline-thrills", "zip-lining"),
-    "nz-waiheke-ecozip":               ("adrenaline-thrills", "zip-lining"),
-    "nz-ziptrek-queenstown":           ("adrenaline-thrills", "zip-lining"),
-    "nz-paraglide-queenstown":         ("adrenaline-thrills", "paragliding"),
-    "nz-paraglide-wanaka":             ("adrenaline-thrills", "paragliding"),
-    "nz-zorb-rotorua":                 ("adrenaline-thrills", "zorbing"),
-    "nz-whitewater-rafting-kaituna":   ("adrenaline-thrills", "white-water-rafting"),
-    "nz-hot-air-balloon-canterbury":   ("adrenaline-thrills", "hot-air-balloon"),
-    "nz-horse-riding-glenorchy":       ("adrenaline-thrills", "horse-riding"),
-    "nz-horse-riding-pakiri-beach":    ("adrenaline-thrills", "horse-riding"),
-    "nz-horse-riding-tekapo":          ("adrenaline-thrills", "horse-riding"),
+    "nz-nevis-bungy":                   ("outdoor-activities", "bungy-jumping"),
+    "nz-nevis-swing":                   ("outdoor-activities", "canyon-swing"),
+    "nz-shotover-canyon-swing":         ("outdoor-activities", "canyon-swing"),
+    "nz-taupo-bungy-swing":             ("outdoor-activities", "bungy-jumping"),
+    "nz-skydive-queenstown":            ("outdoor-activities", "skydiving"),
+    "nz-skydive-wanaka":                ("outdoor-activities", "skydiving"),
+    "nz-shotover-jet":                  ("outdoor-activities", "jet-boating"),
+    "nz-huka-falls-jet":                ("outdoor-activities", "jet-boating"),
+    "nz-flyboard-queenstown":           ("outdoor-activities", "flyboarding"),
+    "nz-flyboard-taupo":                ("outdoor-activities", "flyboarding"),
+    "nz-canyoning-wanaka":              ("outdoor-activities", "canyoning"),
+    "nz-rotorua-canopy-tours":          ("outdoor-activities", "zip-lining"),
+    "nz-waiheke-ecozip":                ("outdoor-activities", "zip-lining"),
+    "nz-ziptrek-queenstown":            ("outdoor-activities", "zip-lining"),
+    "nz-paraglide-queenstown":          ("outdoor-activities", "paragliding"),
+    "nz-paraglide-wanaka":              ("outdoor-activities", "paragliding"),
+    "nz-zorb-rotorua":                  ("outdoor-activities", "zorbing"),
+    "nz-whitewater-rafting-kaituna":    ("outdoor-activities", "white-water-rafting"),
+    "nz-hot-air-balloon-canterbury":    ("outdoor-activities", "hot-air-balloon"),
+    "nz-horse-riding-glenorchy":        ("outdoor-activities", "horse-riding"),
+    "nz-horse-riding-pakiri-beach":     ("outdoor-activities", "horse-riding"),
+    "nz-horse-riding-tekapo":           ("outdoor-activities", "horse-riding"),
 
     # ── Nature ───────────────────────────────────────────────────────────
-    "nz-tama-lakes-track":             ("mountains-hiking", "day-hike"),
-    "nz-meads-wall":                   ("culture-history", "film-location"),
-    "nz-taranaki-falls":               ("nature-wildlife", "waterfall-walk"),
-    "nz-pouakai-tarn":                 ("mountains-hiking", "day-hike"),
-    "nz-three-sisters-taranaki":       ("photography-scenery", "scenic-viewpoint"),
-    "nz-blue-spring-te-waihou":        ("nature-wildlife", "scenic-walk"),
-    "nz-aratiatia-rapids":             ("nature-wildlife", "scenic-walk"),
-    "nz-bridal-veil-falls":            ("nature-wildlife", "waterfall-walk"),
-    "nz-kaiate-falls":                 ("nature-wildlife", "waterfall-walk"),
-    "nz-thunder-creek-falls":          ("nature-wildlife", "waterfall-walk"),
-    "nz-blue-pools-track":             ("nature-wildlife", "scenic-walk"),
-    "nz-lake-matheson":                ("photography-scenery", "landscape-photography"),
-    "nz-devils-punchbowl-waterfall":   ("nature-wildlife", "waterfall-walk"),
-    "nz-redwoods-treewalk-rotorua":    ("nature-wildlife", "scenic-walk"),
-    "nz-hokitika-gorge":               ("nature-wildlife", "scenic-walk"),
-    "nz-glow-worm-dell-hokitika":      ("nature-wildlife", "glowworm-caves"),
-    "nz-key-summit-track":             ("mountains-hiking", "day-hike"),
-    "nz-lake-marian-track":            ("mountains-hiking", "day-hike"),
-    "nz-crown-range-road":             ("photography-scenery", "scenic-drive"),
-    "nz-mangapohue-natural-bridge":    ("nature-wildlife", "scenic-walk"),
+    "nz-tama-lakes-track":              ("attractions", "hiking-trails"),
+    "nz-meads-wall":                    ("tours", "film-location-tours"),
+    "nz-taranaki-falls":                ("attractions", "hiking-trails"),
+    "nz-pouakai-tarn":                  ("attractions", "hiking-trails"),
+    "nz-three-sisters-taranaki":        ("attractions", "scenic-viewpoints"),
+    "nz-blue-spring-te-waihou":         ("attractions", "nature-wildlife-areas"),
+    "nz-aratiatia-rapids":              ("attractions", "nature-wildlife-areas"),
+    "nz-bridal-veil-falls":             ("attractions", "nature-wildlife-areas"),
+    "nz-kaiate-falls":                  ("attractions", "nature-wildlife-areas"),
+    "nz-thunder-creek-falls":           ("attractions", "nature-wildlife-areas"),
+    "nz-blue-pools-track":              ("attractions", "hiking-trails"),
+    "nz-lake-matheson":                 ("attractions", "scenic-viewpoints"),
+    "nz-devils-punchbowl-waterfall":    ("attractions", "nature-wildlife-areas"),
+    "nz-redwoods-treewalk-rotorua":     ("attractions", "forests"),
+    "nz-hokitika-gorge":                ("attractions", "nature-wildlife-areas"),
+    "nz-glow-worm-dell-hokitika":       ("tours", "guided-cave-tours"),
+    "nz-key-summit-track":              ("attractions", "hiking-trails"),
+    "nz-lake-marian-track":             ("attractions", "hiking-trails"),
+    "nz-crown-range-road":              ("attractions", "scenic-viewpoints"),
+    "nz-mangapohue-natural-bridge":     ("attractions", "nature-wildlife-areas"),
 
     # ── Thermal ──────────────────────────────────────────────────────────
-    "nz-polynesian-spa-rotorua":       ("hot-springs-relaxation", "spa-experience"),
-    "nz-onsen-hot-pools-queenstown":   ("hot-springs-relaxation", "spa-experience"),
-    "nz-tekapo-springs":               ("hot-springs-relaxation", "thermal-pool"),
-    "nz-lost-spring-whitianga":        ("hot-springs-relaxation", "spa-experience"),
-    "nz-wairakei-terraces-taupo":      ("hot-springs-relaxation", "thermal-pool"),
-    "nz-hells-gate-rotorua":           ("volcanoes-geothermal", "mud-pools"),
-    "nz-spa-thermal-park-taupo":       ("hot-springs-relaxation", "natural-hot-springs"),
-    "nz-craters-of-the-moon-taupo":    ("volcanoes-geothermal", "geothermal-park"),
-    "nz-kuirau-park-rotorua":          ("volcanoes-geothermal", "geothermal-park"),
+    "nz-polynesian-spa-rotorua":        ("outdoor-activities", "hot-pools-bathing"),
+    "nz-onsen-hot-pools-queenstown":    ("outdoor-activities", "hot-pools-bathing"),
+    "nz-tekapo-springs":                ("outdoor-activities", "hot-pools-bathing"),
+    "nz-lost-spring-whitianga":         ("outdoor-activities", "hot-pools-bathing"),
+    "nz-wairakei-terraces-taupo":       ("attractions", "hot-springs-geysers"),
+    "nz-hells-gate-rotorua":            ("attractions", "hot-springs-geysers"),
+    "nz-spa-thermal-park-taupo":        ("outdoor-activities", "hot-pools-bathing"),
+    "nz-craters-of-the-moon-taupo":     ("attractions", "hot-springs-geysers"),
+    "nz-kuirau-park-rotorua":           ("attractions", "hot-springs-geysers"),
 
     # ── Cultural ─────────────────────────────────────────────────────────
-    "nz-waiheke-island-wine-tours":    ("food-wine", "vineyard-tour"),
-    "nz-marlborough-wine-tours":       ("food-wine", "vineyard-tour"),
-    "nz-central-otago-wine-tours":     ("food-wine", "vineyard-tour"),
-    "nz-auckland-food-tour":           ("food-wine", "food-market"),
-    "nz-spellbound-glowworm-waitomo":  ("nature-wildlife", "glowworm-caves"),
-    "nz-hobbiton-evening-banquet":     ("culture-history", "film-location"),
+    "nz-waiheke-island-wine-tours":     ("tours", "wine-food-tours"),
+    "nz-marlborough-wine-tours":        ("tours", "wine-food-tours"),
+    "nz-central-otago-wine-tours":      ("tours", "wine-food-tours"),
+    "nz-auckland-food-tour":            ("tours", "wine-food-tours"),
+    "nz-spellbound-glowworm-waitomo":   ("tours", "guided-cave-tours"),
+    "nz-hobbiton-evening-banquet":      ("tours", "film-location-tours"),
 }
 
 LOCATION_NORMALIZATIONS: dict[str, str] = {
@@ -124,7 +129,7 @@ LOCATION_NORMALIZATIONS: dict[str, str] = {
 
 
 def process_file(filepath: Path) -> int:
-    """Add category/activity after types line and normalize location_name.
+    """Re-apply category/activity tags and normalize location_name.
     Returns count of modified attractions.
     """
     content = filepath.read_text()
@@ -137,11 +142,12 @@ def process_file(filepath: Path) -> int:
             continue
 
         tag_line = f'        "category": "{category}",\n        "activity": "{activity}",'
-        if f'"category": "{category}"' in content:
-            idx = content.index(slug_pattern)
-            nearby = content[max(0, idx-50):idx+200]
-            if category in nearby:
-                continue
+
+        # Check if this slug already has the correct tags
+        idx = content.index(slug_pattern)
+        nearby = content[idx:idx + 300]
+        if f'"category": "{category}"' in nearby and f'"activity": "{activity}"' in nearby:
+            continue
 
         types_pattern = re.compile(
             r'("slug": "' + re.escape(slug) + r'".*?'
@@ -176,40 +182,29 @@ def main() -> None:
     total = 0
     for f in files:
         n = process_file(f)
-        print(f"  {f.name}: {n} attractions tagged")
+        print(f"  {f.name}: {n} attractions re-tagged")
         total += n
 
-    print(f"\nTotal: {total} attractions tagged")
+    print(f"\nTotal: {total} attractions processed")
 
-    expected = len(SLUG_TAGS)
-    if total != expected:
-        print(f"WARNING: expected {expected}, got {total}")
-        all_slugs_in_data = set()
-        for f in files:
-            text = f.read_text()
-            for slug in SLUG_TAGS:
-                if f'"slug": "{slug}"' in text:
-                    all_slugs_in_data.add(slug)
-        missing = set(SLUG_TAGS.keys()) - all_slugs_in_data
-        if missing:
-            print(f"Missing slugs in data files: {missing}")
-        sys.exit(1)
-
-    print("Validating tags against taxonomy...")
+    print("Validating tags against new 9-category taxonomy...")
     sys.path.insert(0, str(data_dir.parent.parent))
     from app.data.activity_taxonomy import validate_attraction_tags
+    from app.data.nz_attractions import NZ_ATTRACTIONS
+
     errors = []
-    for slug, (cat, act) in SLUG_TAGS.items():
-        errs = validate_attraction_tags(cat, act)
+    for att in NZ_ATTRACTIONS:
+        errs = validate_attraction_tags(att.get("category", ""), att.get("activity", ""))
         if errs:
-            errors.append(f"  {slug}: {errs}")
+            errors.append(f"  {att['slug']}: {errs}")
+
     if errors:
         print("VALIDATION ERRORS:")
         for e in errors:
             print(e)
         sys.exit(1)
 
-    print("All tags valid!")
+    print(f"All {len(NZ_ATTRACTIONS)} attractions valid against the 9-category taxonomy!")
 
 
 if __name__ == "__main__":

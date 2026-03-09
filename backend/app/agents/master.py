@@ -3,6 +3,12 @@
 This is NOT a conversation agent.  It runs once after all conversation agents
 are satisfied and produces a verbose, structured prompt that feeds the
 itinerary generation pipeline.
+
+After the 3-level activity design shift the conversation only collects
+*categories* (Level 1).  Specific activities (Level 2) and providers
+(Level 3) are chosen post-chat, so those fields will be empty here.
+The prompt still has placeholders so the itinerary generator knows
+activities and providers will be filled in later.
 """
 from __future__ import annotations
 
@@ -29,8 +35,8 @@ class MasterAgent:
         sections.append(self._section("BUDGET", self._budget_section(ctx)))
         sections.append(self._section("LOGISTICS", self._logistics_section(ctx)))
         sections.append(self._section("ISLAND PREFERENCE", self._island_section(ctx)))
-        sections.append(self._section("INTERESTS & ACTIVITIES", self._interests_section(ctx)))
-        sections.append(self._section("SELECTED PROVIDERS", self._providers_section(ctx)))
+        sections.append(self._section("INTEREST CATEGORIES", self._interests_section(ctx)))
+        sections.append(self._section("ACTIVITIES & PROVIDERS (post-chat)", self._providers_section(ctx)))
         sections.append(self._section("TRANSPORT & ROUTE", self._transport_section(ctx)))
         sections.append(self._constraints_section(ctx))
 
@@ -54,9 +60,7 @@ class MasterAgent:
             "island_preference": ctx.island_preference,
             "interests": {
                 "categories": ctx.interest_categories,
-                "details": ctx.interest_details,
             },
-            "providers": ctx.selected_providers,
             "transport": ctx.transport_plan,
             "route": ctx.route_direction,
         }
@@ -111,26 +115,18 @@ class MasterAgent:
 
     @staticmethod
     def _interests_section(ctx: PlanningContext) -> str:
-        lines: list[str] = []
-        for cat in ctx.interest_categories:
-            activities = ctx.interest_details.get(cat, [])
-            act_str = ", ".join(activities) if activities else "(no specifics)"
-            lines.append(f"- {cat}: {act_str}")
-        return "\n".join(lines) if lines else "- None specified"
+        if not ctx.interest_categories:
+            return "- None specified"
+        lines = [f"- {cat}" for cat in ctx.interest_categories]
+        lines.append("\nNote: Specific activities within these categories will be "
+                      "chosen by the traveler post-chat (Level 2).")
+        return "\n".join(lines)
 
     @staticmethod
     def _providers_section(ctx: PlanningContext) -> str:
-        if not ctx.selected_providers:
-            return "- Deferred all provider choices to Buddi"
-        lines: list[str] = []
-        for activity, provider in ctx.selected_providers.items():
-            if isinstance(provider, dict):
-                name = provider.get("name", "unknown")
-                loc = provider.get("location", "")
-                lines.append(f"- {activity}: {name} ({loc})" if loc else f"- {activity}: {name}")
-            else:
-                lines.append(f"- {activity}: {provider}")
-        return "\n".join(lines)
+        return ("- Activities and providers are selected post-chat.\n"
+                "- Generate a skeleton itinerary with location slots; the traveler\n"
+                "  will fill in specific activities and providers progressively.")
 
     @staticmethod
     def _transport_section(ctx: PlanningContext) -> str:

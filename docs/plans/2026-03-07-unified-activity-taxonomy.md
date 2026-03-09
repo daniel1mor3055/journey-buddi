@@ -1,5 +1,12 @@
 # Unified Activity Taxonomy — Implementation Plan
 
+> **SUPERSEDED (2026-03-09):** This plan was implemented and then superseded by the
+> 3-Level Activity Design Shift. The taxonomy now uses 9 TripAdvisor-aligned
+> categories (not 12). The derived maps (`ACTIVITY_OPTIONS`, `ACTIVITY_LOCATION_MAP`,
+> `SIGHTSEEING_BY_LOCATION`) have been removed from the conversational pipeline.
+> Activity selection (Level 2) and provider selection (Level 3) now happen post-chat.
+> See `docs/plans/2026-03-09-activity-design-shift.md` for the current plan.
+
 **Goal:** Consolidate three disconnected activity layers (ACTIVITY_OPTIONS, ACTIVITY_LOCATION_MAP, NZ_ATTRACTIONS.types) into a single taxonomy where the attraction data IS the source of truth for all UI options.
 
 **Architecture:** Each attraction gets tagged with one `category` (from 12 canonical categories) and one `activity` (the specific activity within that category). The existing hardcoded dicts (`ACTIVITY_OPTIONS`, `ACTIVITY_LOCATION_MAP`, `SIGHTSEEING_BY_LOCATION`) are replaced by functions that derive their values from the attraction data at startup. The `_build_provider_db()` manual mapping is eliminated.

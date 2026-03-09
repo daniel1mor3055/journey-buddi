@@ -3,6 +3,13 @@
 Each agent is a self-contained question-asking unit with no handoffs.
 Transitions between agents are managed entirely by the orchestrator,
 which also restricts tool access to one field at a time.
+
+Pipeline (6 agents):
+  greeting → travel_dna → logistics → interest_categories
+  → island_preference → transport_route
+
+Activity deep-dive, location mapping, and provider selection happen
+post-chat (Level 2 & Level 3 experiences).
 """
 from __future__ import annotations
 
@@ -26,20 +33,9 @@ from app.agents.tools import (
     logistics_missing,
     # interest categories
     set_interest_categories, CANONICAL_CATEGORIES,
-    # interest deep dive
-    get_activity_options, set_interest_activities,
-    interest_deep_dive_remaining,
     # island preference
     get_island_analysis, set_island_preference,
     island_preference_missing,
-    # activity-location ranking
-    get_location_options, set_activity_location,
-    activity_location_remaining,
-    # location summary
-    build_location_summary, adjust_location_days, confirm_location_plan,
-    location_summary_missing,
-    # provider selection
-    get_real_providers, set_provider, provider_selection_remaining, _all_activities,
     # transport & route
     set_transport_mode, set_route_direction,
     transport_route_missing,
@@ -219,62 +215,26 @@ def _interest_categories_instructions(
 
 YOUR ROLE: Interest Categories Agent
 GOAL: Identify which high-level experience categories excite the traveler.
+These are the 9 TripAdvisor-aligned categories — the ONLY options available.
 NEVER mention specific locations, providers, or named attractions.
 
 CURRENT STATE:
 {_compact_state(c)}
 
-AVAILABLE CATEGORIES:
-{json.dumps(CANONICAL_CATEGORIES)}
+AVAILABLE CATEGORIES (strict — no additions):
+{json.dumps(CANONICAL_CATEGORIES, indent=2)}
 
 WORKFLOW:
 1. If the user has NOT yet chosen categories (i.e. interest_categories is empty),
-   present ALL categories as a multi-select gallery. Set multi_select=true.
+   present ALL 9 categories as a multi-select gallery. Set multi_select=true.
+   Show each category with its emoji and description.
    Do NOT call set_interest_categories until the user explicitly picks categories.
 2. When the user selects categories, call set_interest_categories with the list.
 3. Produce a brief confirmation that you've saved their picks, then say what's next.
    Do NOT list back every category they selected.
 
-Present each category with an appropriate emoji. Tailor enthusiasm to their group type and fitness.
-"""
-
-
-def _interest_deep_dive_instructions(
-    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
-) -> str:
-    c = ctx.context
-    remaining = interest_deep_dive_remaining(c)
-    covered = [cat for cat in c.interest_categories if cat not in remaining]
-    next_cat = remaining[0] if remaining else "none"
-    progress = f"{len(covered)}/{len(c.interest_categories)} categories explored"
-
-    return f"""{BUDDI_PERSONA}
-{QUESTION_PHILOSOPHY}
-{RESPONSE_RULES}
-
-YOUR ROLE: Interest Deep Dive Agent
-GOAL: For each interest category, understand the specific activity types wanted.
-Work through categories one at a time. NEVER mention specific providers.
-
-CURRENT STATE:
-{_compact_state(c)}
-
-PROGRESS: {progress}
-CATEGORIES COMPLETED: {json.dumps(covered)}
-NEXT CATEGORY: {next_cat}
-REMAINING: {json.dumps(remaining)}
-
-WORKFLOW:
-1. If the user's message contains explicit activity selections, call
-   set_interest_activities to record them. Otherwise do NOT call any
-   data-setting tools.
-2. Call get_activity_options for the NEXT uncovered category to get options.
-3. Present those activities as a multi-select list (multi_select=true) and STOP.
-4. When the user responds with selections, record them and check remaining.
-5. When ALL categories are covered, produce a response saying you're all set.
-
-Tailor options to the traveler's fitness profile and group composition.
-After user selects activities for a category, move directly to the next category without echoing their picks back.
+Present each category with its emoji and description. Tailor enthusiasm to their
+group type and fitness level.
 """
 
 
@@ -290,7 +250,7 @@ def _island_preference_instructions(
 
 YOUR ROLE: Island Preference Agent
 GOAL: Help the user decide which New Zealand island(s) to explore. Use their
-chosen activities, trip duration, and season to give an informed recommendation.
+chosen categories, trip duration, and season to give an informed recommendation.
 
 CURRENT STATE:
 {_compact_state(c)}
@@ -298,170 +258,30 @@ CURRENT STATE:
 TRIP DURATION: {duration_info}
 
 WORKFLOW:
-1. Call get_island_analysis to see where the user's chosen activities fall
-   across the North and South Islands.
+1. Call get_island_analysis to see how the user's chosen categories are
+   distributed across the North and South Islands.
 2. Present a brief, insightful summary:
-   - "X of your activities are best on the South Island (e.g. glaciers, fjords)"
-   - "Y are on the North Island (e.g. geothermal, glowworms)"
-   - "Z are available on both"
-3. Based on their trip duration and activity distribution, give a clear
+   - "Your [category] interests are stronger on the South Island (more
+     attractions for outdoor activities, tours)"
+   - "The North Island has more options for [category]"
+   - "Some categories are well-represented on both"
+3. Based on their trip duration and category distribution, give a clear
    recommendation with reasoning:
    - Short trips (≤10 days): suggest focusing on one island
    - Medium trips (11-18 days): suggest one island + highlights of the other
    - Long trips (19+ days): suggest both islands
-   - Flexible duration: recommend based on activity density
+   - Flexible duration: recommend based on category density
 4. Present choices and let the user decide:
    🏔️ South Island | 🌋 North Island | 🗺️ Both islands
-5. If the user's choice means some activities won't be available in their
-   chosen island(s), flag those: "Heads up — [activity] is only on the
-   [other island]. Want to adjust, or skip that one?"
-6. When the user confirms, call set_island_preference.
+5. When the user confirms, call set_island_preference.
 
 TOOL VALUE NORMALIZATION:
 - "South Island" → preference="south_only"
 - "North Island" → preference="north_only"
 - "Both islands" → preference="both"
 
-Keep it conversational. Reference specific activities to make the recommendation
-feel personal, not generic.
-"""
-
-
-def _activity_location_instructions(
-    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
-) -> str:
-    c = ctx.context
-    remaining = activity_location_remaining(c)
-    covered = [a for a in _all_activities(c) if a not in remaining]
-    next_act = remaining[0] if remaining else "none"
-    progress = f"{len(covered)}/{len(_all_activities(c))} activities placed"
-
-    return f"""{BUDDI_PERSONA}
-{QUESTION_PHILOSOPHY}
-{RESPONSE_RULES}
-
-YOUR ROLE: Activity-Location Agent
-GOAL: For each selected activity, show the 2-3 best NZ locations where it
-can be done, with a short comparison, and let the user choose WHERE to do it.
-
-CURRENT STATE:
-{_compact_state(c)}
-
-PROGRESS: {progress}
-ACTIVITIES PLACED: {json.dumps(covered)}
-NEXT ACTIVITY: {next_act}
-REMAINING: {json.dumps(remaining)}
-
-WORKFLOW:
-1. If the user's message contains an explicit location choice, call
-   set_activity_location to record it. Otherwise do NOT call any
-   data-setting tools.
-2. Call get_location_options for the NEXT unplaced activity.
-3. Present the ranked locations with:
-   - Location name and provider/experience name
-   - "On your route" / "Requires detour" note (use route_fit field)
-   - A one-line highlight of what makes each special
-4. Let the user pick one, or say "Let Buddi decide" / "Skip".
-5. When ALL activities have locations, say you're all set.
-
-Keep it conversational. Reference their route and existing location choices
-to help them cluster activities efficiently (e.g. "Since you're already
-going to Queenstown for bungy, you could add skydiving there too").
-"""
-
-
-def _location_summary_instructions(
-    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
-) -> str:
-    c = ctx.context
-    missing = location_summary_missing(c)
-    missing_str = ", ".join(missing) if missing else "NONE — ready to hand off!"
-    duration_info = json.dumps(c.trip_duration) if c.trip_duration else "not set"
-
-    return f"""{BUDDI_PERSONA}
-{QUESTION_PHILOSOPHY}
-{RESPONSE_RULES}
-
-YOUR ROLE: Location Summary Agent
-GOAL: Group all chosen activities by location, recommend days per area,
-and show bonus sightseeing suggestions. Let the user adjust days.
-
-CURRENT STATE:
-{_compact_state(c)}
-
-TRIP DURATION: {duration_info}
-STILL MISSING: {missing_str}
-
-WORKFLOW:
-1. If location_summary is empty, call build_location_summary to generate it.
-2. Present each location as a section:
-   "📍 Queenstown (3 days recommended)"
-   ✅ Bungy jumping — Nevis Bungy
-   ✅ Skydiving — NZONE
-   🎁 Also nearby: Skyline Gondola, Fergburger, Glenorchy drive
-3. Show the total trip duration. If the user's trip_duration is:
-   - 'fixed' or 'approximate': compare total recommended days to their
-     available days. If recommended > available, note this and suggest
-     which locations could be shortened or combined.
-   - 'flexible': suggest total days as a recommendation, e.g.
-     "Based on your activities, I'd suggest about X days for the full experience."
-4. Ask if they want to adjust any location's days.
-5. If the user wants changes, call adjust_location_days.
-6. When the user confirms, call confirm_location_plan.
-
-Present a clean, visual per-location breakdown. Use emojis.
-Mention if any location seems light (1 activity) or packed (4+ activities).
-"""
-
-
-def _provider_selection_instructions(
-    ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
-) -> str:
-    c = ctx.context
-    all_acts = _all_activities(c)
-    remaining = provider_selection_remaining(c)
-    covered = [a for a in all_acts if a not in remaining]
-    next_act = remaining[0] if remaining else "none"
-
-    already_chosen_locations = [
-        p.get("location", "")
-        for p in c.selected_providers.values()
-        if isinstance(p, dict) and p.get("location")
-    ]
-
-    return f"""{BUDDI_PERSONA}
-{QUESTION_PHILOSOPHY}
-{RESPONSE_RULES}
-
-YOUR ROLE: Provider Selection Agent
-GOAL: For each activity, present 3-5 provider options from different NZ regions
-with clear comparisons so the user can spread experiences across the trip.
-
-CURRENT STATE:
-{_compact_state(c)}
-
-ALL ACTIVITIES: {json.dumps(all_acts)}
-PROVIDERS CHOSEN: {json.dumps(covered)}
-NEXT ACTIVITY: {next_act}
-REMAINING: {json.dumps(remaining)}
-LOCATIONS ALREADY IN TRIP: {json.dumps(already_chosen_locations)}
-
-WORKFLOW:
-1. If the user's message contains an explicit provider selection, call
-   set_provider to record it. Otherwise do NOT call any data-setting tools.
-2. Focus on ONE activity at a time ({next_act}).
-3. Call get_real_providers to fetch REAL provider data from our database.
-4. Use provider_cards in your response (set choices to null) based on REAL data.
-   Present providers with: emoji, name, location, price (NZD), whatsSpecial, buddiPick.
-   Use the actual data returned — do NOT hallucinate providers or prices.
-5. Mark the highest uniqueness_score provider as buddiPick=true.
-6. Include text mentioning a "Let Buddi decide" or "Skip" option.
-7. When user picks a provider (or defers), call set_provider.
-8. If more activities remain, present the next one.
-9. When ALL activities have providers, produce a response saying providers are set.
-
-IMPORTANT: Use ONLY providers returned by get_real_providers. Do NOT make up
-provider names, prices, or details. The data comes from our verified database.
+Keep it conversational. Reference their chosen categories to make the
+recommendation feel personal, not generic.
 """
 
 
@@ -497,13 +317,13 @@ QUESTION RULES:
   🚐 Campervan | 🚗 Rental car | 🔀 Mix of both | 🚌 Public transport
   Explain trade-offs (campervan = freedom but slower; car = nimble but need
   accommodation). For families with young kids, recommend car.
-- route_direction → present 2-3 options based on provider locations.
+- route_direction → present 2-3 options based on island preference.
   Explain why one direction minimises backtracking.
   e.g. 🔄 Clockwise | 🔃 Counter-clockwise | 🗺️ Custom
 
 When ALL data (transport_mode + route_direction) is collected, produce a
-celebratory FULL TRIP SUMMARY so the user can confirm everything before
-the itinerary is built. Structure it like this:
+celebratory TRIP SUMMARY so the user can confirm the conversation is complete.
+Structure it like this:
 
 "🎉 You're all set! Here's everything I've captured for your New Zealand adventure:
 
@@ -518,16 +338,13 @@ the itinerary is built. Structure it like this:
 
 🏝️ **Islands:** [preference]
 
-🎯 **Interests & Activities:**
-[list each category with its chosen activities]
-
-📍 **Locations & Providers:**
-[list each activity → location → provider]
+🎯 **Interests:** [list chosen categories]
 
 🚐 **Getting Around:** [transport mode]
 🗺️ **Route:** [direction]
 
-Ready to build your itinerary — this is going to be amazing!"
+Next up: you'll pick specific activities and providers in your dashboard — this
+is going to be amazing!"
 """
 
 
@@ -542,38 +359,10 @@ transport_route_agent: Agent[PlanningContext] = Agent(
     output_type=PlanningResponse,
 )
 
-location_summary_agent: Agent[PlanningContext] = Agent(
-    name="Location Summary",
-    instructions=_location_summary_instructions,
-    tools=[build_location_summary, adjust_location_days, confirm_location_plan],
-    output_type=PlanningResponse,
-)
-
-activity_location_agent: Agent[PlanningContext] = Agent(
-    name="Activity Location",
-    instructions=_activity_location_instructions,
-    tools=[get_location_options, set_activity_location],
-    output_type=PlanningResponse,
-)
-
-provider_selection_agent: Agent[PlanningContext] = Agent(
-    name="Provider Selection",
-    instructions=_provider_selection_instructions,
-    tools=[get_real_providers, set_provider],
-    output_type=PlanningResponse,
-)
-
 island_preference_agent: Agent[PlanningContext] = Agent(
     name="Island Preference",
     instructions=_island_preference_instructions,
     tools=[get_island_analysis, set_island_preference],
-    output_type=PlanningResponse,
-)
-
-interest_deep_dive_agent: Agent[PlanningContext] = Agent(
-    name="Interest Deep Dive",
-    instructions=_interest_deep_dive_instructions,
-    tools=[get_activity_options, set_interest_activities],
     output_type=PlanningResponse,
 )
 
@@ -650,11 +439,7 @@ PIPELINE: list[Agent[PlanningContext]] = [
     travel_dna_agent,
     logistics_agent,
     interest_categories_agent,
-    interest_deep_dive_agent,
     island_preference_agent,
-    activity_location_agent,
-    location_summary_agent,
-    provider_selection_agent,
     transport_route_agent,
 ]
 
@@ -663,11 +448,7 @@ AGENT_NAME_MAP: dict[str, Agent[PlanningContext]] = {
     "travel_dna": travel_dna_agent,
     "logistics": logistics_agent,
     "interest_categories": interest_categories_agent,
-    "interest_deep_dive": interest_deep_dive_agent,
     "island_preference": island_preference_agent,
-    "activity_location": activity_location_agent,
-    "location_summary": location_summary_agent,
-    "provider_selection": provider_selection_agent,
     "transport_route": transport_route_agent,
 }
 
@@ -676,10 +457,6 @@ AGENT_TO_NAME: dict[str, str] = {
     "Travel DNA": "travel_dna",
     "Logistics": "logistics",
     "Interest Categories": "interest_categories",
-    "Interest Deep Dive": "interest_deep_dive",
     "Island Preference": "island_preference",
-    "Activity Location": "activity_location",
-    "Location Summary": "location_summary",
-    "Provider Selection": "provider_selection",
     "Transport Route": "transport_route",
 }

@@ -31,6 +31,26 @@ Filename is auto-generated as `TICKET-{timestamp}-{slug}.md`. Ticket is added to
 
 **Kanban column mapping**: Backlog (todo · blocked) · In Progress (in-progress) · Done (done)
 
+### Workflow
+
+**Step 1 — Gather information**
+- Understand the task/feature/bug from the user.
+- Identify area, priority, and dependencies.
+- Determine project: infer from workspace context (e.g. "Journy Buddy", "Real Estate Project"). If unsure, call `list_projects` first to see available folders.
+
+**Step 2 — Generate the ticket**
+- Apply the template below with specific, concrete details.
+- Keep it concise — bullet points only, no paragraphs.
+- Ensure all acceptance criteria are binary (pass/fail).
+- 3–7 requirements is typical. Split large features into multiple tickets.
+
+**Step 3 — Create the file**
+- Call `create_ticket(project="<exact folder name>", title=..., description=..., priority=..., tags=[...], status="todo")`.
+- Filename is auto-generated. Ticket is automatically placed in the Kanban Backlog.
+
+**Step 4 — Confirm**
+- One-line confirmation only (see Confirmation section). No extra commentary.
+
 ### Template
 
 ```markdown
@@ -62,14 +82,23 @@ priority: <PRIORITY>
 
 ### Field Guidelines
 
-**Priority**: P0-Critical · P1-High · P2-Medium · P3-Low  
+**Priority levels**:
+- **P0-Critical** — system down, data loss risk, security breach
+- **P1-High** — major feature blocked, significant user impact
+- **P2-Medium** — important but not urgent, planned work
+- **P3-Low** — nice to have, optimisation, polish
+
 **Area tags**: `backend` `frontend` `database` `api` `infra` `bug` `feature` `refactor` `docs` `test`
 
 **Acceptance criteria must be binary** (pass/fail verifiable):
 - ✅ "API returns 200 for valid requests" · "Page loads under 2s" · "80% test coverage"
 - ❌ "Code is clean" · "Performance is better" · "UX is improved"
 
-Keep each ticket focused on a single deliverable. 3–7 requirements is typical. Split large features into multiple tickets.
+### Notes
+- Tickets are focused on a single deliverable — split large features into multiple tickets.
+- Link related tickets in the Dependencies section.
+- Tickets are immutable once created; status changes happen via `update_ticket` only.
+- Each project maintains its own Kanban board automatically.
 
 ---
 
@@ -77,11 +106,24 @@ Keep each ticket focused on a single deliverable. 3–7 requirements is typical.
 
 **MCP tools in sequence**: `read_ticket` → `update_ticket` → `move_ticket`
 
-1. Read ticket to confirm it exists and is active
-2. `update_ticket(project, filename, status="done")` — moves to Done column in Kanban
-3. `move_ticket(project, filename)` — archives to `done/` directory, removes from Kanban
+### Step 1 — Identify the ticket
+- Get the filename from user or context.
+- If unknown: call `list_projects` to confirm the project folder, then `list_tickets(project)` and ask the user to confirm which ticket.
 
-### Frontmatter Change
+### Step 2 — Read the ticket
+- Call `read_ticket(project, filename)` to verify it exists and is not already archived.
+- If already done, inform the user — do not proceed.
+
+### Step 3 — Update status to Done
+- Call `update_ticket(project, filename, status="done", notes="Completed <today's date>")`.
+- This moves the ticket to the **Done column** in the Kanban board.
+
+### Step 4 — Archive to done/ directory
+- Call `move_ticket(project, filename)`.
+- This moves the file to the `done/` subdirectory and **removes it from the Kanban board**.
+- Keep the original filename unchanged.
+
+### Frontmatter result
 
 ```yaml
 # Before
@@ -92,7 +134,12 @@ status: ✅ Done
 completed: YYYY-MM-DD   # today's date
 ```
 
-Preserve all other fields, content, and the original filename unchanged.
+Preserve all other fields and all ticket content.
+
+### Error handling
+- **Ticket not found**: call `list_tickets(project)` and ask the user to confirm the filename.
+- **Already archived**: inform the user, no further action needed.
+- **MCP unavailable**: output manual instructions — update frontmatter status + move file to `done/` folder + remove the `[[TICKET-XXX]]` link from `Kanban.md`.
 
 ---
 

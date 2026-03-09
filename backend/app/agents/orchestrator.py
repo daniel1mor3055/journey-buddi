@@ -5,6 +5,10 @@ Each user turn runs a *single* agent with restricted tool access: only the
 tool for the current missing field is available, preventing the LLM from
 auto-filling multiple fields in one turn.
 
+Pipeline (6 agents):
+  greeting → travel_dna → logistics → interest_categories
+  → island_preference → transport_route
+
 Tracing is enabled by default so every turn shows up in the OpenAI
 dashboard for debugging.
 """
@@ -30,12 +34,9 @@ from app.agents.tools import (
     travel_dna_missing,
     logistics_missing,
     interest_categories_missing,
-    interest_deep_dive_remaining,
     island_preference_missing,
-    activity_location_remaining,
-    location_summary_missing,
-    provider_selection_remaining,
     transport_route_missing,
+    CANONICAL_CATEGORIES,
     GROUP_TYPE_ALIASES,
     ACCESSIBILITY_ALIASES,
     FITNESS_ALIASES,
@@ -70,11 +71,7 @@ def _agent_missing(agent_name: str, ctx: PlanningContext) -> list[str]:
         "travel_dna": lambda: travel_dna_missing(ctx),
         "logistics": lambda: logistics_missing(ctx),
         "interest_categories": lambda: interest_categories_missing(ctx),
-        "interest_deep_dive": lambda: interest_deep_dive_remaining(ctx),
         "island_preference": lambda: island_preference_missing(ctx),
-        "activity_location": lambda: activity_location_remaining(ctx),
-        "location_summary": lambda: location_summary_missing(ctx),
-        "provider_selection": lambda: provider_selection_remaining(ctx),
         "transport_route": lambda: transport_route_missing(ctx),
     }
     fn = checks.get(agent_name)
@@ -96,35 +93,8 @@ def _enforce_single_item(
     ctx: PlanningContext,
     missing_before: list[str],
 ) -> None:
-    """For dynamic agents, ensure only ONE item was filled per turn.
-
-    If the LLM auto-filled multiple categories/activities in one run,
-    keep only the first one and reset the rest.
-    """
-    if agent_name not in ("interest_deep_dive", "activity_location", "provider_selection"):
-        return
-
-    missing_after = _agent_missing(agent_name, ctx)
-    filled = [f for f in missing_before if f not in missing_after]
-
-    if len(filled) <= 1:
-        return
-
-    keep = filled[0]
-    for item in filled[1:]:
-        if agent_name == "interest_deep_dive":
-            ctx.interest_details.pop(item, None)
-        elif agent_name == "activity_location":
-            ctx.activity_locations.pop(item, None)
-        elif agent_name == "provider_selection":
-            ctx.selected_providers.pop(item, None)
-
-    log.warning(
-        "auto_fill_rollback",
-        agent=agent_name,
-        kept=keep,
-        rolled_back=filled[1:],
-    )
+    """For dynamic agents, ensure only ONE item was filled per turn."""
+    pass
 
 
 def _restricted_agent(
@@ -132,11 +102,7 @@ def _restricted_agent(
     agent_name: str,
     missing: list[str],
 ) -> Agent[PlanningContext]:
-    """Create a copy of the agent with only the tool for the first missing field.
-
-    For agents not in FIELD_TOOLS (interest_deep_dive, provider_selection)
-    the full tool set is preserved since their fields are dynamic.
-    """
+    """Create a copy of the agent with only the tool for the first missing field."""
     field_map = FIELD_TOOLS.get(agent_name)
     if not field_map or not missing:
         return base
@@ -243,18 +209,8 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 "Pick everything that interests you."
             ),
             "choices": [
-                {"emoji": "🏔️", "label": "Mountains & Hiking", "desc": ""},
-                {"emoji": "🌊", "label": "Ocean & Marine Life", "desc": ""},
-                {"emoji": "🏖️", "label": "Beaches & Coast", "desc": ""},
-                {"emoji": "🌋", "label": "Volcanoes & Geothermal", "desc": ""},
-                {"emoji": "🌿", "label": "Nature & Wildlife", "desc": ""},
-                {"emoji": "🍷", "label": "Food & Wine", "desc": ""},
-                {"emoji": "🪂", "label": "Adrenaline & Thrills", "desc": ""},
-                {"emoji": "📖", "label": "Culture & History", "desc": ""},
-                {"emoji": "📸", "label": "Photography & Scenery", "desc": ""},
-                {"emoji": "⭐", "label": "Stargazing & Dark Skies", "desc": ""},
-                {"emoji": "🚣", "label": "Water Sports", "desc": ""},
-                {"emoji": "♨️", "label": "Hot Springs & Relaxation", "desc": ""},
+                {"emoji": c["emoji"], "label": c["label"], "desc": c["description"]}
+                for c in CANONICAL_CATEGORIES
             ],
             "multi_select": True,
         },
@@ -321,8 +277,6 @@ class PlanningOrchestrator:
     ) -> tuple[dict[str, Any], PlanningContext]:
         agent_name = ctx.current_agent
 
-        # Greeting is special: any message (other than "tell me more",
-        # already handled by the endpoint) means "advance to travel_dna".
         if agent_name == "greeting":
             ctx.completed_agents.append("greeting")
             ctx.current_agent = "travel_dna"
@@ -361,7 +315,6 @@ class PlanningOrchestrator:
             response = result.final_output_as(PlanningResponse)
             response_dict = response.model_dump(exclude_none=True)
 
-            # Pipeline state is ours to manage — reset any mutations
             ctx.current_agent = agent_name
             ctx.completed_agents = list(snapshot.get("completed_agents", []))
 
@@ -376,16 +329,10 @@ class PlanningOrchestrator:
             )
 
             if not missing_after:
-                # Domain complete → advance to the next agent
                 response_dict, ctx = await self._advance_pipeline(
                     ctx, response_dict, conversation_history, conversation_id
                 )
             elif missing_after == missing_before:
-                # LLM made zero progress (no tool was called).  First try to
-                # resolve the user message directly against the known alias
-                # tables so the conversation can advance without an extra
-                # round-trip.  If resolution succeeds we show the next field's
-                # fallback question; if it fails we re-show the current one.
                 log.warning(
                     "orchestrator_no_progress",
                     agent=agent_name,
@@ -408,8 +355,6 @@ class PlanningOrchestrator:
                 else:
                     response_dict = self._field_fallback(agent_name, ctx)
             else:
-                # Override choices with the controlled fallback for the
-                # next missing field so the LLM can't show wrong options.
                 self._apply_field_choices(response_dict, agent_name, missing_after[0])
 
         except MaxTurnsExceeded:
@@ -512,11 +457,7 @@ class PlanningOrchestrator:
         conversation_history: list[dict[str, str]],
         conversation_id: str,
     ) -> tuple[dict[str, Any], PlanningContext]:
-        """Run the current agent with NO tools to produce its first question.
-
-        Tools are withheld so the LLM cannot auto-fill data from the
-        synthetic "I'm ready for the next step" prompt.
-        """
+        """Run the current agent with NO tools to produce its first question."""
         agent_name = ctx.current_agent
         agent = AGENT_NAME_MAP.get(agent_name, greeting_agent)
         missing = _agent_missing(agent_name, ctx)
@@ -602,77 +543,6 @@ class PlanningOrchestrator:
                 "free_text": fb.get("free_text", False),
             }
 
-        if agent_name == "interest_deep_dive" and missing:
-            from app.agents.tools import ACTIVITY_OPTIONS
-            category = missing[0]
-            options = ACTIVITY_OPTIONS.get(category, [])
-            if options:
-                choices = [
-                    {"emoji": "✅", "label": opt, "desc": ""}
-                    for opt in options
-                ]
-                return {
-                    "text": f"Let's explore **{category}**! Which activities appeal to you?",
-                    "choices": choices,
-                    "multi_select": True,
-                    "free_text": False,
-                }
-            return {
-                "text": f"What specific **{category}** activities interest you?",
-                "choices": None,
-                "multi_select": False,
-                "free_text": True,
-            }
-
-        if agent_name == "activity_location" and missing:
-            activity = missing[0]
-            from app.agents.tools import ACTIVITY_LOCATION_MAP
-            options = ACTIVITY_LOCATION_MAP.get(activity, [])
-            if options:
-                choices = [
-                    {
-                        "emoji": "📍",
-                        "label": f"{opt['location']} — {opt['name']}",
-                        "desc": opt.get("highlight", ""),
-                    }
-                    for opt in options
-                ]
-                return {
-                    "text": f"Where would you like to do **{activity}**?",
-                    "choices": choices,
-                    "multi_select": False,
-                    "free_text": False,
-                }
-            return {
-                "text": f"Where in New Zealand would you like to do **{activity}**?",
-                "choices": None,
-                "multi_select": False,
-                "free_text": True,
-            }
-
-        if agent_name == "location_summary" and missing:
-            return {
-                "text": (
-                    "Let me put together your per-location plan — "
-                    "grouping activities, recommending days, and suggesting bonus sightseeing."
-                ),
-                "choices": None,
-                "multi_select": False,
-                "free_text": True,
-            }
-
-        if agent_name == "provider_selection" and missing:
-            activity = missing[0]
-            return {
-                "text": (
-                    f"Let me find providers for **{activity}**. "
-                    "I'll suggest a few options from different regions of New Zealand."
-                ),
-                "choices": None,
-                "multi_select": False,
-                "free_text": True,
-            }
-
         return {
             "text": "Let me think about that — could you try again?",
             "choices": None,
@@ -681,8 +551,6 @@ class PlanningOrchestrator:
         }
 
     # ── Alias tables for every controlled-choice step ─────────────────────
-    # These mirror the fallback choices in _FIELD_FALLBACKS so we can
-    # resolve button clicks directly if the LLM skips the tool call.
     _TRAVEL_DATE_ALIASES: dict[str, dict] = {
         "dec–feb (summer)": {"season": "summer"},
         "mar–may (autumn)": {"season": "autumn"},
@@ -725,12 +593,7 @@ class PlanningOrchestrator:
 
     @staticmethod
     def _try_direct_fill(agent_name: str, field: str, user_message: str, ctx: PlanningContext) -> bool:
-        """Resolve a controlled-choice button label directly without an LLM call.
-
-        When the LLM skips a tool call for a field that has a known alias table,
-        we can resolve the user's button selection ourselves and update the context.
-        Returns True if the field was successfully filled, False otherwise.
-        """
+        """Resolve a controlled-choice button label directly without an LLM call."""
         msg = user_message.strip().lower()
         inst = PlanningOrchestrator
 
@@ -791,18 +654,10 @@ class PlanningOrchestrator:
 
         elif agent_name == "interest_categories":
             if field == "interest_categories":
-                # Multi-select: user message is comma-separated category labels
                 cats = [c.strip() for c in user_message.split(",") if c.strip()]
                 if cats:
                     ctx.interest_categories = cats
                     return True
-
-        elif agent_name == "interest_deep_dive":
-            # field == category name; user message is comma-separated activity labels
-            activities = [a.strip() for a in user_message.split(",") if a.strip()]
-            if activities:
-                ctx.interest_details[field] = activities
-                return True
 
         elif agent_name == "island_preference":
             if field == "island_preference":
@@ -819,26 +674,6 @@ class PlanningOrchestrator:
                         "notes": "",
                     }
                     return True
-
-        elif agent_name == "activity_location":
-            # field = activity name; user message = chosen location string.
-            # Any non-empty value is valid — we mirror exactly what set_activity_location does.
-            location = user_message.strip()
-            if location:
-                ctx.activity_locations[field] = location
-                return True
-
-        elif agent_name == "provider_selection":
-            # field = activity name; user message = chosen provider name.
-            # Mirror set_provider behaviour: store a provider dict directly.
-            provider = user_message.strip()
-            if provider:
-                ctx.selected_providers[field] = {
-                    "name": provider,
-                    "location": "",
-                    "notes": "",
-                }
-                return True
 
         elif agent_name == "transport_route":
             if field == "transport_mode":

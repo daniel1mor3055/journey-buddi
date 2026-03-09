@@ -1,8 +1,12 @@
 """Canonical activity taxonomy for Journey Buddi.
 
-Single source of truth for categories and activities. All UI options,
-location maps, and provider lookups derive from this taxonomy combined
-with the attraction data.
+Aligned with TripAdvisor's top-level category structure.
+These 9 categories are STRICT — no additions allowed.
+
+Three-level hierarchy:
+  1. Category  — chosen during the planning conversation (Level 1)
+  2. Activity  — chosen post-chat in the dashboard (Level 2)
+  3. Provider  — chosen last, inside the itinerary builder (Level 3)
 """
 from __future__ import annotations
 
@@ -14,6 +18,7 @@ class Category:
     slug: str
     label: str
     emoji: str
+    description: str
 
 
 @dataclass(frozen=True)
@@ -23,118 +28,181 @@ class Activity:
     category_slug: str
 
 
+# ── The 9 TripAdvisor-aligned categories (strict, no additions) ──────
+
 CATEGORIES: list[Category] = [
-    Category("mountains-hiking", "Mountains & Hiking", "🏔️"),
-    Category("ocean-marine", "Ocean & Marine Life", "🌊"),
-    Category("beaches-coast", "Beaches & Coast", "🏖️"),
-    Category("volcanoes-geothermal", "Volcanoes & Geothermal", "🌋"),
-    Category("nature-wildlife", "Nature & Wildlife", "🌿"),
-    Category("food-wine", "Food & Wine", "🍷"),
-    Category("adrenaline-thrills", "Adrenaline & Thrills", "🪂"),
-    Category("culture-history", "Culture & History", "📖"),
-    Category("photography-scenery", "Photography & Scenery", "📸"),
-    Category("stargazing-dark-skies", "Stargazing & Dark Skies", "⭐"),
-    Category("water-sports", "Water Sports", "🚣"),
-    Category("hot-springs-relaxation", "Hot Springs & Relaxation", "♨️"),
+    Category(
+        "attractions",
+        "Attractions",
+        "🏛️",
+        "Must-see landmarks, nature spots, parks, museums, and points of interest",
+    ),
+    Category(
+        "tours",
+        "Tours",
+        "🗺️",
+        "Guided experiences — cruises, sightseeing, cultural, and wildlife tours",
+    ),
+    Category(
+        "day-trips",
+        "Day Trips",
+        "🚐",
+        "Full-day excursions from a base city to nearby highlights",
+    ),
+    Category(
+        "outdoor-activities",
+        "Outdoor Activities",
+        "🥾",
+        "Active adventures — hiking, water sports, adrenaline, and wildlife encounters",
+    ),
+    Category(
+        "concerts-shows",
+        "Concerts & Shows",
+        "🎭",
+        "Live entertainment, cultural performances, and themed experiences",
+    ),
+    Category(
+        "events",
+        "Events",
+        "🎪",
+        "Festivals, seasonal celebrations, markets, exhibitions, and sporting events",
+    ),
+    Category(
+        "classes-workshops",
+        "Classes & Workshops",
+        "🎨",
+        "Hands-on learning — surf lessons, pottery, photography, cooking, and creative workshops",
+    ),
+    Category(
+        "transportation",
+        "Transportation",
+        "🚂",
+        "Scenic railways, ferries, cable cars, trams, and shuttle services",
+    ),
+    Category(
+        "traveler-resources",
+        "Traveler Resources",
+        "ℹ️",
+        "Visitor centres, information hubs, and practical travel support",
+    ),
 ]
 
+
+# ── Activities per category ──────────────────────────────────────────
+# Derived from TripAdvisor NZ listings + existing Journey Buddi data.
+
 ACTIVITIES: list[Activity] = [
-    # Mountains & Hiking
-    Activity("day-hike", "Day hikes to summits", "mountains-hiking"),
-    Activity("multi-day-trek", "Multi-day treks", "mountains-hiking"),
-    Activity("forest-walk", "Forest walks", "mountains-hiking"),
-    Activity("glacier-hike", "Glacier hikes", "mountains-hiking"),
-    Activity("ridge-walk", "Ridge walks", "mountains-hiking"),
+    # ── Attractions ──────────────────────────────────────────────────
+    Activity("museums", "Museums", "attractions"),
+    Activity("historic-sites", "Historic Sites", "attractions"),
+    Activity("nature-wildlife-areas", "Nature & Wildlife Areas", "attractions"),
+    Activity("parks-gardens", "Parks & Gardens", "attractions"),
+    Activity("hiking-trails", "Hiking Trails", "attractions"),
+    Activity("hot-springs-geysers", "Hot Springs & Geysers", "attractions"),
+    Activity("caverns-caves", "Caverns & Caves", "attractions"),
+    Activity("volcanos", "Volcanos", "attractions"),
+    Activity("bodies-of-water", "Bodies of Water", "attractions"),
+    Activity("observation-decks-towers", "Observation Decks & Towers", "attractions"),
+    Activity("points-of-interest", "Points of Interest & Landmarks", "attractions"),
+    Activity("zoos-sanctuaries", "Zoos & Sanctuaries", "attractions"),
+    Activity("forests", "Forests", "attractions"),
+    Activity("islands", "Islands", "attractions"),
+    Activity("geologic-formations", "Geologic Formations", "attractions"),
+    Activity("scenic-viewpoints", "Scenic Viewpoints", "attractions"),
 
-    # Ocean & Marine Life
-    Activity("whale-watching", "Whale watching", "ocean-marine"),
-    Activity("dolphin-swim", "Swim with dolphins", "ocean-marine"),
-    Activity("snorkeling", "Snorkeling", "ocean-marine"),
-    Activity("scuba-diving", "Scuba diving", "ocean-marine"),
+    # ── Tours ────────────────────────────────────────────────────────
+    Activity("scenic-cruises", "Scenic Cruises", "tours"),
+    Activity("wildlife-tours", "Wildlife Tours", "tours"),
+    Activity("cultural-tours", "Cultural Tours", "tours"),
+    Activity("wine-food-tours", "Wine & Food Tours", "tours"),
+    Activity("film-location-tours", "Film Location Tours", "tours"),
+    Activity("sightseeing-tours", "Sightseeing Tours", "tours"),
+    Activity("eco-tours", "Eco-Tours", "tours"),
+    Activity("helicopter-tours", "Helicopter Tours", "tours"),
+    Activity("boat-tours", "Boat Tours", "tours"),
+    Activity("walking-tours", "Walking Tours", "tours"),
+    Activity("guided-cave-tours", "Guided Cave Tours", "tours"),
+    Activity("historical-heritage-tours", "Historical & Heritage Tours", "tours"),
 
-    # Beaches & Coast
-    Activity("beach-walk", "Beach walks", "beaches-coast"),
-    Activity("coastal-walk", "Coastal walks", "beaches-coast"),
-    Activity("rock-pooling", "Rock pooling", "beaches-coast"),
-    Activity("beach-camping", "Beach camping", "beaches-coast"),
-    Activity("cove-exploration", "Hidden coves exploration", "beaches-coast"),
+    # ── Day Trips ────────────────────────────────────────────────────
+    Activity("multi-stop-day-tours", "Multi-Stop Day Tours", "day-trips"),
+    Activity("wine-region-day-trips", "Wine Region Day Trips", "day-trips"),
+    Activity("nature-day-trips", "Nature & National Park Day Trips", "day-trips"),
+    Activity("coastal-day-trips", "Coastal Day Trips", "day-trips"),
+    Activity("city-sightseeing-day-trips", "City Sightseeing Day Trips", "day-trips"),
+    Activity("cultural-day-trips", "Cultural Day Trips", "day-trips"),
 
-    # Volcanoes & Geothermal
-    Activity("hot-springs", "Hot springs", "volcanoes-geothermal"),
-    Activity("mud-pools", "Mud pools", "volcanoes-geothermal"),
-    Activity("geysers", "Geysers", "volcanoes-geothermal"),
-    Activity("volcanic-crater-walk", "Volcanic crater walks", "volcanoes-geothermal"),
-    Activity("geothermal-park", "Geothermal parks", "volcanoes-geothermal"),
+    # ── Outdoor Activities ───────────────────────────────────────────
+    Activity("jet-boating", "Jet Boating", "outdoor-activities"),
+    Activity("white-water-rafting", "White Water Rafting", "outdoor-activities"),
+    Activity("kayaking", "Kayaking", "outdoor-activities"),
+    Activity("surfing", "Surfing", "outdoor-activities"),
+    Activity("bungy-jumping", "Bungy Jumping", "outdoor-activities"),
+    Activity("skydiving", "Skydiving", "outdoor-activities"),
+    Activity("zip-lining", "Zip-Lining", "outdoor-activities"),
+    Activity("glacier-hiking", "Glacier Hiking", "outdoor-activities"),
+    Activity("whale-watching", "Whale Watching", "outdoor-activities"),
+    Activity("dolphin-encounters", "Dolphin Encounters", "outdoor-activities"),
+    Activity("snorkeling-diving", "Snorkeling & Diving", "outdoor-activities"),
+    Activity("hiking-trekking", "Hiking & Trekking", "outdoor-activities"),
+    Activity("paragliding", "Paragliding", "outdoor-activities"),
+    Activity("canyon-swing", "Canyon Swing", "outdoor-activities"),
+    Activity("horse-riding", "Horse Riding", "outdoor-activities"),
+    Activity("stand-up-paddleboarding", "Stand-Up Paddleboarding", "outdoor-activities"),
+    Activity("fishing", "Fishing", "outdoor-activities"),
+    Activity("canyoning", "Canyoning", "outdoor-activities"),
+    Activity("hot-air-balloon", "Hot Air Balloon", "outdoor-activities"),
+    Activity("luge", "Luge", "outdoor-activities"),
+    Activity("zorbing", "Zorbing", "outdoor-activities"),
+    Activity("rock-climbing", "Rock Climbing", "outdoor-activities"),
+    Activity("sailing", "Sailing", "outdoor-activities"),
+    Activity("hot-pools-bathing", "Hot Pools & Bathing", "outdoor-activities"),
+    Activity("flyboarding", "Flyboarding", "outdoor-activities"),
 
-    # Nature & Wildlife
-    Activity("penguin-colony", "Penguin colonies", "nature-wildlife"),
-    Activity("seal-watching", "Seal watching", "nature-wildlife"),
-    Activity("birdwatching", "Birdwatching", "nature-wildlife"),
-    Activity("glowworm-caves", "Glowworm caves", "nature-wildlife"),
-    Activity("kiwi-spotting", "Kiwi spotting", "nature-wildlife"),
-    Activity("waterfall-walk", "Waterfall walks", "nature-wildlife"),
-    Activity("scenic-walk", "Scenic walks", "nature-wildlife"),
-    Activity("scenic-cruise", "Scenic cruises", "nature-wildlife"),
-    Activity("wildlife-watching", "Wildlife watching", "nature-wildlife"),
+    # ── Concerts & Shows ─────────────────────────────────────────────
+    Activity("maori-cultural-performances", "Māori Cultural Performances", "concerts-shows"),
+    Activity("4wd-quad-adventures", "4WD & Quad Adventures", "concerts-shows"),
+    Activity("stargazing-experiences", "Stargazing Experiences", "concerts-shows"),
+    Activity("off-road-experiences", "Off-Road Experiences", "concerts-shows"),
+    Activity("motorsport-experiences", "Motorsport Experiences", "concerts-shows"),
+    Activity("live-music", "Live Music & Concerts", "concerts-shows"),
+    Activity("escape-rooms", "Escape Rooms", "concerts-shows"),
 
-    # Food & Wine
-    Activity("vineyard-tour", "Vineyard tours", "food-wine"),
-    Activity("wine-tasting", "Wine tasting", "food-wine"),
-    Activity("cooking-class", "Cooking classes", "food-wine"),
-    Activity("food-market", "Food markets", "food-wine"),
-    Activity("craft-beer-tour", "Craft beer tours", "food-wine"),
-    Activity("farm-to-table", "Farm-to-table dining", "food-wine"),
+    # ── Events ───────────────────────────────────────────────────────
+    Activity("cultural-festivals", "Cultural Festivals", "events"),
+    Activity("music-festivals", "Music Festivals", "events"),
+    Activity("seasonal-events", "Seasonal Events", "events"),
+    Activity("markets", "Markets & Fairs", "events"),
+    Activity("art-exhibitions", "Art Exhibitions & Galleries", "events"),
+    Activity("sporting-events", "Sporting Events", "events"),
+    Activity("food-drink-festivals", "Food & Drink Festivals", "events"),
 
-    # Adrenaline & Thrills
-    Activity("skydiving", "Skydiving", "adrenaline-thrills"),
-    Activity("bungy-jumping", "Bungy jumping", "adrenaline-thrills"),
-    Activity("jet-boating", "Jet boating", "adrenaline-thrills"),
-    Activity("white-water-rafting", "White water rafting", "adrenaline-thrills"),
-    Activity("zip-lining", "Zip-lining", "adrenaline-thrills"),
-    Activity("canyoning", "Canyoning", "adrenaline-thrills"),
-    Activity("paragliding", "Paragliding", "adrenaline-thrills"),
-    Activity("canyon-swing", "Canyon swing", "adrenaline-thrills"),
-    Activity("horse-riding", "Horse riding", "adrenaline-thrills"),
-    Activity("hot-air-balloon", "Hot air balloon", "adrenaline-thrills"),
-    Activity("luge", "Luge", "adrenaline-thrills"),
-    Activity("zorbing", "Zorbing", "adrenaline-thrills"),
+    # ── Classes & Workshops ──────────────────────────────────────────
+    Activity("surf-lessons", "Surf Lessons", "classes-workshops"),
+    Activity("photography-workshops", "Photography Workshops", "classes-workshops"),
+    Activity("pottery-art-classes", "Pottery & Art Classes", "classes-workshops"),
+    Activity("special-effects-workshops", "Special Effects Workshops (Wētā)", "classes-workshops"),
+    Activity("cooking-classes", "Cooking Classes", "classes-workshops"),
+    Activity("mtb-coaching", "Mountain Bike Coaching", "classes-workshops"),
+    Activity("farm-experiences", "Farm Experiences", "classes-workshops"),
+    Activity("flight-experiences", "Flight Experiences", "classes-workshops"),
+    Activity("dirt-bike-tours", "Dirt Bike Tours", "classes-workshops"),
 
-    # Culture & History
-    Activity("maori-cultural-experience", "Māori cultural experiences", "culture-history"),
-    Activity("museum", "Museums", "culture-history"),
-    Activity("historical-site", "Historical sites", "culture-history"),
-    Activity("art-gallery", "Art galleries", "culture-history"),
-    Activity("heritage-trail", "Heritage trails", "culture-history"),
-    Activity("film-location", "Film locations", "culture-history"),
+    # ── Transportation ───────────────────────────────────────────────
+    Activity("scenic-railways", "Scenic Railways", "transportation"),
+    Activity("ferries", "Ferries", "transportation"),
+    Activity("cable-cars-gondolas", "Cable Cars & Gondolas", "transportation"),
+    Activity("trams", "Trams", "transportation"),
+    Activity("water-taxis", "Water Taxis", "transportation"),
+    Activity("shuttles", "Shuttles", "transportation"),
+    Activity("rail-services", "Rail Services", "transportation"),
+    Activity("bus-services", "Bus Services", "transportation"),
 
-    # Photography & Scenery
-    Activity("landscape-photography", "Landscape photography", "photography-scenery"),
-    Activity("sunrise-sunset-spot", "Sunrise / sunset spots", "photography-scenery"),
-    Activity("aerial-photography", "Aerial photography", "photography-scenery"),
-    Activity("wildlife-photography", "Wildlife photography", "photography-scenery"),
-    Activity("scenic-drive", "Scenic drives", "photography-scenery"),
-    Activity("scenic-viewpoint", "Scenic viewpoints", "photography-scenery"),
-
-    # Stargazing & Dark Skies
-    Activity("stargazing-tour", "Stargazing tours", "stargazing-dark-skies"),
-    Activity("dark-sky-reserve", "Dark sky reserves", "stargazing-dark-skies"),
-    Activity("astrophotography", "Astrophotography", "stargazing-dark-skies"),
-    Activity("aurora-viewing", "Aurora viewing", "stargazing-dark-skies"),
-
-    # Water Sports
-    Activity("kayaking", "Kayaking", "water-sports"),
-    Activity("surfing", "Surfing", "water-sports"),
-    Activity("stand-up-paddleboarding", "Stand-up paddleboarding", "water-sports"),
-    Activity("jet-skiing", "Jet skiing", "water-sports"),
-    Activity("fishing", "Fishing", "water-sports"),
-    Activity("sailing", "Sailing", "water-sports"),
-    Activity("flyboarding", "Flyboarding", "water-sports"),
-
-    # Hot Springs & Relaxation
-    Activity("natural-hot-springs", "Natural hot springs", "hot-springs-relaxation"),
-    Activity("spa-experience", "Spa experiences", "hot-springs-relaxation"),
-    Activity("thermal-pool", "Thermal pools", "hot-springs-relaxation"),
-    Activity("wellness-retreat", "Wellness retreats", "hot-springs-relaxation"),
+    # ── Traveler Resources ───────────────────────────────────────────
+    Activity("visitor-centres", "Visitor Centres", "traveler-resources"),
+    Activity("information-centres", "Information Centres", "traveler-resources"),
+    Activity("libraries", "Libraries", "traveler-resources"),
+    Activity("heritage-centres", "Heritage Centres", "traveler-resources"),
 ]
 
 
@@ -162,7 +230,7 @@ def get_activities_for_category(category_slug: str) -> list[Activity]:
 
 
 def get_category_slug_for_label(label: str) -> str | None:
-    """Map a UI label like 'Mountains & Hiking' → 'mountains-hiking'."""
+    """Map a UI label like 'Attractions' → 'attractions'."""
     return _LABEL_TO_CATEGORY_SLUG.get(label)
 
 

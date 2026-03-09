@@ -132,9 +132,12 @@ Buddi: [Question with context]
 
 ### States
 
+The conversation has been streamlined into 6 agent steps.  Activity deep-dive,
+provider selection, and itinerary building happen post-chat (Levels 2 & 3).
+
 ```
-ONBOARDING → PROFILE → DESTINATION → INTERESTS → ATTRACTION_SELECTION 
-  → ROUTE_REVIEW → TRANSPORT → PACE_DURATION → ITINERARY_REVIEW → CONFIRMED
+GREETING → TRAVEL_DNA → LOGISTICS → INTEREST_CATEGORIES
+  → ISLAND_PREFERENCE → TRANSPORT_ROUTE → COMPLETE
 ```
 
 ### State Transitions
@@ -143,53 +146,44 @@ Each state transition is triggered by user completion of the current step:
 
 ```python
 state_machine = {
-    "ONBOARDING": {
-        "next": "PROFILE",
-        "required_data": ["user_name_or_email"],
+    "GREETING": {
+        "next": "TRAVEL_DNA",
+        "required_data": [],
         "can_skip": False
     },
-    "PROFILE": {
-        "next": "DESTINATION",
-        "required_data": ["adventure_level", "fitness", "pace", "interests", "budget"],
+    "TRAVEL_DNA": {
+        "next": "LOGISTICS",
+        "required_data": ["group_type", "accessibility_needs", "fitness_profile", "budget"],
         "can_skip": False
     },
-    "DESTINATION": {
-        "next": "INTERESTS",
-        "required_data": ["destination", "dates", "entry_exit_points"],
+    "LOGISTICS": {
+        "next": "INTEREST_CATEGORIES",
+        "required_data": ["travel_dates", "trip_duration", "max_driving_hours"],
         "can_skip": False
     },
-    "INTERESTS": {
-        "next": "ATTRACTION_SELECTION",
-        "required_data": ["selected_interest_categories"],
+    "INTEREST_CATEGORIES": {
+        "next": "ISLAND_PREFERENCE",
+        "required_data": ["interest_categories"],  # 9 TripAdvisor-aligned categories
         "can_skip": False
     },
-    "ATTRACTION_SELECTION": {
-        "next": "ROUTE_REVIEW",
-        "required_data": ["selected_attractions"],
+    "ISLAND_PREFERENCE": {
+        "next": "TRANSPORT_ROUTE",
+        "required_data": ["island_preference"],
         "can_skip": False
     },
-    "ROUTE_REVIEW": {
-        "next": "TRANSPORT",
-        "required_data": ["approved_route"],
-        "can_skip": True  # Buddi can auto-generate
-    },
-    "TRANSPORT": {
-        "next": "PACE_DURATION",
-        "required_data": ["transport_plan"],
+    "TRANSPORT_ROUTE": {
+        "next": "COMPLETE",
+        "required_data": ["transport_mode", "route_direction"],
         "can_skip": True  # Buddi can auto-recommend
     },
-    "PACE_DURATION": {
-        "next": "ITINERARY_REVIEW",
-        "required_data": ["confirmed_duration"],
-        "can_skip": True  # Buddi can auto-recommend
-    },
-    "ITINERARY_REVIEW": {
-        "next": "CONFIRMED",
-        "required_data": ["itinerary_approved"],
-        "can_skip": False
-    }
 }
 ```
+
+### Post-Chat Stages (not in the conversation)
+
+After the conversation completes, the user proceeds through:
+- **Level 2 — Activity Selection**: Browse and pick specific activities in the dashboard
+- **Level 3 — Provider Selection**: Choose providers inside the progressive itinerary builder
 
 ### Back-Navigation
 

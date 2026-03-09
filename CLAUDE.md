@@ -94,24 +94,33 @@ journey-buddi/
 
 The heart of the product. Each agent is a self-contained question-asking unit. The orchestrator drives transitions — no handoffs between agents.
 
-**Pipeline order (PIPELINE list in `pipeline.py`):**
+### 3-Level Activity Design
+
+Activity decision-making is split across three stages to reduce conversation fatigue:
+
+1. **Level 1 — Category Preferences (in conversation):** User picks from 9 TripAdvisor-aligned categories. This is the only activity-related step in the chat.
+2. **Level 2 — Specific Activities (post-chat, dashboard):** User browses and selects specific activities within their categories (e.g., "bungy jumping", "whale watching").
+3. **Level 3 — Providers (inside itinerary):** Providers are selected as part of a progressive itinerary-building experience, location by location.
+
+### Pipeline order (PIPELINE list in `pipeline.py`):
 
 1. `greeting` — welcome, offer "Let's do it!" / "Tell me more"
 2. `travel_dna` — group type, ages, accessibility, fitness, budget
 3. `logistics` — dates, duration, max driving hours
-4. `interest_categories` — broad activity categories (adventure, cultural, etc.)
-5. `interest_deep_dive` — specific activities per category
-6. `island_preference` — North Island / South Island / both
-7. `activity_location` — which location for each activity
-8. `location_summary` — days per location, confirm the plan
-9. `provider_selection` — real NZ providers for each activity
-10. `transport_route` — transport mode + route direction
+4. `interest_categories` — 9 strict TripAdvisor-aligned categories (multi-select)
+5. `island_preference` — North Island / South Island / both
+6. `transport_route` — transport mode + route direction
+
+### The 9 categories (strict — no additions):
+
+Attractions, Tours, Day Trips, Outdoor Activities, Concerts & Shows, Events, Classes & Workshops, Transportation, Traveler Resources
 
 **Key files:**
 - `context.py` — `PlanningContext` dataclass, serialized to `Conversation.planning_state` (JSONB) between turns
-- `orchestrator.py` — `run_planning_turn()` function, picks current agent, restricts tools to one field at a time
+- `orchestrator.py` — `PlanningOrchestrator` class, picks current agent, restricts tools to one field at a time
 - `tools.py` — all `@function_tool` functions; update context in-place and return a missing-fields status string so the agent knows what to ask next
-- `master.py` — `MasterAgent.generate_itinerary_prompt()` runs once after pipeline completes
+- `pipeline.py` — agent definitions, dynamic instruction builders, `PIPELINE` list, `FIELD_TOOLS` map
+- `master.py` — `MasterAgent.generate_itinerary_prompt()` runs once after pipeline completes; generates a skeleton prompt (activities & providers are empty at this stage)
 
 ---
 

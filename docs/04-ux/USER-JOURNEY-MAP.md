@@ -53,49 +53,50 @@ This document maps the complete user journey from discovery to post-trip, includ
 
 ---
 
-### Phase 3: Interest Deep Dive
+### Phase 3: Category Selection & Wrap-Up
+**Duration:** 2-4 minutes
+**Emotional state:** Engaged, excited (picking what they love)
+
+| Moment | User Action | Buddi Response | Touchpoint |
+|--------|------------|---------------|------------|
+| Category gallery shown | Multi-selects from 9 categories | Confirms choices with enthusiasm | Gallery card |
+| Island preference | Picks South Island / Both | Buddi analyzes category fit per island | Choice card |
+| Transport mode | Picks campervan / car / mix | Acknowledges, notes route implications | Choice card |
+| Route direction | Picks clockwise / custom | Wraps up conversation, generates skeleton | Choice card |
+
+**Key design consideration:** This phase is intentionally short. The conversation should feel breezy — the user picks broad categories and logistics, then moves on. The excitement of specific activities comes next in the dashboard.
+
+---
+
+### Phase 4: Activity Selection (Post-Chat Dashboard)
 **Duration:** 10-20 minutes
-**Emotional state:** Engaged, excited (seeing concrete possibilities)
+**Emotional state:** Engaged, browsing, building excitement
 
 | Moment | User Action | Buddi Response | Touchpoint |
 |--------|------------|---------------|------------|
-| Wildlife options shown | Selects dolphins, penguins, glowworms | Explains locations, makes recommendation | Gallery + recommendation |
-| Location advice | Chooses Kaikoura for dolphins | "Perfect choice! I'll pair it with whale watching..." | Chat |
-| Mountains & glaciers | Selects glacier, Mt Cook | Recommends Fox over Franz Josef | Recommendation card |
-| Hiking selection | Picks Tongariro, Hooker Valley | Notes difficulty, confirms fitness match | Chat |
-| Repeat for each interest category... | Selects from curated options | Smart grouping and route awareness | Mixed |
+| Dashboard loads | Sees categories they chose | Activities organized by category | Dashboard |
+| Browses activities | Selects specific activities of interest | Activity details and descriptions | Activity cards |
+| Builds wishlist | Adds bungy, whale watching, etc. | Wishlist tracker updates | Activity tracker |
+| Reviews wishlist | Sees all selected activities | Ready for itinerary building | Wishlist view |
 
-**Key design consideration:** This is the most engaging part of the conversation. Each attraction should feel exciting. Buddi's enthusiasm here is important — "Oh you're going to love this one."
+**Key design consideration:** This is where the excitement builds. Each activity should feel concrete and exciting. The UI should make browsing and selecting activities feel like shopping for adventures.
 
 ---
 
-### Phase 4: Route & Transport
-**Duration:** 3-5 minutes
-**Emotional state:** Collaborative, trusting Buddi's expertise
+### Phase 5: Progressive Itinerary Building
+**Duration:** 10-20 minutes
+**Emotional state:** Anticipation, seeing the trip come alive
 
 | Moment | User Action | Buddi Response | Touchpoint |
 |--------|------------|---------------|------------|
-| Route presentation | Reviews suggested route on map | Explains the logic, direction choice | Map + chat |
-| Route approval/adjust | Approves or requests changes | Adapts or explains trade-offs | Map + chat |
-| Transport suggestion | Reviews campervan vs car rec | Detailed reasoning with cost comparison | Recommendation card |
-| Transport decision | Accepts or chooses alternative | Adapts plan accordingly | Choice card |
-| Duration suggestion | Reviews "18 days" recommendation | Explains the math, offers trim options | Chat |
+| Skeleton itinerary shown | Reviews route with location slots | Day-by-day skeleton on map | Itinerary view |
+| Location focus (e.g. Auckland) | Sees available activities here | Shows which wishlist items fit | Location detail |
+| Selects activities for location | Picks activities for this stop | Shows provider options | Provider cards |
+| Picks providers | Chooses from recommended providers | Itinerary "fills up" for that location | Itinerary update |
+| Moves to next location | Repeats for next stop | Activity tracker updates remaining | Location detail |
+| All activities placed | Reviews complete itinerary | Celebration moment! Trip is ready | Itinerary view |
 
----
-
-### Phase 5: Itinerary Review
-**Duration:** 5-15 minutes
-**Emotional state:** Anticipation, scrutiny (checking the details)
-
-| Moment | User Action | Buddi Response | Touchpoint |
-|--------|------------|---------------|------------|
-| Full itinerary revealed | Scrolls through day-by-day | Each day has title, activities, transport | Itinerary view |
-| Taps a day | Opens day detail | Activities, timing, area info | Day detail |
-| Wants to change something | Drags/removes an activity | Re-optimizes affected days | Itinerary view |
-| Adds an attraction | Requests new activity | Suggests where it fits, adjusts plan | Chat + itinerary |
-| Satisfied | Taps "Confirm Itinerary" | Celebration moment! Trip is ready | Confirmation |
-
-**Key design consideration:** The itinerary reveal is a big moment. It should feel impressive — "Buddi built my entire trip." Consider animation, map fly-through, day counter.
+**Key design consideration:** The progressive reveal is the big moment. Watching the itinerary fill up location by location feels satisfying. The activity wishlist tracker should always be visible so the user knows what's remaining.
 
 ---
 
@@ -160,7 +161,8 @@ For each phase, track:
 ## Critical Moments (Make or Break)
 
 1. **First Buddi interaction**: Must feel magical, not robotic
-2. **Interest deep dive**: Must feel exciting, not tedious
-3. **Itinerary reveal**: Must feel impressive and trustworthy
-4. **First morning briefing**: Must prove the value of the live companion
-5. **First swap suggestion**: Must feel helpful, not disruptive
+2. **Category selection**: Must feel quick and empowering, not tedious
+3. **Activity browsing (dashboard)**: Must feel like shopping for adventures, not filling out a form
+4. **Progressive itinerary building**: Must feel satisfying — watching the trip come alive
+5. **First morning briefing**: Must prove the value of the live companion
+6. **First swap suggestion**: Must feel helpful, not disruptive

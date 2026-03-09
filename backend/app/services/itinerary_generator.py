@@ -127,40 +127,42 @@ def _order_areas(areas: set[str], route_direction: str = "clockwise") -> list[st
 def _filter_attractions(
     attractions: list[dict],
     interest_categories: list[str],
-    interest_details: dict[str, list[str]],
 ) -> list[dict]:
-    """Filter attractions to only those matching user interests."""
+    """Filter attractions to only those matching user interest categories.
+
+    Matches against the `category` slug field using the 9 TripAdvisor-aligned
+    categories.  Falls back to returning all attractions if no match is found
+    (avoids an empty itinerary when data is incomplete).
+    """
     if not interest_categories:
         return attractions
 
-    category_type_map = {
-        "Mountains & Hiking": {"hiking", "alpine", "scenic"},
-        "Ocean & Marine Life": {"marine", "wildlife", "cruise", "kayaking"},
-        "Beaches & Coast": {"beach", "coastal", "swimming"},
-        "Volcanoes & Geothermal": {"volcanic", "geothermal"},
-        "Nature & Wildlife": {"nature", "wildlife", "cave"},
-        "Food & Wine": {"wine", "food"},
-        "Adrenaline & Thrills": {"adventure", "bungy", "adrenaline", "skydive", "jet-boat", "zipline", "rafting", "canyoning", "swing", "paragliding", "balloon"},
-        "Culture & History": {"cultural", "film", "film-location"},
-        "Photography & Scenery": {"scenic", "photography", "viewpoint"},
-        "Stargazing & Dark Skies": {"stargazing"},
-        "Water Sports": {"kayaking", "water-sport", "swimming"},
-        "Hot Springs & Relaxation": {"spa", "relaxation", "geothermal"},
+    # Map TripAdvisor category labels → taxonomy slugs
+    label_to_slug: dict[str, str] = {
+        "Attractions": "attractions",
+        "Tours": "tours",
+        "Day Trips": "day-trips",
+        "Outdoor Activities": "outdoor-activities",
+        "Concerts & Shows": "concerts-shows",
+        "Events": "events",
+        "Classes & Workshops": "classes-workshops",
+        "Transportation": "transportation",
+        "Traveler Resources": "traveler-resources",
     }
 
-    wanted_types: set[str] = set()
+    wanted_slugs: set[str] = set()
     for cat in interest_categories:
-        wanted_types |= category_type_map.get(cat, set())
+        slug = label_to_slug.get(cat)
+        if slug:
+            wanted_slugs.add(slug)
 
-    if not wanted_types:
+    if not wanted_slugs:
         return attractions
 
-    filtered = []
-    for att in attractions:
-        att_types = set(_get_attr(att, "types") or [])
-        if att_types & wanted_types:
-            filtered.append(att)
-
+    filtered = [
+        att for att in attractions
+        if _get_attr(att, "category") in wanted_slugs
+    ]
     return filtered if filtered else attractions
 
 
@@ -279,7 +281,6 @@ async def generate_itinerary(planning_state: dict, attractions: list) -> list:
     pace = planning_state.get("pace") or "balanced"
 
     interest_categories = planning_state.get("interest_categories", [])
-    interest_details = planning_state.get("interest_details", {})
     activity_locations = planning_state.get("activity_locations", {})
     selected_providers = planning_state.get("selected_providers", {})
     location_summary = planning_state.get("location_summary", {})
@@ -298,7 +299,7 @@ async def generate_itinerary(planning_state: dict, attractions: list) -> list:
                 location_activities, location_summary, attractions,
             )
     else:
-        filtered = _filter_attractions(attractions, interest_categories, interest_details)
+        filtered = _filter_attractions(attractions, interest_categories)
         location_activities: dict[str, list[dict]] = {}
         for att in filtered:
             loc = ""

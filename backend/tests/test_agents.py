@@ -18,13 +18,9 @@ from app.agents.tools import (
     travel_dna_missing,
     logistics_missing,
     interest_categories_missing,
-    interest_deep_dive_remaining,
     island_preference_missing,
-    provider_selection_remaining,
     transport_route_missing,
-    _all_activities,
     CANONICAL_CATEGORIES,
-    ACTIVITY_OPTIONS,
 )
 from app.agents.pipeline import (
     PIPELINE,
@@ -34,9 +30,7 @@ from app.agents.pipeline import (
     travel_dna_agent,
     logistics_agent,
     interest_categories_agent,
-    interest_deep_dive_agent,
     island_preference_agent,
-    provider_selection_agent,
     transport_route_agent,
 )
 from app.agents.orchestrator import PlanningOrchestrator
@@ -59,14 +53,14 @@ class TestPlanningContext:
         ctx = PlanningContext(
             group_type="family",
             destination="New Zealand",
-            interest_categories=["Hiking", "Wildlife"],
+            interest_categories=["Outdoor Activities", "Tours"],
             current_agent="logistics",
             completed_agents=["greeting", "travel_dna"],
         )
         d = ctx.to_dict()
         assert isinstance(d, dict)
         assert d["group_type"] == "family"
-        assert d["interest_categories"] == ["Hiking", "Wildlife"]
+        assert d["interest_categories"] == ["Outdoor Activities", "Tours"]
 
         restored = PlanningContext.from_dict(d)
         assert restored.group_type == "family"
@@ -187,52 +181,7 @@ class TestStatusHelpers:
 
     def test_interest_categories_missing(self):
         assert interest_categories_missing(PlanningContext()) == ["interest_categories"]
-        assert interest_categories_missing(PlanningContext(interest_categories=["Hiking"])) == []
-
-    def test_interest_deep_dive_remaining(self):
-        ctx = PlanningContext(
-            interest_categories=["Wildlife", "Hiking"],
-            interest_details={"Wildlife": ["whale watching"]},
-        )
-        assert interest_deep_dive_remaining(ctx) == ["Hiking"]
-
-    def test_interest_deep_dive_all_covered(self):
-        ctx = PlanningContext(
-            interest_categories=["Wildlife", "Hiking"],
-            interest_details={
-                "Wildlife": ["whale watching"],
-                "Hiking": ["day hikes"],
-            },
-        )
-        assert interest_deep_dive_remaining(ctx) == []
-
-    def test_all_activities(self):
-        ctx = PlanningContext(
-            interest_categories=["Wildlife", "Hiking"],
-            interest_details={
-                "Wildlife": ["whale watching", "dolphins"],
-                "Hiking": ["day hikes"],
-            },
-        )
-        assert _all_activities(ctx) == ["whale watching", "dolphins", "day hikes"]
-
-    def test_all_activities_deduplicates(self):
-        ctx = PlanningContext(
-            interest_categories=["Wildlife", "Ocean"],
-            interest_details={
-                "Wildlife": ["whale watching", "dolphins"],
-                "Ocean": ["whale watching", "surfing"],
-            },
-        )
-        assert _all_activities(ctx) == ["whale watching", "dolphins", "surfing"]
-
-    def test_provider_selection_remaining(self):
-        ctx = PlanningContext(
-            interest_categories=["Wildlife"],
-            interest_details={"Wildlife": ["whale watching", "dolphins"]},
-            selected_providers={"whale watching": {"name": "WhaleCo"}},
-        )
-        assert provider_selection_remaining(ctx) == ["dolphins"]
+        assert interest_categories_missing(PlanningContext(interest_categories=["Attractions"])) == []
 
     def test_transport_route_missing_all(self):
         assert len(transport_route_missing(PlanningContext())) == 2
@@ -251,15 +200,13 @@ class TestStatusHelpers:
 
 class TestConstants:
     def test_canonical_categories_count(self):
-        assert len(CANONICAL_CATEGORIES) == 12
+        assert len(CANONICAL_CATEGORIES) == 9
 
-    def test_activity_options_keys_match_categories(self):
+    def test_canonical_categories_have_required_keys(self):
         for cat in CANONICAL_CATEGORIES:
-            assert cat in ACTIVITY_OPTIONS, f"Missing activities for {cat}"
-
-    def test_activity_options_non_empty(self):
-        for cat, acts in ACTIVITY_OPTIONS.items():
-            assert len(acts) >= 1, f"No activities for {cat}"
+            assert "label" in cat
+            assert "emoji" in cat
+            assert "description" in cat
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -274,21 +221,16 @@ class TestPipeline:
             "Travel DNA",
             "Logistics",
             "Interest Categories",
-            "Interest Deep Dive",
             "Island Preference",
-            "Activity Location",
-            "Location Summary",
-            "Provider Selection",
             "Transport Route",
         ]
 
     def test_agent_name_map_complete(self):
         assert set(AGENT_NAME_MAP.keys()) == {
             "greeting", "travel_dna", "logistics",
-            "interest_categories", "interest_deep_dive",
+            "interest_categories",
             "island_preference",
-            "activity_location", "location_summary",
-            "provider_selection", "transport_route",
+            "transport_route",
         }
 
     def test_agent_to_name_mapping(self):
@@ -338,15 +280,14 @@ class TestOrchestrator:
     def test_progress_percent_partial(self):
         ctx = PlanningContext(completed_agents=["greeting", "travel_dna"])
         pct = self.orch.progress_percent(ctx)
-        assert 10 < pct < 40
+        assert 10 < pct < 50
 
     def test_progress_percent_all(self):
         ctx = PlanningContext(
             completed_agents=["greeting", "travel_dna", "logistics",
-                              "interest_categories", "interest_deep_dive",
+                              "interest_categories",
                               "island_preference",
-                              "activity_location", "location_summary",
-                              "provider_selection", "transport_route"],
+                              "transport_route"],
             current_agent="complete",
         )
         assert self.orch.progress_percent(ctx) == 100.0
@@ -362,6 +303,13 @@ class TestOrchestrator:
         assert fb["choices"] is not None
         assert len(fb["choices"]) == 4
 
+    def test_fallback_interest_categories(self):
+        ctx = PlanningContext(current_agent="interest_categories")
+        fb = self.orch._field_fallback("interest_categories", ctx)
+        assert fb["choices"] is not None
+        assert len(fb["choices"]) == 9
+        assert fb["multi_select"] is True
+
     def test_fallback_unknown_agent(self):
         ctx = PlanningContext(current_agent="nonexistent")
         fb = self.orch._field_fallback("nonexistent", ctx)
@@ -371,7 +319,7 @@ class TestOrchestrator:
         ctx = PlanningContext()
         self.orch._mark_all_complete(ctx)
         assert ctx.current_agent == "complete"
-        assert len(ctx.completed_agents) == 10
+        assert len(ctx.completed_agents) == 6
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -394,32 +342,33 @@ class TestMasterAgent:
             trip_duration={"type": "approximate", "min_days": 12, "max_days": 16},
             max_driving_hours=4,
             island_preference={"preference": "both", "islands": ["south", "north"]},
-            interest_categories=["Wildlife", "Hiking"],
-            interest_details={
-                "Wildlife": ["whale watching"],
-                "Hiking": ["day hikes", "glacier hikes"],
-            },
-            selected_providers={
-                "whale watching": {"name": "WhaleCo", "location": "Kaikoura"},
-                "day hikes": {"name": "buddi_pick"},
-                "glacier hikes": {"name": "Franz Josef Guides", "location": "Franz Josef"},
-            },
+            interest_categories=["Outdoor Activities", "Tours", "Attractions"],
             transport_plan={"mode": "campervan"},
             route_direction="clockwise",
         )
         prompt = self.master.generate_itinerary_prompt(ctx)
         assert "couple" in prompt
         assert "New Zealand" in prompt
-        assert "whale watching" in prompt
+        assert "Outdoor Activities" in prompt
         assert "campervan" in prompt
         assert "clockwise" in prompt
         assert "ITINERARY CONSTRAINTS" in prompt
         assert "BUDGET" in prompt
         assert "ISLAND PREFERENCE" in prompt
         assert "12-16 days" in prompt
+        assert "skeleton itinerary" in prompt
 
     def test_generate_summary(self):
         ctx = PlanningContext(group_type="solo", destination="New Zealand")
         summary = self.master.generate_summary(ctx)
         assert summary["group"]["type"] == "solo"
         assert summary["logistics"]["destination"] == "New Zealand"
+
+    def test_generate_summary_categories_only(self):
+        ctx = PlanningContext(
+            group_type="solo",
+            interest_categories=["Tours", "Events"],
+        )
+        summary = self.master.generate_summary(ctx)
+        assert summary["interests"]["categories"] == ["Tours", "Events"]
+        assert "details" not in summary["interests"]

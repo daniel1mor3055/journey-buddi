@@ -65,247 +65,92 @@ Buddi: "Who's coming along?"
        [👯 Group of friends]
 ```
 
-### Round 2: Interests (Multi-Select)
+### Round 2: Interest Categories (Multi-Select)
+
+> **3-Level Activity Design**: The conversation only collects *categories* (Level 1).
+> Specific activities (Level 2) and providers (Level 3) are chosen post-chat.
 
 ```
-Buddi: "Now the fun part! What gets you excited? Pick everything 
-       that interests you — I'll find the best options."
-       
-       [🐬 Wildlife & Marine Life]
-       [🏔️ Mountains & Glaciers]  
-       [🏖️ Beaches & Coast]
-       [🌊 Lakes & Rivers]
-       [🌲 Forests & Rainforest]
-       [🌋 Volcanoes & Geothermal]
-       [⭐ Stargazing & Dark Skies]
-       [📸 Photography & Scenery]
-       [🚣 Water Sports]
-       [🥾 Hiking & Trekking]
-       [🏛️ Culture & History]
-       [🍷 Food & Wine]
-       [🪂 Unique Thrills (bungy, skydive)]
+Buddi: "Now the fun part! What types of experiences get you excited?
+       Pick everything that interests you."
+
+       [🏛️ Attractions — Must-see landmarks, nature spots, parks, museums]
+       [🗺️ Tours — Guided experiences, cruises, sightseeing, wildlife tours]
+       [🚐 Day Trips — Full-day excursions from a base city]
+       [🥾 Outdoor Activities — Hiking, water sports, adrenaline, wildlife]
+       [🎭 Concerts & Shows — Live entertainment, cultural performances]
+       [🎪 Events — Festivals, markets, exhibitions, sporting events]
+       [🎨 Classes & Workshops — Hands-on learning, lessons, creative workshops]
+       [🚂 Transportation — Scenic railways, ferries, cable cars]
+       [ℹ️ Traveler Resources — Visitor centres, information hubs]
 ```
 
-### Round 3: Destination & Dates
+These are the 9 strict TripAdvisor-aligned categories. No additions allowed.
 
-```
-Buddi: "Where are you heading?"
-       [🇳🇿 New Zealand]  ← Initially the only option, more added over time
-```
-
-```
-Buddi: "When are you going?"
-       [Calendar picker for start date]
-       [End date OR "Flexible — help me decide"]
-```
+### Round 3: Island Preference
 
 ```
 Buddi: "Which parts of New Zealand?"
-       [🏔️ South Island only — rugged, dramatic, nature-focused]
-       [🌿 North Island only — volcanoes, culture, geothermal]
-       [🗺️ Both islands — the full experience]
+       [🏔️ South Island — mountains, glaciers, fjords — the adventure hub]
+       [🌋 North Island — volcanoes, geothermal, Māori culture, beaches]
+       [🗺️ Both islands — the full NZ experience]
+```
+
+Buddi uses the user's chosen categories to provide an informed recommendation
+about which island best matches their interests.
+
+### Round 4: Transport & Route
+
+```
+Buddi: "Let's talk about getting around!"
+       [🚐 Campervan — freedom camping, wake up to views]
+       [🚗 Rental car — nimble, book accommodation]
+       [🔀 Mix of both — best of both worlds]
+       [🚌 Public transport — buses, trains, ferries]
 ```
 
 ```
-Buddi: "Where do you fly in and out?"
-       [Auckland]  [Christchurch]  [Queenstown]  [Wellington]
-       [Different arrival and departure cities]
+Buddi: "Which direction do you want to loop around?"
+       [🔄 Clockwise]
+       [🔃 Counter-clockwise]
+       [🗺️ Custom — let Buddi optimise the route]
 ```
 
-```
-Buddi: "How do you feel about driving?"
-       [🚗 Keep it short — 1-2 hours max per day]
-       [🛣️ 3-4 hours is fine — road trips are part of the fun]
-       [🏎️ 5+ hours is OK if it means seeing more]
-```
+### Conversation Complete
 
-```
-Buddi: "Do you have your flights booked? If so, share the details 
-       and I'll build Day 1 and your final day around your arrival 
-       and departure times."
-       [✈️ Yes — let me enter my flight details]
-       [📅 Not yet — I'll add them later]
-       [🤷 Help me figure out the best flights]
-```
+After transport & route, the planning conversation ends. Buddi generates a
+skeleton itinerary and the user moves to the dashboard.
 
-### Round 4: Priority Locations
+### Post-Conversation Experience
 
-```
-Buddi: "Before we dive into specific activities — are there any places 
-       or experiences that are absolutely non-negotiable for you?"
-       
-       [🗺️ Yes — I have some must-dos]
-       [🙅 Yes — there are things I want to avoid]
-       [🤙 No strong feelings — surprise me, Buddi!]
-```
+#### Level 2 — Activity Selection (Dashboard)
 
-If user has must-dos:
+After the conversation, users browse and select specific activities within
+their chosen categories. This happens in a proper UI, not in chat.
 
-```
-Buddi: "Tell me your must-dos! You can type them or pick from these 
-       popular ones for New Zealand:"
-       
-       [🏔️ Milford Sound]  [🌋 Tongariro Crossing]  [⭐ Hobbiton]
-       [🦘 Kiwi spotting]  [🧊 Glacier hike]  [🪂 Queenstown bungy]
-       [Type your own...]
-       
-       "These are locked in — I'll build everything around them."
-```
+Example: User chose "Outdoor Activities" → they now see options like
+bungy jumping, whale watching, glacier hiking, kayaking, etc.
 
-### Round 5: Deep Dive — Interest-Specific Options
+#### Level 3 — Provider Selection (Progressive Itinerary)
 
-For each selected interest, Buddi presents destination-specific experiences. This is the longest part of the conversation but the most engaging because the user is seeing concrete, exciting possibilities. When showing specific options, Buddi shows providers across ALL of NZ, not just one location.
+Buddi generates a skeleton itinerary (route with locations and days).
+Then, location by location:
 
-**Conversation branching example:**
+1. The system shows which desired activities can be done at the current location
+2. The user selects which activities they want to do there
+3. For each selected activity, provider options are shown
+4. The user picks providers and the itinerary "fills up"
+5. Move to the next location, repeat
 
-User selected: Wildlife & Marine Life, Mountains & Glaciers, Hiking & Trekking
+This spreads activities geographically instead of clustering everything
+in one area.
 
-```
-Buddi: "Let's talk wildlife first! New Zealand is incredible for this. 
-       Here's what's possible on the South Island:"
-       
-       🐬 Swim with dusky dolphins — Kaikoura (95% encounter rate!)
-       🐋 Whale watching — Kaikoura (sperm whales year-round)
-       🐧 Yellow-eyed penguin colony — Dunedin (rare species!)
-       🐧 Blue penguin parade — Oamaru (evening viewing)
-       🦭 Fur seal colony — Kaikoura coast (free, roadside!)
-       🌌 Glowworm caves — Te Anau (underground boat ride)
-       🐦 Albatross colony — Dunedin (only mainland colony in the world)
-       
-       "Which of these would make your trip? Select all that interest you."
-```
+#### Activity Wishlist / Tracker
 
-After selection:
-
-```
-Buddi: "Great choices! A couple of notes:
-       
-       🐬 Dolphins and 🐋 whales are both in Kaikoura, so we'll plan 
-       those together — probably 2 days in the area.
-       
-       🐧 Both penguin options are on the east coast between Christchurch 
-       and Dunedin. The yellow-eyed penguins in Dunedin are rarer and 
-       more special — I'd recommend those. But Oamaru's blue penguins are 
-       fun too if we pass through. Want both or just one?
-       
-       🌌 Te Anau glowworms fit perfectly as an evening activity before 
-       or after Milford Sound. I'll slot that in."
-```
-
-**Provider diversification example — when the user selects an activity type, Buddi shows the best providers across NZ:**
-
-```
-Buddi: "Let's find the perfect bungy experience! Here are the best 
-       options across New Zealand:
-       
-       🏆 AJ Hackett Kawarau Bridge — Queenstown
-       The ORIGINAL bungy site. 43m over the turquoise Kawarau River.
-       ⭐ 4.8 (2,340 reviews) • $205 NZD
-       What's special: Historic site, scenic setting, great photos included
-       
-       🏔️ AJ Hackett Nevis — Queenstown  
-       NZ's HIGHEST bungy at 134m. Suspended over a dramatic canyon.
-       ⭐ 4.9 (1,890 reviews) • $275 NZD
-       What's special: Extreme height, cable car ride to the platform
-       
-       🌊 Taupō Bungy — Taupō (North Island)
-       47m over the stunning Waikato River with cliff-face backdrop.
-       ⭐ 4.7 (1,120 reviews) • $189 NZD
-       What's special: Beautiful river setting, less crowded than QT
-       
-       🌲 AJ Hackett Auckland Bridge — Auckland
-       40m off the Auckland Harbour Bridge with city views.
-       ⭐ 4.5 (980 reviews) • $165 NZD
-       What's special: Urban setting, combine with bridge walk
-       
-       💡 My recommendation: If you're doing bungy once, the Nevis is 
-       unmatched — but if you're also skydiving in Queenstown, consider 
-       spreading the thrills and doing Taupō Bungy on Day 4 instead.
-       
-       Which speaks to you? Or should I pick the best fit for your route?"
-```
-
-### Round 6: Route Negotiation
-
-```
-Buddi: "Here's what I'm thinking for your route. With everything you've 
-       selected, a clockwise loop works best:
-       
-       Christchurch → Kaikoura → Blenheim → Abel Tasman → West Coast 
-       → Glaciers → Wanaka → Queenstown → Te Anau/Milford → Dunedin 
-       → Oamaru → Christchurch
-       
-       This minimizes backtracking and groups nearby attractions.
-       
-       [View on map]
-       
-       Does this flow feel right, or would you like to adjust the direction?"
-```
-
-### Round 7: Pace & Duration
-
-```
-Buddi: "Based on your 'balanced' pace preference and everything you've 
-       selected, I'd recommend 16-18 days:
-       
-       • 12 activity days
-       • 3 travel/transition days  
-       • 2-3 flex days (buffer for weather swaps + spontaneous discovery)
-       
-       You mentioned your trip is Dec 5-23 — that gives us 18 days, 
-       which is perfect!
-       
-       If you want to trim it to 14 days, I'd suggest dropping [X, Y] 
-       or combining [A with B].
-       
-       [Keep 18 days — let's build it!]
-       [I need to trim — show me options]"
-```
-
-### Round 8: Transport Discussion
-
-```
-Buddi: "Let's talk about getting around. For the South Island, I have 
-       a strong recommendation:
-       
-       🚐 Days 1-12 (Christchurch → West Coast → Queenstown): 
-       CAMPERVAN/MOTORHOME
-       Why: The South Island's west coast and rural areas have limited 
-       accommodation. A campervan gives you freedom to stop anywhere, 
-       and many of NZ's best spots have amazing freedom camping sites 
-       right on the coast or lakefront. You'll wake up to views that 
-       hotel guests pay $500/night for.
-       
-       🚗 Days 13-18 (Queenstown → Dunedin → Christchurch): 
-       RENTAL CAR
-       Why: The east coast has more towns and accommodation. You'll want 
-       a lighter, more nimble vehicle for the Dunedin hill streets and 
-       shorter distances between stops.
-       
-       [Sounds great — go with that!]
-       [I'd prefer car the whole way]
-       [I'd prefer campervan the whole way]
-       [Tell me more about the trade-offs]"
-```
-
-### Round 9: Itinerary Presentation
-
-```
-Buddi: "Your trip is ready! Here's your 18-day South Island adventure:
-       
-       📅 Day 1 (Dec 5): Arrive Christchurch, pick up campervan, 
-          explore city gardens, settle in
-       📅 Day 2 (Dec 6): Drive to Kaikoura (2.5h), afternoon seal 
-          colony walk, evening seafood on the pier
-       📅 Day 3 (Dec 7): Morning dolphin swim, afternoon whale watching
-       📅 Day 4 (Dec 8): Kaikoura Peninsula walk, drive to Blenheim (2h)
-       ...
-       
-       [View full itinerary]
-       [View on map]
-       [This looks amazing!]
-       [I want to make changes]"
-```
+A clear, always-visible tracker showing:
+- All activities the user wants to accomplish (from Level 2)
+- Which ones have been placed in the itinerary
+- Which ones are still remaining / unassigned
 
 ## The Autonomous Fallback
 
@@ -351,32 +196,31 @@ Buddi should handle natural language gracefully:
 
 ## Conversation State Management
 
-The conversation maintains a growing state object:
+The conversation collects a focused set of preferences (PlanningContext):
 
 ```
-ConversationState {
-  step: string                    // Current step in the flow
-  profile: UserProfile            // Accumulated preferences
-  destination: Destination        // Selected destination
-  dates: DateRange                // Trip dates
-  travel_group: string            // Solo, couple, family, friends
+PlanningContext {
+  current_agent: string           // Current pipeline step
+  completed_agents: string[]      // Steps completed so far
+  group_type: string              // Solo, couple, family, friends
+  group_details: object           // Count, ages
+  accessibility_needs: object     // Accessibility requirements
+  fitness_profile: object         // Fitness level and capabilities
+  budget: object                  // Budget preference
+  destination: string             // "New Zealand"
+  travel_dates: object            // Season / date range
+  trip_duration: object           // Duration in days
   max_driving_hours: number       // Preferred max per day
-  priority_locations: Location[]  // Must-visit places
-  must_not_do: string[]           // Things to avoid
-  flight_details: FlightInfo      // Arrival and departure flights
-  selected_interests: string[]    // What excites the user
-  selected_attractions: Attraction[]  // Specific things to do
-  rejected_attractions: string[]  // Things the user passed on
-  route: RouteNode[]              // Geographic sequence
-  transport: TransportPlan        // How they're getting around
-  pace: PaceConfig                // Activity density
-  duration: number                // Total days
-  locked_days: Day[]              // Days that can't change
-  conversation_history: Message[] // Full chat history for context
+  interest_categories: string[]   // Selected TripAdvisor categories (Level 1)
+  island_preference: object       // North, South, or both
+  transport_plan: object          // Transport mode
+  route_direction: string         // Clockwise, counter-clockwise, custom
 }
 ```
 
-This state persists across sessions — the user can close the app and return to continue planning.
+This state persists across sessions. After the conversation completes,
+additional state is built during post-chat activity selection (Level 2)
+and progressive itinerary building (Level 3).
 
 ## Tone & Language
 

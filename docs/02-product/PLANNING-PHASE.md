@@ -8,10 +8,15 @@ The planning phase is designed as a **conversation, not a form**. Users don't fi
 
 ## Planning Flow
 
+### Conversation (6 agents):
 ```
-[Landing] → [Quick Profile] → [Destination Selection] → [Priority Locations]
-     → [Interest Exploration] → [Attraction Curation] → [Route Building]
-     → [Transport Selection] → [Pace & Duration] → [Itinerary Assembly]
+[Greeting] → [Travel DNA] → [Logistics] → [Interest Categories]
+     → [Island Preference] → [Transport & Route] → Conversation Complete
+```
+
+### Post-Chat (dashboard & itinerary):
+```
+[Activity Selection (Level 2)] → [Progressive Itinerary Building (Level 3)]
      → [Review & Refine] → [Ready for Trip]
 ```
 
@@ -38,20 +43,19 @@ Buddi presents a series of quick-choice cards (not open text):
 - "A good balance — 2-3 activities, some rest" (Balanced)
 - "Pack it in — I want to see everything!" (Intensive)
 
-**Interests** (multi-select with visual icons):
-- Wildlife & Marine Life
-- Mountains & Glaciers
-- Beaches & Coast
-- Lakes & Rivers
-- Forests & Rainforests
-- Volcanoes & Geothermal
-- Stargazing & Aurora
-- Photography & Scenery
-- Water Sports (kayaking, surfing, diving)
-- Hiking & Trekking
-- Cultural & Historical Sites
-- Food & Wine
-- Unique Experiences (bungy, skydive, etc.)
+**Interest Categories** (multi-select with visual icons — 9 strict TripAdvisor-aligned categories):
+- 🏛️ Attractions — Must-see landmarks, nature spots, parks, museums
+- 🗺️ Tours — Guided experiences, cruises, sightseeing, wildlife tours
+- 🚐 Day Trips — Full-day excursions from a base city
+- 🥾 Outdoor Activities — Hiking, water sports, adrenaline, wildlife encounters
+- 🎭 Concerts & Shows — Live entertainment, cultural performances
+- 🎪 Events — Festivals, markets, exhibitions, sporting events
+- 🎨 Classes & Workshops — Hands-on learning, lessons, creative workshops
+- 🚂 Transportation — Scenic railways, ferries, cable cars
+- ℹ️ Traveler Resources — Visitor centres, information hubs
+
+> Note: This is the only activity-related step in the conversation (Level 1).
+> Specific activities and providers are selected post-chat (Levels 2 & 3).
 
 **Budget for Activities:**
 - "Budget-friendly — mostly free/cheap activities" (Low)
@@ -126,79 +130,57 @@ Buddi also asks for "must-not-dos" — things the user explicitly wants to avoid
 - Must-not-dos are added to a rejection list and filtered out of all recommendations
 - User overrides are sacred. If the user has a must-do or must-not-do, Buddi must respect it absolutely — the client is always right.
 
-## Step 4: Interest Exploration
+## Step 4: Post-Chat Activity Selection (Level 2)
+
+> This step happens in the dashboard UI after the planning conversation is complete.
 
 ### Purpose
-Dive deeper into the selected interests with destination-specific context.
+Let the user choose specific activities within their selected categories. This is separated from the conversation to reduce fatigue and provide a better browsing experience.
 
 ### Interaction Design
-For each selected interest, Buddi presents concrete destination-specific options:
+For each selected category, the dashboard shows concrete destination-specific activities:
 
-**Example — Wildlife & Marine Life in NZ:**
-> "New Zealand has incredible wildlife! Here are some experiences I'd love to help you plan:"
-> - 🐬 Swim with dolphins (Kaikoura, Akaroa, Bay of Islands)
-> - 🐋 Whale watching (Kaikoura)
-> - 🐧 Penguin colonies (Oamaru, Dunedin, Milford Sound)
-> - 🦭 Seal colonies (Kaikoura, Abel Tasman, Milford Sound)
-> - 🌌 Glowworm caves (Waitomo, Te Anau)
-> - 🐦 Kiwi spotting (Stewart Island, Zealandia)
->
-> "Which of these excite you? Select all that interest you."
+**Example — Outdoor Activities:**
+> Bungy Jumping, Whale Watching, Glacier Hiking, Kayaking, Skydiving,
+> Jet Boating, White Water Rafting, Zip-Lining, Surfing, Paragliding...
 
-**Example — Mountains & Glaciers in NZ:**
-> "NZ's mountains and glaciers are world-class. Here's what's possible:"
-> - 🏔️ Tongariro Alpine Crossing (full-day volcanic hike)
-> - 🧊 Fox or Franz Josef Glacier (heli-hike or valley walk)
-> - ⛰️ Mount Cook / Aoraki region (Hooker Valley, Mueller Hut)
-> - 🏔️ Milford Sound (fiord cruise with mountain backdrop)
-> - 🌋 White Island volcano (active volcano visit)
->
-> "Given your moderate fitness level, all of these are within your range."
+**Example — Tours:**
+> Scenic Cruises, Wildlife Tours, Cultural Tours, Wine & Food Tours,
+> Film Location Tours, Eco-Tours, Helicopter Tours...
+
+The user browses, selects activities of interest, and builds their "activity wishlist."
 
 ### Key Design Principle
 **Every question has concrete options.** We never ask "what do you want to do?" We always present specific, curated choices. The user's job is to select, not to generate ideas.
 
-## Step 5: Attraction Curation
+## Step 5: Progressive Itinerary Building (Level 3)
+
+> This step happens inside the itinerary view, after the skeleton itinerary is generated.
 
 ### Purpose
-For selected interests, determine specific locations and resolve conflicts. The key principle is **geographic diversification** — travelers want highlights spread across their entire trip, not bunched in one spot. Buddi compares providers across ALL of New Zealand, not just the current route location.
+For selected activities, determine specific locations, providers, and resolve geographic distribution. The key principle is **geographic diversification** — spread highlights across the entire trip, not bunched in one spot.
 
-### Interaction Design
-When an activity is available at multiple locations, Buddi provides a recommendation with provider intelligence across the entire destination:
+### How It Works
+After the conversation, Buddi generates a skeleton itinerary — a route with locations and days but without specific activities or providers assigned. Then, location by location:
 
-> "Dolphin swimming is available in three spots along your route:"
-> - **Kaikoura** — Dusky dolphins, high encounter rates (95%), fits naturally in a South Island east coast route
-> - **Akaroa** — Hector's dolphins (world's rarest), beautiful harbor setting, near Christchurch
-> - **Bay of Islands** — Bottlenose dolphins, warmer water, North Island
->
-> "Based on your South Island focus, I'd recommend **Kaikoura** — it has the highest encounter rates and fits perfectly between Christchurch and Blenheim. But if seeing the rare Hector's dolphin matters to you, Akaroa is a worthy detour (2-hour drive from Christchurch)."
->
-> "Which would you prefer? Or would you like to do both?"
+1. The system shows which desired activities can be accomplished at the current location
+2. The user selects which activities they want to do there
+3. For each selected activity, provider options are shown with reviews, pricing, and Buddi's recommendation
+4. The user picks providers and the itinerary "fills up" for that location
+5. Move to the next location and repeat
 
-**Nationwide provider comparison example — Adventure Activities:**
+### Provider Intelligence
+- For each activity type, show 2-3 best providers with: ratings, price, unique differentiator, and a Buddi recommendation
+- **Diversification Principle**: Spread highlights geographically — don't cluster all adventure in Queenstown
+- **"Just let Buddi decide" fallback**: When the user says "you decide", Buddi makes the call with clear reasoning
 
-> "Let's look at skydiving options across New Zealand:"
-> - **Queenstown (Nzone Skydive)** — 15,000ft, dramatic mountain and lake backdrop, consistently rated #1 in NZ. ⭐ 4.9 TripAdvisor. $349 NZD
-> - **Wanaka (Skydive Wanaka)** — 15,000ft, views of Mt Aspiring and Lake Wanaka, less crowded than Queenstown. ⭐ 4.8 TripAdvisor. $339 NZD
-> - **Taupō (Skydive Taupo)** — 15,000ft, views over Lake Taupō and volcanic plateau, great North Island option. ⭐ 4.7 TripAdvisor. $329 NZD
-> - **Abel Tasman (Skydive Abel Tasman)** — 16,500ft (highest in NZ!), coastal views over golden beaches. ⭐ 4.8 TripAdvisor. $399 NZD
->
-> "I'd recommend spreading your adrenaline activities across the trip — skydiving in Wanaka for the mountain views, bungy in Queenstown (the original AJ Hackett!), and perhaps paragliding in Kaikoura for coastal scenery. This way each day has its own highlight rather than doing everything in one spot."
->
-> "What feels right to you? Or should I pick the best combination based on your route?"
+### Activity Wishlist / Tracker
+An always-visible tracker showing:
+- All activities the user wants to accomplish (from Level 2)
+- Which ones have been placed in the itinerary already
+- Which ones are still remaining / unassigned
 
-### Curation Principles
-
-- **Diversification Principle**: Spread highlights across the entire trip geographically. Don't cluster all adventure in Queenstown or all wildlife in Kaikoura.
-- **Provider Intelligence**: For each activity type, show 2-3 best providers across NZ with: reviews (TripAdvisor/GetYourGuide ratings), price, unique differentiator (what makes THIS provider's experience special — better views? longer duration? rare species?), and a short Buddi recommendation.
-- **Data Sources**: Buddi integrates with TripAdvisor, GetYourGuide, and destination tourism APIs for provider data. The agent can also search the web for new/updated provider information. Future: build our own booking database for direct booking through Journey Buddi.
-- **"Just let Buddi decide" fallback**: When the user says "just pick the best" or "you decide", Buddi makes the call with clear reasoning.
-
-### Smart Logic
-- Buddi considers route impact when suggesting locations
-- Never suggests something that requires massive detours without acknowledging the trade-off
-- Groups nearby attractions ("Since you'll be in the Kaikoura area, you could also do whale watching and seal colony — all in one area")
-- Flags seasonal availability ("White Island tours may be limited in winter")
+This gives the user confidence that nothing they wanted is being forgotten.
 
 ## Step 6: Route Building
 
@@ -337,10 +319,17 @@ For all of these, Buddi should default to making the call with a brief explanati
 
 ## Planning Phase Data Flow
 
+### Conversation Phase:
 ```
-User Input → Profile Engine → Interest Matcher → Attraction Curator
-     → Route Optimizer → Transport Analyzer → Pace Calibrator
-     → Itinerary Assembler → Review Interface → Confirmed Itinerary
+User Input → Profile Engine → Logistics → Category Selection
+     → Island Preference → Transport & Route → Skeleton Itinerary
 ```
 
-Each step enriches the trip data object, and the AI agent has access to all accumulated context throughout the conversation.
+### Post-Chat Phase:
+```
+Category Preferences → Activity Selection (Dashboard)
+     → Progressive Itinerary Builder (Location by Location)
+     → Provider Selection → Review Interface → Confirmed Itinerary
+```
+
+Each step enriches the trip data object, and the AI agent has access to all accumulated context throughout.
