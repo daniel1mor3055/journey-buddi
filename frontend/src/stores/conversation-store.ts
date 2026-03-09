@@ -107,21 +107,44 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     const { conversationId } = get();
     if (!conversationId) return;
 
-    set({ isLoading: true, error: null });
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMessage: ChatMessage = {
+      id: optimisticId,
+      role: "user",
+      content,
+      message_type: messageType,
+      metadata_: {},
+      sort_order: get().messages.length,
+      created_at: new Date().toISOString(),
+    };
+
+    set((state) => ({
+      messages: [...state.messages, optimisticMessage],
+      isLoading: true,
+      error: null,
+    }));
+
     try {
       const data = await api.post<PlanningStepResponse>(
         `/conversations/${conversationId}/messages`,
         { content, message_type: messageType }
       );
       set((state) => ({
-        messages: [...state.messages, ...data.messages],
+        messages: [
+          ...state.messages.filter((m) => m.id !== optimisticId),
+          ...data.messages,
+        ],
         planningStep: data.planning_step,
         planningState: data.planning_state,
         progressPercent: data.progress_percent,
         isLoading: false,
       }));
     } catch (err) {
-      set({ error: "Failed to send message", isLoading: false });
+      set((state) => ({
+        messages: state.messages.filter((m) => m.id !== optimisticId),
+        error: "Failed to send message",
+        isLoading: false,
+      }));
     }
   },
 

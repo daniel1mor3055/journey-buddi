@@ -75,10 +75,76 @@ with sync_playwright() as p:
 
 3. **Execute actions** using discovered selectors
 
-## Common Pitfall
+## ⚠️ COST AWARENESS — LLM Round-Trips Are Paid
+
+**This app calls OpenAI on every user message. Each interaction that sends a message to the conversation costs real money.**
+
+- Never send the same message or trigger the same action more than 2-3 times without a confirmed state change.
+- Before sending anything, confirm the selector works by taking a screenshot and verifying the page state.
+- If a send/submit action fails silently (no state change observed), **stop and debug** — do not retry blindly.
+
+## Circuit Breakers — Mandatory for Any Multi-Step Flow
+
+When writing scripts that iterate through a flow (e.g. a multi-step conversation), you **must** implement circuit breakers:
+
+```python
+MAX_STEPS = 25
+MAX_REPEATED_STATE = 2  # Abort if same visible text appears this many times in a row
+
+step = 0
+last_state = None
+repeated_count = 0
+
+while step < MAX_STEPS:
+    step += 1
+    current_state = page.locator('.message-container').last.inner_text()
+
+    if current_state == last_state:
+        repeated_count += 1
+        if repeated_count >= MAX_REPEATED_STATE:
+            raise RuntimeError(f"Circuit breaker: state unchanged for {repeated_count} steps — aborting to prevent cost blowout.\nLast state: {current_state}")
+    else:
+        repeated_count = 0
+
+    last_state = current_state
+    # ... interaction logic
+```
+
+Rules:
+- Always define `MAX_STEPS` (cap at a reasonable number for the flow).
+- Always track the last observed page state and count repetitions.
+- Abort with a clear error message when the circuit trips — **never silently keep going**.
+- If a step handler fails to advance the flow, log the failure and break rather than retrying indefinitely.
+
+## Visibility — Headed Mode + Trace Viewer (Default)
+
+Run tests in **headed mode** so interactions are visible in real time. Also record a Playwright trace for post-run review.
+
+```python
+browser = p.chromium.launch(headless=False, slow_mo=300)
+context = browser.new_context()
+context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
+# ... test logic ...
+
+context.tracing.stop(path="/tmp/trace.zip")
+# Open with: npx playwright show-trace /tmp/trace.zip
+```
+
+- `headless=False` + `slow_mo` lets you watch every click live.
+- Trace ZIP captures screenshots, DOM snapshots, and network calls — open in Playwright's trace viewer for full replay.
+- Only switch to `headless=True` when running in CI or when explicitly told to.
+
+## Common Pitfalls
 
 ❌ **Don't** inspect the DOM before waiting for `networkidle` on dynamic apps
 ✅ **Do** wait for `page.wait_for_load_state('networkidle')` before inspection
+
+❌ **Don't** retry a failed send/submit action without verifying the selector first
+✅ **Do** take a screenshot and confirm the element exists before retrying
+
+❌ **Don't** loop through conversation steps without a circuit breaker
+✅ **Do** always define `MAX_STEPS` + repeated-state detection before running any multi-step flow
 
 ## Best Practices
 
@@ -87,6 +153,7 @@ with sync_playwright() as p:
 - Always close the browser when done
 - Use descriptive selectors: `text=`, `role=`, CSS selectors, or IDs
 - Add appropriate waits: `page.wait_for_selector()` or `page.wait_for_timeout()`
+- For multi-select UI steps (e.g. choose cards then confirm), always check for a confirm/continue button after each card click before moving on
 
 ## Reference Files
 

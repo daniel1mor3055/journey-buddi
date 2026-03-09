@@ -125,16 +125,15 @@ def get_step_prompt(step: str, planning_state: dict) -> str:
         ),
         "FITNESS": (
             "Ask about the maximum comfortable hiking level for the group. "
-            "Reference NZ's range from 15-minute boardwalks to epic alpine crossings. "
-            "Mention you always build in plenty of easy, scenic stops. "
+            "Ask about their energy levels for the trip, framed around pacing their days — not just hiking. "
             "Tailor the framing to their group type "
             f"(group: {planning_state.get('group_type', 'unknown')}, "
             f"ages: {planning_state.get('age_range', 'unknown')}). "
             "Present exactly 4 options with these labels and descriptions: "
-            "'Keep it light' (mostly flat paths and viewpoints, under an hour max), "
-            "'Up for a moderate challenge' (3-4 hour hike with some hills, balanced with easier days), "
-            "'Bring on the big hikes' (full-day steep terrain, 8+ hours), "
-            "'A mix of everything' (surprise me Buddi, just balance hard days with rest). "
+            "'Keep it relaxed' (scenic drives, flat strolls, frequent stops — up to an hour of walking a day), "
+            "'Active explorer' (on their feet for a few hours exploring towns, beaches, or undulating paths, but needs time to recharge), "
+            "'Endless energy' (highly physical days, steep climbs, full-day excursions — no problem), "
+            "'A mix of everything' (push occasionally, balanced with easy recovery days). "
             "Acknowledge their accessibility answer first."
         ),
         "DATES": (
@@ -315,12 +314,12 @@ def _fallback_step_response(step: str, planning_state: dict) -> dict:
             "multi_select": False,
         },
         "FITNESS": {
-            "text": "New Zealand is famous for its trails, ranging from 15-minute boardwalks to epic alpine crossings. I always build in plenty of easy, scenic stops — but what's the maximum level of hiking your group would comfortably tackle?",
+            "text": "To help me pace our days perfectly, let's talk about your energy levels. What does a comfortable day of exploring look like for you?",
             "choices": [
-                {"emoji": "🚶", "label": "Keep it light", "desc": "Mostly flat paths and viewpoints, under an hour max"},
-                {"emoji": "🥾", "label": "Up for a moderate challenge", "desc": "3-4 hour hikes with some hills, balanced with easier days"},
-                {"emoji": "⛰️", "label": "Bring on the big hikes", "desc": "Full-day steep terrain, 8+ hours"},
-                {"emoji": "🎲", "label": "A mix of everything", "desc": "Surprise me, Buddi! Just balance hard days with rest"},
+                {"emoji": "🛋️", "label": "Keep it relaxed", "desc": "Scenic drives, flat strolls, frequent stops. Up to an hour of walking a day."},
+                {"emoji": "🥾", "label": "Active explorer", "desc": "A few hours on my feet — towns, beaches, gentle hills. Need time to recharge."},
+                {"emoji": "🔥", "label": "Endless energy", "desc": "Steep climbs, full-day excursions — bring it on."},
+                {"emoji": "🎲", "label": "A mix of everything", "desc": "Push occasionally, balanced with easy recovery days."},
             ],
             "multi_select": False,
         },

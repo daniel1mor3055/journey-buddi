@@ -17,6 +17,9 @@
     },
     "continual-learning": {
       "enabled": false
+    },
+    "context7-plugin": {
+      "enabled": true
     }
   }
 }

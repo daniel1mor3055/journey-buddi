@@ -32,3 +32,5 @@ htmlcov/
 
 *.log
 logs/
+
+playwright_tests/artifacts/

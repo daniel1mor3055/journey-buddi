@@ -42,10 +42,12 @@ Buddi: "On a typical travel day, you'd prefer..."
 ```
 
 ```
-Buddi: "Physically, you're comfortable with..."
-       [🚶 Easy walks and drives — nothing too strenuous]
-       [🥾 Moderate hikes up to 4-5 hours]
-       [⛰️ Full-day strenuous hikes, I'm fit]
+Buddi: "To help me pace our days perfectly, let's talk about your energy levels.
+        What does a comfortable day of exploring look like for you?"
+       [🛋️ Keep it relaxed — scenic drives, flat strolls, frequent stops. Up to an hour of walking a day.]
+       [🥾 Active explorer — on my feet for a few hours, towns/beaches/undulating paths, but I need time to recharge.]
+       [🔥 Endless energy — highly physical days, steep climbs, full-day excursions, no problem.]
+       [🎲 A mix of everything — push myself occasionally, balanced with easy recovery days.]
 ```
 
 ```

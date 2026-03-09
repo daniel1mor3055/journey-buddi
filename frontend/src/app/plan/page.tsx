@@ -42,6 +42,8 @@ interface ChoiceCardsProps {
   selectedChoices: Set<string>;
   onToggle: (label: string) => void;
   onConfirm: () => void;
+  disabled?: boolean;
+  answeredValue?: string | null;
 }
 
 function ChoiceCards({
@@ -50,34 +52,57 @@ function ChoiceCards({
   selectedChoices,
   onToggle,
   onConfirm,
+  disabled = false,
+  answeredValue = null,
 }: ChoiceCardsProps) {
+  const answeredLabels = disabled && answeredValue
+    ? new Set(answeredValue.split(", ").map((s) => s.trim()))
+    : new Set<string>();
+
   const count = selectedChoices.size;
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {choices.map((opt) => {
-          const selected = selectedChoices.has(opt.label);
+          const selected = disabled
+            ? answeredLabels.has(opt.label)
+            : selectedChoices.has(opt.label);
+          const dimmed = disabled && !answeredLabels.has(opt.label);
+
           return (
             <button
               key={opt.label}
               type="button"
-              onClick={() => onToggle(opt.label)}
+              onClick={disabled ? undefined : () => onToggle(opt.label)}
+              disabled={disabled}
               className={`
-                relative flex flex-col items-start p-3 rounded-xl border-2 transition-all
-                text-left hover:shadow-md
-                ${selected ? "border-teal bg-teal/5" : "border-sand bg-cloud"}
+                relative flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left
+                ${disabled
+                  ? dimmed
+                    ? "border-sand/40 bg-cloud/60 opacity-40 cursor-default"
+                    : "border-teal/60 bg-teal/5 cursor-default"
+                  : selected
+                    ? "border-teal bg-teal/5 hover:shadow-md"
+                    : "border-sand bg-cloud hover:shadow-md"
+                }
               `}
             >
-              <span className="text-xl mb-1">{opt.emoji}</span>
-              <span className="text-bark font-medium" style={{ fontSize: "0.9375rem" }}>
+              <span className={`text-xl mb-1 ${dimmed ? "grayscale" : ""}`}>{opt.emoji}</span>
+              <span
+                className={`font-medium ${dimmed ? "text-stone/50" : "text-bark"}`}
+                style={{ fontSize: "0.9375rem" }}
+              >
                 {opt.label}
               </span>
               {opt.desc && (
-                <span className="text-stone mt-0.5" style={{ fontSize: "0.8125rem" }}>
+                <span
+                  className={`mt-0.5 ${dimmed ? "text-stone/30" : "text-stone"}`}
+                  style={{ fontSize: "0.8125rem" }}
+                >
                   {opt.desc}
                 </span>
               )}
-              {multiSelect && selected && (
+              {multiSelect && selected && !dimmed && (
                 <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-teal flex items-center justify-center">
                   <Check className="text-white" size={12} />
                 </div>
@@ -86,7 +111,7 @@ function ChoiceCards({
           );
         })}
       </div>
-      {multiSelect && count > 0 && (
+      {!disabled && multiSelect && count > 0 && (
         <button
           type="button"
           onClick={onConfirm}
@@ -151,6 +176,11 @@ interface FreeTextInputProps {
 
 function FreeTextInput({ onSubmit, disabled }: FreeTextInputProps) {
   const [value, setValue] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
   const handleSubmit = () => {
     const trimmed = value.trim();
@@ -170,6 +200,7 @@ function FreeTextInput({ onSubmit, disabled }: FreeTextInputProps) {
   return (
     <div className="flex gap-2 items-end">
       <textarea
+        ref={textareaRef}
         rows={1}
         value={value}
         onChange={(e) => {
@@ -323,46 +354,55 @@ export default function PlanPage() {
 
   return (
     <div className="min-h-screen bg-mist flex flex-col">
-      {/* Sticky header */}
-      <header className="sticky top-0 z-40 bg-forest text-white px-4 py-3 flex items-center gap-3">
-        <Link
-          href="/dashboard"
-          className="p-2 -ml-2 rounded-lg hover:bg-white/10 transition-colors"
-          aria-label="Back to dashboard"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="font-bold flex-1 text-white" style={{ fontSize: "0.9375rem" }}>
-          Planning Your NZ Trip
-        </h1>
-      </header>
+      {/* Sticky header + progress bar */}
+      <div className="sticky top-0 z-40">
+        <header className="bg-forest text-white px-4 py-3 flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="p-2 -ml-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <h1 className="font-bold flex-1 text-white" style={{ fontSize: "0.9375rem" }}>
+            Planning Your NZ Trip
+          </h1>
+        </header>
 
-      {/* Progress bar */}
-      <div className="h-1.5 bg-sand">
-        <motion.div
-          className="h-full bg-teal"
-          initial={{ width: 0 }}
-          animate={{ width: `${progressPercent}%` }}
-          transition={{ duration: 0.4 }}
-        />
+        <div className="h-1.5 bg-sand">
+          <motion.div
+            className="h-full bg-teal"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.4 }}
+          />
+        </div>
       </div>
 
       {/* Chat area */}
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-2xl mx-auto w-full">
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
-            {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                isActive={!isLoading && msg.id === lastAssistantMsgId}
-                onSingleChoice={handleSingleChoice}
-                onChoiceToggle={handleChoiceToggle}
-                onMultiSelectConfirm={handleMultiSelectConfirm}
-                onProviderSelect={handleProviderSelect}
-                selectedChoices={selectedChoices}
-              />
-            ))}
+            {messages.map((msg, idx) => {
+              const nextMsg = messages[idx + 1];
+              const answeredValue =
+                msg.role === "assistant" && nextMsg?.role === "user"
+                  ? nextMsg.content
+                  : null;
+              return (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  isActive={!isLoading && msg.id === lastAssistantMsgId}
+                  onSingleChoice={handleSingleChoice}
+                  onChoiceToggle={handleChoiceToggle}
+                  onMultiSelectConfirm={handleMultiSelectConfirm}
+                  onProviderSelect={handleProviderSelect}
+                  selectedChoices={selectedChoices}
+                  answeredValue={answeredValue}
+                />
+              );
+            })}
           </AnimatePresence>
 
           {isLoading && <TypingIndicator />}
@@ -411,6 +451,7 @@ interface MessageBubbleProps {
   onMultiSelectConfirm: () => void;
   onProviderSelect: (name: string) => void;
   selectedChoices: Set<string>;
+  answeredValue?: string | null;
 }
 
 function MessageBubble({
@@ -421,6 +462,7 @@ function MessageBubble({
   onMultiSelectConfirm,
   onProviderSelect,
   selectedChoices,
+  answeredValue,
 }: MessageBubbleProps) {
   const choices = message.metadata_?.choices ?? [];
   const multiSelect = message.metadata_?.multi_select ?? false;
@@ -451,13 +493,15 @@ function MessageBubble({
               {message.content}
             </div>
           )}
-          {choices.length > 0 && isActive && (
+          {choices.length > 0 && (
             <ChoiceCards
               choices={choices}
               multiSelect={multiSelect}
               selectedChoices={selectedChoices}
               onToggle={multiSelect ? onChoiceToggle : (l) => onSingleChoice(l)}
               onConfirm={onMultiSelectConfirm}
+              disabled={!isActive}
+              answeredValue={answeredValue}
             />
           )}
           {providerCards.length > 0 && isActive && (

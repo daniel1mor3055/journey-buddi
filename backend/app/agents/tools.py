@@ -214,13 +214,17 @@ _ACCESSIBILITY_ALIASES: dict[str, str] = {
 
 _FITNESS_ALIASES: dict[str, tuple[str, bool]] = {
     "light": ("light", False),
+    "keep it relaxed": ("light", False),
     "keep it light": ("light", False),
+    "relaxed": ("light", False),
     "easy": ("light", False),
     "gentle": ("light", False),
     "moderate": ("moderate", True),
+    "active explorer": ("moderate", True),
     "up for a moderate challenge": ("moderate", True),
     "moderate challenge": ("moderate", True),
     "advanced": ("advanced", True),
+    "endless energy": ("advanced", True),
     "bring on the big hikes": ("advanced", True),
     "hard hikes": ("advanced", True),
     "mixed": ("mixed", True),
@@ -257,14 +261,14 @@ async def set_fitness_profile(
     """Set the group's fitness profile.
     Call this whenever the user states their fitness preference.
     Accepted level values (also accepts full button labels):
-      'light'    → gentle walks, easy access ('Keep it light')
-      'moderate' → a few hours hiking is fine ('Up for a moderate challenge')
-      'advanced' → multi-hour treks, no problem ('Bring on the big hikes')
-      'mixed'    → mix of easy and hard days ('A mix of everything')"""
-    level_key, can_hike = _FITNESS_ALIASES.get(level.strip().lower(), (level.strip().lower(), level.strip().lower() in ("moderate", "advanced", "mixed")))
+      'light'    → scenic drives, flat strolls, up to an hour of walking ('Keep it relaxed')
+      'moderate' → a few hours on feet exploring towns, beaches, undulating paths ('Active explorer')
+      'advanced' → highly physical days, steep climbs, full-day excursions ('Endless energy')
+      'mixed'    → occasional push days balanced with easy recovery days ('A mix of everything')"""
+    level_key, can_high_exertion = _FITNESS_ALIASES.get(level.strip().lower(), (level.strip().lower(), level.strip().lower() in ("moderate", "advanced", "mixed")))
     ctx.context.fitness_profile = {
         "general_level": level_key,
-        "can_handle_hard_hikes": can_hike,
+        "can_handle_high_exertion": can_high_exertion,
         "notes": notes,
     }
     return _status("Fitness profile set", travel_dna_missing(ctx.context))

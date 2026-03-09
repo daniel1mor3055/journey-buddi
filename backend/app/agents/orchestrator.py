@@ -188,18 +188,18 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
             ],
         },
         "fitness_profile": {
-            "text": "What's your fitness comfort zone for activities?",
+            "text": "To help me pace our days perfectly, let's talk about your energy levels. What does a comfortable day of exploring look like for you?",
             "choices": [
-                {"emoji": "🌿", "label": "Keep it light", "desc": "Gentle walks and easy access"},
-                {"emoji": "🥾", "label": "Up for a moderate challenge", "desc": "A few hours hiking is fine"},
-                {"emoji": "⛰️", "label": "Bring on the big hikes", "desc": "Multi-hour treks, no problem"},
-                {"emoji": "🎲", "label": "A mix of everything", "desc": "Some easy days, some big ones"},
+                {"emoji": "🛋️", "label": "Keep it relaxed", "desc": "Scenic drives, flat strolls, frequent stops. Up to an hour of walking a day."},
+                {"emoji": "🥾", "label": "Active explorer", "desc": "A few hours on my feet — towns, beaches, gentle hills. Need time to recharge."},
+                {"emoji": "🔥", "label": "Endless energy", "desc": "Steep climbs, full-day excursions — bring it on."},
+                {"emoji": "🎲", "label": "A mix of everything", "desc": "Push occasionally, balanced with easy recovery days."},
             ],
         },
         "budget": {
             "text": "Last thing — what's your rough budget comfort zone per person?",
             "choices": [
-                {"emoji": "💰", "label": "Budget-friendly", "desc": "Free/cheap activities, keep costs low"},
+                {"emoji": "🏷️", "label": "Budget-friendly", "desc": "Free/cheap activities, keep costs low"},
                 {"emoji": "💵", "label": "Mid-range", "desc": "Happy to pay for great experiences"},
                 {"emoji": "💎", "label": "Treat ourselves", "desc": "Premium experiences, no stress about cost"},
                 {"emoji": "🤷", "label": "Flexible", "desc": "Depends on the experience"},
@@ -754,10 +754,10 @@ class PlanningOrchestrator:
             elif field == "fitness_profile":
                 alias_result = FITNESS_ALIASES.get(msg)
                 if alias_result:
-                    level_key, can_hike = alias_result
+                    level_key, can_high_exertion = alias_result
                     ctx.fitness_profile = {
                         "general_level": level_key,
-                        "can_handle_hard_hikes": can_hike,
+                        "can_handle_high_exertion": can_high_exertion,
                         "notes": "",
                     }
                     return True
