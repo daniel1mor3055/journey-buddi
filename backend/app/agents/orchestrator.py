@@ -36,6 +36,7 @@ from app.agents.tools import (
     interest_categories_missing,
     island_preference_missing,
     transport_route_missing,
+    get_island_analysis,
     CANONICAL_CATEGORIES,
     GROUP_TYPE_ALIASES,
     ACCESSIBILITY_ALIASES,
@@ -227,14 +228,6 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "🚗", "label": "Rental car", "desc": "Nimble, book accommodation"},
                 {"emoji": "🔀", "label": "Mix of both", "desc": "Best of both worlds"},
                 {"emoji": "🚌", "label": "Public transport", "desc": "Buses, trains, ferries"},
-            ],
-        },
-        "route_direction": {
-            "text": "Which direction do you want to loop around?",
-            "choices": [
-                {"emoji": "🔄", "label": "Clockwise", "desc": ""},
-                {"emoji": "🔃", "label": "Counter-clockwise", "desc": ""},
-                {"emoji": "🗺️", "label": "Custom", "desc": "Let Buddi optimise the route"},
             ],
         },
     },
@@ -460,10 +453,15 @@ class PlanningOrchestrator:
                 "content": "I'm ready for the next step.",
             })
 
+            # Island preference needs get_island_analysis (read-only) to produce
+            # a meaningful recommendation; all other agents open with no tools.
+            opening_tools = (
+                [get_island_analysis] if agent_name == "island_preference" else []
+            )
             question_only_agent = Agent(
                 name=agent.name,
                 instructions=agent.instructions,
-                tools=[],
+                tools=opening_tools,
                 output_type=PlanningResponse,
             )
 
@@ -581,13 +579,6 @@ class PlanningOrchestrator:
         "mix of both": "mix",
         "public transport": "public",
     }
-    _ROUTE_DIRECTION_ALIASES: dict[str, str] = {
-        "clockwise": "clockwise",
-        "counter-clockwise": "counter-clockwise",
-        "custom": "custom",
-        "let buddi optimise the route": "custom",
-    }
-
     @staticmethod
     def _try_direct_fill(agent_name: str, field: str, user_message: str, ctx: PlanningContext) -> bool:
         """Resolve a controlled-choice button label directly without an LLM call."""
@@ -672,12 +663,6 @@ class PlanningOrchestrator:
                 mode = inst._TRANSPORT_MODE_ALIASES.get(msg)
                 if mode:
                     ctx.transport_plan = {"mode": mode, "details": ""}
-                    return True
-
-            elif field == "route_direction":
-                direction = inst._ROUTE_DIRECTION_ALIASES.get(msg)
-                if direction:
-                    ctx.route_direction = direction
                     return True
 
         return False

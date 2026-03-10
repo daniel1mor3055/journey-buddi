@@ -37,7 +37,7 @@ from app.agents.tools import (
     get_island_analysis, set_island_preference,
     island_preference_missing,
     # transport & route
-    set_transport_mode, set_route_direction,
+    set_transport_mode,
     transport_route_missing,
 )
 
@@ -242,8 +242,10 @@ def _island_preference_instructions(
 {RESPONSE_RULES}
 
 YOUR ROLE: Island Preference Agent
-GOAL: Give the user a personalised, well-reasoned island recommendation based on
-everything they have told you, then ask them to choose.
+GOAL: Ask the user which island(s) of New Zealand they want to explore, backed
+by a confident, personalised recommendation. The interest categories are CONTEXT
+for your recommendation only — do NOT ask any follow-up about activities or
+categories. Your one and only question is about island preference.
 
 CURRENT STATE:
 {_compact_state(c)}
@@ -284,7 +286,8 @@ WORKFLOW:
    - solo → go where categories are strongest
 
 3. STRUCTURE your response exactly like this:
-   a) ONE sentence acknowledging what you've just heard
+   a) ONE brief sentence acknowledging their categories (e.g. "Great mix of picks!")
+      — do NOT list them back or ask anything about activities
    b) 1–2 sentences calling out the strongest category/duration signal
    c) YOUR RECOMMENDATION in bold: "**My recommendation: South Island**" (or
       North / Both) followed by 1 sentence of reasoning
@@ -318,8 +321,8 @@ def _transport_route_instructions(
 {RESPONSE_RULES}
 
 YOUR ROLE: Transport & Route Agent
-GOAL: Recommend the best transport mode(s) and route direction based on the
-full trip profile, and get confirmation.
+GOAL: Recommend the best transport mode based on the full trip profile,
+and get confirmation.
 
 CURRENT STATE:
 {_compact_state(c)}
@@ -328,7 +331,7 @@ STILL MISSING: {missing_str}
 
 WORKFLOW:
 1. Read the user's message. ONLY call tools if the message contains an EXPLICIT
-   answer (e.g. "Campervan", "clockwise"). Generic messages contain NO
+   answer (e.g. "Campervan"). Generic messages contain NO
    transport data — skip to step 3.
 2. Do NOT echo back what the user just answered — go straight to the next question.
 3. If data missing, ask about ONE topic.
@@ -338,11 +341,8 @@ QUESTION RULES:
   🚐 Campervan | 🚗 Rental car | 🔀 Mix of both | 🚌 Public transport
   Explain trade-offs (campervan = freedom but slower; car = nimble but need
   accommodation). For families with young kids, recommend car.
-- route_direction → present 2-3 options based on island preference.
-  Explain why one direction minimises backtracking.
-  e.g. 🔄 Clockwise | 🔃 Counter-clockwise | 🗺️ Custom
 
-When ALL data (transport_mode + route_direction) is collected, produce a
+When transport_mode is collected, produce a
 celebratory TRIP SUMMARY so the user can confirm the conversation is complete.
 Structure it like this:
 
@@ -360,7 +360,6 @@ Structure it like this:
 🎯 **Interests:** [list chosen categories]
 
 🚐 **Getting Around:** [transport mode]
-🗺️ **Route:** [direction]
 
 Next up: you'll pick specific activities and providers in your dashboard — this
 is going to be amazing!"
@@ -374,7 +373,7 @@ is going to be amazing!"
 transport_route_agent: Agent[PlanningContext] = Agent(
     name="Transport Route",
     instructions=_transport_route_instructions,
-    tools=[set_transport_mode, set_route_direction],
+    tools=[set_transport_mode],
     output_type=PlanningResponse,
 )
 
@@ -443,7 +442,6 @@ FIELD_TOOLS: dict[str, dict[str, list]] = {
     },
     "transport_route": {
         "transport_mode": [set_transport_mode],
-        "route_direction": [set_route_direction],
     },
 }
 
