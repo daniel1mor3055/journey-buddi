@@ -14,7 +14,7 @@ from app.config import get_settings
 from app.logging import setup_logging
 
 settings = get_settings()
-setup_logging(settings.environment)
+setup_logging(settings.environment, log_file=settings.log_file)
 log = structlog.get_logger()
 
 

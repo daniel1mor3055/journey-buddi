@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     access_token_expire_days: int = 30
     magic_link_expire_minutes: int = 15
 
+    log_file: str = ""
+
     model_config = {"env_file": str(_ENV_FILE), "extra": "ignore"}
 
     @property
