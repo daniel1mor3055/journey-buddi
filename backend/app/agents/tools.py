@@ -31,8 +31,6 @@ def travel_dna_missing(ctx: PlanningContext) -> list[str]:
         missing.append("accessibility_needs")
     if not ctx.fitness_profile:
         missing.append("fitness_profile")
-    if not ctx.budget:
-        missing.append("budget")
     return missing
 
 
@@ -448,7 +446,14 @@ _ISLAND_ALIASES: dict[str, str] = {
     "north": "north_only",
     "both": "both",
     "both islands": "both",
-    "help me decide": "both",
+    "i don't know": "undecided",
+    "i dont know": "undecided",
+    "not sure": "undecided",
+    "unsure": "undecided",
+    "undecided": "undecided",
+    "help me decide": "undecided",
+    "you decide": "undecided",
+    "surprise me": "undecided",
 }
 
 
@@ -459,12 +464,13 @@ async def set_island_preference(
     notes: str = "",
 ) -> str:
     """Record the user's island preference.
-    preference: 'south_only', 'north_only', or 'both'."""
+    preference: 'south_only', 'north_only', 'both', or 'undecided' (user chose "I don't know")."""
     normalized = _ISLAND_ALIASES.get(preference.strip().lower(), preference.strip().lower())
     islands_map = {
         "south_only": ["south"],
         "north_only": ["north"],
         "both": ["south", "north"],
+        "undecided": ["south", "north"],
     }
     ctx.context.island_preference = {
         "preference": normalized,

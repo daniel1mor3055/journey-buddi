@@ -26,7 +26,7 @@ from app.agents.tools import (
     get_tell_me_more_info,
     # travel dna
     set_group_type, set_group_count, set_group_ages,
-    set_accessibility, set_fitness_profile, set_budget,
+    set_accessibility, set_fitness_profile,
     travel_dna_missing,
     # logistics
     set_travel_dates, set_trip_duration, set_max_driving_hours,
@@ -123,10 +123,6 @@ TOOL VALUE NORMALIZATION (IMPORTANT — always use these exact values):
 - set_fitness_profile: "light" | "moderate" | "advanced" | "mixed"
   "Keep it relaxed" → "light" | "Active explorer" → "moderate"
   "Endless energy" → "advanced" | "A mix of everything" → "mixed"
-- set_budget: "budget" | "midrange" | "premium" | "flexible"
-  "Budget-friendly" → "budget" | "Mid-range" → "midrange"
-  "Treat ourselves" → "premium" | "Flexible" → "flexible"
-
 QUESTION RULES:
 - group_type → present 4 choices:
   🧑 Flying solo | 💑 With my partner | 👨‍👩‍👧‍👦 Family trip | 👯 Friends trip
@@ -145,9 +141,6 @@ QUESTION RULES:
   🥾 Active explorer — A few hours on my feet — towns, beaches, gentle hills. Need time to recharge.
   🔥 Endless energy — Steep climbs, full-day excursions — bring it on.
   🎲 A mix of everything — Push occasionally, balanced with easy recovery days.
-- budget → 4 choices:
-  🏷️ Budget-friendly | 💵 Mid-range | 💎 Treat ourselves | 🤷 Flexible
-
 Do NOT echo back the user's answer. Go straight to the next question.
 Tailor language to group type (e.g. "the kids" for families).
 """
@@ -187,7 +180,7 @@ TOOL VALUE NORMALIZATION for set_trip_duration:
 - "About a week" → duration_type="approximate", min_days=7, max_days=10
 - "About 2 weeks" → duration_type="approximate", min_days=12, max_days=16
 - "About 3 weeks" → duration_type="approximate", min_days=18, max_days=23
-- "A month or more" → duration_type="approximate", min_days=25, max_days=35
+- "About a month" → duration_type="approximate", min_days=25, max_days=35
 - "I'm flexible" → duration_type="flexible"
 - If the user gives an exact number (e.g. "14 days"), use duration_type="fixed", days=14
 
@@ -197,8 +190,8 @@ QUESTION RULES:
   🌸 Sep–Nov (Spring) | 🤷 Flexible
   If they give specific dates, record those instead.
 - trip_duration → 5 choices:
-  📅 About a week | 🗓️ About 2 weeks | 📆 About 3 weeks |
-  🌏 A month or more | 🤷 I'm flexible — help me figure it out
+  📅 About a week | 📅 About 2 weeks | 📅 About 3 weeks |
+  📅 About a month | 🤷 I'm flexible — help me figure it out
   Explain: if flexible, you'll suggest a duration later based on their activities.
 - max_driving_hours → 3 choices:
   🐢 Short (1-2 hours max) | 🚗 3-4 hours is fine | 🏎️ 5+ hours is OK
@@ -249,8 +242,8 @@ def _island_preference_instructions(
 {RESPONSE_RULES}
 
 YOUR ROLE: Island Preference Agent
-GOAL: Help the user decide which New Zealand island(s) to explore. Use their
-chosen categories, trip duration, and season to give an informed recommendation.
+GOAL: Give the user a personalised, well-reasoned island recommendation based on
+everything they have told you, then ask them to choose.
 
 CURRENT STATE:
 {_compact_state(c)}
@@ -260,28 +253,56 @@ TRIP DURATION: {duration_info}
 WORKFLOW:
 1. Call get_island_analysis to see how the user's chosen categories are
    distributed across the North and South Islands.
-2. Present a brief, insightful summary:
-   - "Your [category] interests are stronger on the South Island (more
-     attractions for outdoor activities, tours)"
-   - "The North Island has more options for [category]"
-   - "Some categories are well-represented on both"
-3. Based on their trip duration and category distribution, give a clear
-   recommendation with reasoning:
-   - Short trips (≤10 days): suggest focusing on one island
-   - Medium trips (11-18 days): suggest one island + highlights of the other
-   - Long trips (19+ days): suggest both islands
-   - Flexible duration: recommend based on category density
-4. Present choices and let the user decide:
-   🏔️ South Island | 🌋 North Island | 🗺️ Both islands
-5. When the user confirms, call set_island_preference.
+2. Synthesise ALL context into a single, confident recommendation. Use this
+   reasoning framework (combine all signals — do not just pick one):
+
+   DURATION signal:
+   - ≤10 days → strongly recommend ONE island; explain you can't do both justice
+   - 11–18 days → suggest one island as main focus + key highlights of the other
+   - 19+ days → both islands are achievable; only recommend one if categories
+     are extremely lopsided
+   - flexible → lean on category density and fitness level
+
+   CATEGORY signal (from get_island_analysis results):
+   - South stronger (e.g. Outdoor Activities, Tours) → lean South
+   - North stronger (e.g. Attractions, Events, Day Trips) → lean North
+   - Balanced → let duration or fitness decide
+
+   FITNESS signal:
+   - light/relaxed → North Island (gentler terrain, thermal areas, cities)
+   - advanced/mixed → South Island (alpine, Fiordland, multi-day tracks)
+   - moderate → either works; mention the trade-off
+
+   SEASON signal:
+   - Winter (Jun–Aug) → caution for South Island alpine routes; North is safer
+   - Summer/Autumn/Spring → both islands fully accessible
+
+   GROUP signal:
+   - family → North Island more family-friendly (fewer long drives, theme parks,
+     beaches, Bay of Islands)
+   - couple/friends advanced → South Island for drama and adventure
+   - solo → go where categories are strongest
+
+3. STRUCTURE your response exactly like this:
+   a) ONE sentence acknowledging what you've just heard
+   b) 1–2 sentences calling out the strongest category/duration signal
+   c) YOUR RECOMMENDATION in bold: "**My recommendation: South Island**" (or
+      North / Both) followed by 1 sentence of reasoning
+   d) Then immediately present the 4 choices
+
+4. Present exactly these 4 choices:
+   🏔️ South Island | 🌋 North Island | 🗺️ Both islands | 🤷 I don't know
+
+5. When the user picks an option, call set_island_preference immediately.
 
 TOOL VALUE NORMALIZATION:
 - "South Island" → preference="south_only"
 - "North Island" → preference="north_only"
 - "Both islands" → preference="both"
+- "I don't know" → preference="undecided"
 
-Keep it conversational. Reference their chosen categories to make the
-recommendation feel personal, not generic.
+Keep it conversational and personal. Always reference their actual categories,
+group type, or fitness level — never give a generic answer.
 """
 
 
@@ -330,8 +351,6 @@ Structure it like this:
 👥 **Group:** [group type, count, ages]
 ♿ **Accessibility:** [level]
 💪 **Fitness:** [level]
-🏷️ **Budget:** [level]
-
 📅 **Dates:** [season/dates]
 ⏱️ **Duration:** [days or range]
 🚗 **Driving:** [max hours/day]
@@ -385,7 +404,7 @@ travel_dna_agent: Agent[PlanningContext] = Agent(
     instructions=_travel_dna_instructions,
     tools=[
         set_group_type, set_group_count, set_group_ages,
-        set_accessibility, set_fitness_profile, set_budget,
+        set_accessibility, set_fitness_profile,
     ],
     output_type=PlanningResponse,
 )
@@ -410,7 +429,6 @@ FIELD_TOOLS: dict[str, dict[str, list]] = {
         "ages": [set_group_ages],
         "accessibility_needs": [set_accessibility],
         "fitness_profile": [set_fitness_profile],
-        "budget": [set_budget],
     },
     "logistics": {
         "travel_dates": [set_travel_dates],

@@ -40,7 +40,6 @@ from app.agents.tools import (
     GROUP_TYPE_ALIASES,
     ACCESSIBILITY_ALIASES,
     FITNESS_ALIASES,
-    BUDGET_ALIASES,
 )
 from app.config import get_settings
 
@@ -162,15 +161,6 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "🎲", "label": "A mix of everything", "desc": "Push occasionally, balanced with easy recovery days."},
             ],
         },
-        "budget": {
-            "text": "Last thing — what's your rough budget comfort zone per person?",
-            "choices": [
-                {"emoji": "🏷️", "label": "Budget-friendly", "desc": "Free/cheap activities, keep costs low"},
-                {"emoji": "💵", "label": "Mid-range", "desc": "Happy to pay for great experiences"},
-                {"emoji": "💎", "label": "Treat ourselves", "desc": "Premium experiences, no stress about cost"},
-                {"emoji": "🤷", "label": "Flexible", "desc": "Depends on the experience"},
-            ],
-        },
     },
     "logistics": {
         "travel_dates": {
@@ -187,9 +177,9 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
             "text": "How much time do you have for New Zealand?",
             "choices": [
                 {"emoji": "📅", "label": "About a week", "desc": "7-10 days"},
-                {"emoji": "🗓️", "label": "About 2 weeks", "desc": "12-16 days"},
-                {"emoji": "📆", "label": "About 3 weeks", "desc": "18-23 days"},
-                {"emoji": "🌏", "label": "A month or more", "desc": "25+ days"},
+                {"emoji": "📅", "label": "About 2 weeks", "desc": "12-16 days"},
+                {"emoji": "📅", "label": "About 3 weeks", "desc": "18-23 days"},
+                {"emoji": "📅", "label": "About a month", "desc": "25+ days"},
                 {"emoji": "🤷", "label": "I'm flexible", "desc": "Help me figure out the right length"},
             ],
         },
@@ -225,6 +215,7 @@ _FIELD_FALLBACKS: dict[str, dict[str, dict[str, Any]]] = {
                 {"emoji": "🏔️", "label": "South Island", "desc": "Mountains, glaciers, fjords — the adventure hub"},
                 {"emoji": "🌋", "label": "North Island", "desc": "Volcanoes, geothermal, Māori culture, beaches"},
                 {"emoji": "🗺️", "label": "Both islands", "desc": "The full NZ experience"},
+                {"emoji": "🤷", "label": "I don't know", "desc": "Help me decide based on my trip"},
             ],
         },
     },
@@ -562,7 +553,7 @@ class PlanningOrchestrator:
         "about a week": {"type": "approximate", "min_days": 7, "max_days": 10},
         "about 2 weeks": {"type": "approximate", "min_days": 12, "max_days": 16},
         "about 3 weeks": {"type": "approximate", "min_days": 18, "max_days": 23},
-        "a month or more": {"type": "approximate", "min_days": 25, "max_days": 60},
+        "about a month": {"type": "approximate", "min_days": 25, "max_days": 60},
         "i'm flexible": {"type": "flexible"},
     }
     _MAX_DRIVING_ALIASES: dict[str, int] = {
@@ -577,6 +568,12 @@ class PlanningOrchestrator:
         "south": "south_only",
         "north": "north_only",
         "both": "both",
+        "i don't know": "undecided",
+        "i dont know": "undecided",
+        "not sure": "undecided",
+        "unsure": "undecided",
+        "undecided": "undecided",
+        "help me decide": "undecided",
     }
     _TRANSPORT_MODE_ALIASES: dict[str, str] = {
         "campervan": "campervan",
@@ -625,12 +622,6 @@ class PlanningOrchestrator:
                     }
                     return True
 
-            elif field == "budget":
-                level = BUDGET_ALIASES.get(msg)
-                if level is not None:
-                    ctx.budget = {"level": level, "notes": ""}
-                    return True
-
         elif agent_name == "logistics":
             if field == "travel_dates":
                 dates = inst._TRAVEL_DATE_ALIASES.get(msg)
@@ -667,6 +658,7 @@ class PlanningOrchestrator:
                         "south_only": ["south"],
                         "north_only": ["north"],
                         "both": ["south", "north"],
+                        "undecided": ["south", "north"],
                     }
                     ctx.island_preference = {
                         "preference": normalized,
