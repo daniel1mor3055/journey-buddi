@@ -61,8 +61,6 @@ def transport_route_missing(ctx: PlanningContext) -> list[str]:
     missing: list[str] = []
     if not ctx.transport_plan:
         missing.append("transport_mode")
-    if not ctx.route_direction:
-        missing.append("route_direction")
     return missing
 
 
