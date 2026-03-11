@@ -15,10 +15,12 @@ dashboard for debugging.
 from __future__ import annotations
 
 import os
+import re
+import time
 from typing import Any
 
 import structlog
-from agents import Agent, Runner, RunConfig, ModelSettings, trace
+from agents import Agent, Runner, RunConfig, RunContextWrapper, ModelSettings, trace
 from agents.exceptions import MaxTurnsExceeded
 
 from app.agents.context import PlanningContext
@@ -102,15 +104,44 @@ def _restricted_agent(
     agent_name: str,
     missing: list[str],
 ) -> Agent[PlanningContext]:
-    """Create a copy of the agent with only the tool for the first missing field."""
+    """Create a copy of the agent with only the tool for the first missing field.
+
+    Appends a mandatory tool-call directive naming the specific tool so the LLM
+    cannot skip it for button selections or negative answers.
+    """
     field_map = FIELD_TOOLS.get(agent_name)
     if not field_map or not missing:
         return base
 
-    tools = field_map.get(missing[0], [])
+    current_field = missing[0]
+    tools = field_map.get(current_field, [])
+    tool_names = [t.name for t in tools]
+
+    base_instructions = base.instructions
+
+    def _enhanced_instructions(
+        ctx: RunContextWrapper[PlanningContext], agent: Agent[PlanningContext]
+    ) -> str:
+        original = (
+            base_instructions(ctx, agent)
+            if callable(base_instructions)
+            else base_instructions
+        )
+        still_missing = _agent_missing(agent_name, ctx.context)
+        if current_field in still_missing:
+            tool_directive = (
+                f"\n\nMANDATORY: You have exactly one tool available: {', '.join(tool_names)}. "
+                f"If the user's message contains ANY answer to the current question "
+                f"(including negative answers like 'No accessibility needs' or button labels), "
+                f"you MUST call {tool_names[0]} BEFORE producing your structured response. "
+                f"Do NOT skip the tool call. Do NOT produce a response without calling the tool first."
+            )
+            return original + tool_directive
+        return original
+
     return Agent(
         name=base.name,
-        instructions=base.instructions,
+        instructions=_enhanced_instructions,
         tools=tools,
         output_type=PlanningResponse,
     )
@@ -279,10 +310,25 @@ class PlanningOrchestrator:
             missing=missing_before,
             conversation_id=conversation_id,
         )
+        log.debug(
+            "orchestrator_run_detail",
+            agent=agent_name,
+            user_msg_full=user_message,
+            context_snapshot=snapshot,
+            history_len=len(conversation_history),
+            history_tail=conversation_history[-3:] if conversation_history else [],
+        )
 
         try:
             run_agent = _restricted_agent(agent, agent_name, missing_before)
+            log.debug(
+                "orchestrator_restricted_agent",
+                agent=agent_name,
+                target_field=missing_before[0] if missing_before else None,
+                available_tools=[t.name for t in run_agent.tools],
+            )
 
+            t0 = time.perf_counter()
             with trace(
                 "journey_buddi_planning",
                 group_id=conversation_id or None,
@@ -295,9 +341,22 @@ class PlanningOrchestrator:
                     run_config=self.run_config,
                     max_turns=10,
                 )
+            elapsed_ms = round((time.perf_counter() - t0) * 1000)
 
             response = result.final_output_as(PlanningResponse)
             response_dict = response.model_dump(exclude_none=True)
+
+            log.debug(
+                "orchestrator_llm_result",
+                agent=agent_name,
+                elapsed_ms=elapsed_ms,
+                response_text=response_dict.get("text", "")[:200],
+                choices_count=len(response_dict.get("choices") or []),
+                has_provider_cards=bool(response_dict.get("provider_cards")),
+                multi_select=response_dict.get("multi_select", False),
+                free_text=response_dict.get("free_text", False),
+                context_after=ctx.to_dict(),
+            )
 
             ctx.current_agent = agent_name
             ctx.completed_agents = list(snapshot.get("completed_agents", []))
@@ -313,6 +372,7 @@ class PlanningOrchestrator:
             )
 
             if not missing_after:
+                log.debug("orchestrator_domain_complete", agent=agent_name)
                 response_dict, ctx = await self._advance_pipeline(
                     ctx, response_dict, conversation_history, conversation_id
                 )
@@ -329,6 +389,12 @@ class PlanningOrchestrator:
                         field=missing_after[0],
                         value=user_message,
                     )
+                    log.debug(
+                        "orchestrator_direct_fill_context",
+                        agent=agent_name,
+                        field=missing_after[0],
+                        context_after=ctx.to_dict(),
+                    )
                     missing_after = _agent_missing(agent_name, ctx)
                     if not missing_after:
                         response_dict, ctx = await self._advance_pipeline(
@@ -336,9 +402,27 @@ class PlanningOrchestrator:
                         )
                     else:
                         response_dict = self._field_fallback(agent_name, ctx)
+                        log.debug(
+                            "orchestrator_fallback_after_fill",
+                            agent=agent_name,
+                            still_missing=missing_after,
+                            fallback_response=response_dict,
+                        )
                 else:
+                    log.debug(
+                        "orchestrator_direct_fill_miss",
+                        agent=agent_name,
+                        field=missing_after[0],
+                        user_msg=user_message,
+                    )
                     response_dict = self._field_fallback(agent_name, ctx)
             else:
+                log.debug(
+                    "orchestrator_field_progressed",
+                    agent=agent_name,
+                    filled=[f for f in missing_before if f not in missing_after],
+                    next_field=missing_after[0],
+                )
                 self._apply_field_choices(response_dict, agent_name, missing_after[0])
 
         except MaxTurnsExceeded:
@@ -370,7 +454,15 @@ class PlanningOrchestrator:
         """Generate the opening greeting (no user input)."""
         agent = AGENT_NAME_MAP.get(ctx.current_agent, greeting_agent)
 
+        log.debug(
+            "init_conversation_start",
+            agent=ctx.current_agent,
+            conversation_id=conversation_id,
+            context=ctx.to_dict(),
+        )
+
         try:
+            t0 = time.perf_counter()
             with trace(
                 "journey_buddi_planning",
                 group_id=conversation_id or None,
@@ -383,9 +475,20 @@ class PlanningOrchestrator:
                     run_config=self.run_config,
                     max_turns=5,
                 )
+            elapsed_ms = round((time.perf_counter() - t0) * 1000)
 
             response = result.final_output_as(PlanningResponse)
-            return response.model_dump(exclude_none=True), ctx
+            resp_dict = response.model_dump(exclude_none=True)
+
+            log.debug(
+                "init_conversation_result",
+                agent=ctx.current_agent,
+                elapsed_ms=elapsed_ms,
+                response_text=resp_dict.get("text", "")[:200],
+                choices_count=len(resp_dict.get("choices") or []),
+            )
+
+            return resp_dict, ctx
 
         except Exception:
             log.exception("init_error")
@@ -415,10 +518,24 @@ class PlanningOrchestrator:
         if not next_name:
             ctx.current_agent = "complete"
             current_response["planning_complete"] = True
+            log.debug(
+                "pipeline_complete",
+                completed_agents=ctx.completed_agents,
+                final_context=ctx.to_dict(),
+            )
             return current_response, ctx
 
         ctx.current_agent = next_name
-        ack_text = current_response.get("text", "")
+        ack_text = self._strip_trailing_transitions(
+            current_response.get("text", "")
+        )
+
+        log.debug(
+            "pipeline_advance_opening",
+            from_agent=agent_name,
+            to_agent=next_name,
+            ack_text_len=len(ack_text),
+        )
 
         opening, ctx = await self._opening_question(
             ctx, conversation_history, conversation_id
@@ -433,6 +550,14 @@ class PlanningOrchestrator:
             to_agent=next_name,
             completed=ctx.completed_agents,
         )
+        log.debug(
+            "pipeline_advance_detail",
+            from_agent=agent_name,
+            to_agent=next_name,
+            opening_text=opening.get("text", "")[:200],
+            opening_choices_count=len(opening.get("choices") or []),
+            context_snapshot=ctx.to_dict(),
+        )
         return opening, ctx
 
     async def _opening_question(
@@ -446,15 +571,21 @@ class PlanningOrchestrator:
         agent = AGENT_NAME_MAP.get(agent_name, greeting_agent)
         missing = _agent_missing(agent_name, ctx)
 
+        log.debug(
+            "opening_question_start",
+            agent=agent_name,
+            missing=missing,
+            history_len=len(conversation_history),
+        )
+
         try:
             input_items = self._build_input(conversation_history)
-            input_items.append({
-                "role": "user",
-                "content": "I'm ready for the next step.",
-            })
+            readiness_msg = "I'm ready for the next step."
+            if input_items and input_items[-1]["role"] == "user":
+                input_items[-1]["content"] += "\n" + readiness_msg
+            else:
+                input_items.append({"role": "user", "content": readiness_msg})
 
-            # Island preference needs get_island_analysis (read-only) to produce
-            # a meaningful recommendation; all other agents open with no tools.
             opening_tools = (
                 [get_island_analysis] if agent_name == "island_preference" else []
             )
@@ -465,6 +596,14 @@ class PlanningOrchestrator:
                 output_type=PlanningResponse,
             )
 
+            log.debug(
+                "opening_question_llm_call",
+                agent=agent_name,
+                input_items_count=len(input_items),
+                tools=[t.name for t in opening_tools],
+            )
+
+            t0 = time.perf_counter()
             with trace(
                 "journey_buddi_planning",
                 group_id=conversation_id or None,
@@ -477,9 +616,18 @@ class PlanningOrchestrator:
                     run_config=self.run_config,
                     max_turns=3,
                 )
+            elapsed_ms = round((time.perf_counter() - t0) * 1000)
 
             response = result.final_output_as(PlanningResponse)
             response_dict = response.model_dump(exclude_none=True)
+
+            log.debug(
+                "opening_question_result",
+                agent=agent_name,
+                elapsed_ms=elapsed_ms,
+                response_text=response_dict.get("text", "")[:200],
+                choices_count=len(response_dict.get("choices") or []),
+            )
 
             if missing:
                 self._apply_field_choices(response_dict, agent_name, missing[0])
@@ -494,11 +642,47 @@ class PlanningOrchestrator:
 
     @staticmethod
     def _build_input(conversation_history: list[dict[str, str]]) -> list[dict[str, str]]:
+        """Build LLM input from conversation history.
+
+        Merges consecutive same-role messages to guarantee strict
+        user/assistant alternation — the OpenAI API expects this and
+        the LLM's attention degrades when it sees broken alternation.
+        """
         items: list[dict[str, str]] = []
         for msg in conversation_history[-30:]:
             role = "user" if msg["role"] == "user" else "assistant"
-            items.append({"role": role, "content": msg["content"]})
+            if items and items[-1]["role"] == role:
+                items[-1]["content"] += "\n" + msg["content"]
+            else:
+                items.append({"role": role, "content": msg["content"]})
         return items
+
+    _TRANSITION_PHRASES = frozenset({
+        "move on", "moving on", "next step", "next up",
+        "let's dive", "let's talk", "let's move", "let's get",
+        "let's head", "what's next", "coming up",
+    })
+
+    @staticmethod
+    def _strip_trailing_transitions(text: str) -> str:
+        """Remove trailing questions and forward-looking transition sentences.
+
+        The completing agent often hallucinates what comes next (e.g.
+        "Next, let's dive into your preferred pace") which is wrong once
+        the orchestrator prepends it to a different agent's opening.
+        """
+        if not text:
+            return text
+        parts = re.split(r'(?<=[.!?])\s+', text.rstrip())
+        while parts:
+            last = parts[-1].rstrip()
+            if last.endswith("?"):
+                parts.pop()
+            elif any(p in last.lower() for p in PlanningOrchestrator._TRANSITION_PHRASES):
+                parts.pop()
+            else:
+                break
+        return " ".join(parts) if parts else ""
 
     @staticmethod
     def _apply_field_choices(
@@ -583,6 +767,12 @@ class PlanningOrchestrator:
     def _try_direct_fill(agent_name: str, field: str, user_message: str, ctx: PlanningContext) -> bool:
         """Resolve a controlled-choice button label directly without an LLM call."""
         msg = user_message.strip().lower()
+        log.debug(
+            "direct_fill_attempt",
+            agent=agent_name,
+            field=field,
+            user_msg_normalized=msg,
+        )
         inst = PlanningOrchestrator
 
         if agent_name == "travel_dna":

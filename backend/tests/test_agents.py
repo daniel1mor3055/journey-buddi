@@ -126,7 +126,6 @@ class TestStatusHelpers:
         assert "group_type" in missing
         assert "accessibility_needs" in missing
         assert "fitness_profile" in missing
-        assert "budget" in missing
 
     def test_travel_dna_missing_family_needs_count(self):
         ctx = PlanningContext(group_type="family")
@@ -144,7 +143,6 @@ class TestStatusHelpers:
             group_details={"count": 1, "ages_raw": "30"},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
-            budget={"level": "midrange"},
         )
         assert travel_dna_missing(ctx) == []
 
@@ -154,7 +152,6 @@ class TestStatusHelpers:
             group_details={"count": 4, "ages_raw": "Adults 35, kids 8 and 5"},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
-            budget={"level": "midrange"},
         )
         assert travel_dna_missing(ctx) == []
 
@@ -184,12 +181,11 @@ class TestStatusHelpers:
         assert interest_categories_missing(PlanningContext(interest_categories=["Attractions"])) == []
 
     def test_transport_route_missing_all(self):
-        assert len(transport_route_missing(PlanningContext())) == 2
+        assert len(transport_route_missing(PlanningContext())) == 1
 
     def test_transport_route_missing_none(self):
         ctx = PlanningContext(
             transport_plan={"mode": "campervan"},
-            route_direction="clockwise",
         )
         assert transport_route_missing(ctx) == []
 
@@ -336,7 +332,6 @@ class TestMasterAgent:
             group_details={"count": 2},
             accessibility_needs={"level": "none"},
             fitness_profile={"general_level": "moderate"},
-            budget={"level": "midrange"},
             destination="New Zealand",
             travel_dates={"season": "summer"},
             trip_duration={"type": "approximate", "min_days": 12, "max_days": 16},
@@ -344,16 +339,13 @@ class TestMasterAgent:
             island_preference={"preference": "both", "islands": ["south", "north"]},
             interest_categories=["Outdoor Activities", "Tours", "Attractions"],
             transport_plan={"mode": "campervan"},
-            route_direction="clockwise",
         )
         prompt = self.master.generate_itinerary_prompt(ctx)
         assert "couple" in prompt
         assert "New Zealand" in prompt
         assert "Outdoor Activities" in prompt
         assert "campervan" in prompt
-        assert "clockwise" in prompt
         assert "ITINERARY CONSTRAINTS" in prompt
-        assert "BUDGET" in prompt
         assert "ISLAND PREFERENCE" in prompt
         assert "12-16 days" in prompt
         assert "skeleton itinerary" in prompt

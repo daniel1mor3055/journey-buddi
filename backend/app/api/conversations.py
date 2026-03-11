@@ -104,6 +104,16 @@ async def send_message(
 ):
     conv = await _get_user_conversation(conversation_id, user.id, db)
 
+    log.debug(
+        "send_message_start",
+        conversation_id=str(conversation_id),
+        user_id=str(user.id),
+        content_preview=body.content[:100],
+        content_len=len(body.content),
+        planning_step=conv.planning_step,
+        message_count=len(conv.messages),
+    )
+
     max_order = max((m.sort_order for m in conv.messages), default=-1)
 
     user_msg = Message(
@@ -117,6 +127,13 @@ async def send_message(
     db.add(user_msg)
 
     memory = PlanningContext.from_dict(conv.planning_state)
+    log.debug(
+        "send_message_context_loaded",
+        conversation_id=str(conversation_id),
+        current_agent=memory.current_agent,
+        completed_agents=memory.completed_agents,
+        context=memory.to_dict(),
+    )
 
     if (
         memory.current_agent == "greeting"
@@ -144,6 +161,16 @@ async def send_message(
     flag_modified(conv, "planning_state")
 
     response_text = ai_response.get("text", "Let's continue!")
+
+    log.debug(
+        "send_message_response",
+        conversation_id=str(conversation_id),
+        new_planning_step=conv.planning_step,
+        response_text_preview=response_text[:200],
+        response_keys=list(ai_response.keys()),
+        choices_count=len(ai_response.get("choices") or []),
+        progress=orchestrator.progress_percent(memory),
+    )
 
     assistant_msg = Message(
         conversation_id=conv.id,
@@ -178,6 +205,13 @@ async def init_conversation(
     conv = await _get_user_conversation(conversation_id, user.id, db)
 
     memory = PlanningContext.from_dict(conv.planning_state)
+    log.debug(
+        "init_conversation",
+        conversation_id=str(conversation_id),
+        has_messages=bool(conv.messages),
+        message_count=len(conv.messages),
+        current_agent=memory.current_agent,
+    )
 
     if conv.messages:
         return PlanningStepResponse(
@@ -224,11 +258,24 @@ async def go_back(
     conv = await _get_user_conversation(conversation_id, user.id, db)
     memory = PlanningContext.from_dict(conv.planning_state)
 
+    log.debug(
+        "go_back",
+        conversation_id=str(conversation_id),
+        current_agent=memory.current_agent,
+        completed_agents=memory.completed_agents,
+    )
+
     if not memory.completed_agents:
         raise HTTPException(status_code=400, detail="Already at the first step")
 
     previous_agent_name = memory.completed_agents.pop()
     memory.current_agent = previous_agent_name
+    log.debug(
+        "go_back_resolved",
+        conversation_id=str(conversation_id),
+        going_back_to=previous_agent_name,
+        remaining_completed=memory.completed_agents,
+    )
 
     ai_response, memory = await orchestrator.init_conversation(memory, conversation_id=str(conv.id))
 

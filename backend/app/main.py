@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import asyncio
 import json
+import os
 import uuid as uuid_mod
 
 import structlog
@@ -12,14 +13,18 @@ from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
 from app.logging import setup_logging
+from app.tracing import setup_tracing
 
 settings = get_settings()
 setup_logging(settings.environment, log_file=settings.log_file)
 log = structlog.get_logger()
 
+_LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "logs"))
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    setup_tracing(_LOG_DIR)
     log.info("starting_up", environment=settings.environment)
     yield
     log.info("shutting_down")
@@ -92,12 +97,15 @@ async def websocket_chat(
     from app.agents.context import PlanningContext
     from app.agents.orchestrator import orchestrator
 
+    log.debug("ws_connect_attempt", conversation_id=conversation_id, has_token=bool(token))
     user_id = decode_access_token(token)
     if not user_id:
+        log.debug("ws_auth_failed", conversation_id=conversation_id)
         await websocket.close(code=4001, reason="Invalid token")
         return
 
     await websocket.accept()
+    log.debug("ws_accepted", conversation_id=conversation_id, user_id=user_id)
 
     try:
         async for db in get_db():
@@ -149,6 +157,14 @@ async def websocket_chat(
                 if not content:
                     continue
 
+                log.debug(
+                    "ws_message_received",
+                    conversation_id=conversation_id,
+                    msg_type=msg_type,
+                    content_preview=content[:100],
+                    content_len=len(content),
+                )
+
                 max_order = max((m.sort_order for m in conv.messages), default=-1)
 
                 user_msg = Message(
@@ -164,6 +180,13 @@ async def websocket_chat(
                 await websocket.send_json({"type": "stream_start"})
 
                 is_companion = trip and trip.status == "active"
+                log.debug(
+                    "ws_processing",
+                    conversation_id=conversation_id,
+                    is_companion=is_companion,
+                    trip_status=trip.status if trip else None,
+                    planning_step=conv.planning_step,
+                )
                 history = [
                     {"role": m.role, "content": m.content}
                     for m in conv.messages[-20:]
@@ -206,11 +229,20 @@ async def websocket_chat(
                 await db.flush()
 
                 memory = PlanningContext.from_dict(conv.planning_state)
+                progress = orchestrator.progress_percent(memory)
+                log.debug(
+                    "ws_response_complete",
+                    conversation_id=conversation_id,
+                    response_len=len(response_text),
+                    planning_step=conv.planning_step,
+                    progress=progress,
+                    is_companion=is_companion,
+                )
                 await websocket.send_json({
                     "type": "stream_end",
                     "full_content": response_text,
                     "planning_step": conv.planning_step,
-                    "progress_percent": orchestrator.progress_percent(memory),
+                    "progress_percent": progress,
                 })
 
     except WebSocketDisconnect:

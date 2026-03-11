@@ -298,6 +298,11 @@ WORKFLOW:
 
 5. When the user picks an option, call set_island_preference immediately.
 
+6. AFTER set_island_preference SUCCEEDS (tool returns "all data collected"):
+   - Produce ONLY a short acknowledgment (one sentence, e.g. "Both islands it is!")
+   - Set choices to null
+   - Do NOT repeat your recommendation or re-present island choices
+
 TOOL VALUE NORMALIZATION:
 - "South Island" → preference="south_only"
 - "North Island" → preference="north_only"

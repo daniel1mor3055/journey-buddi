@@ -44,10 +44,14 @@ CRITICAL — HANDOFF & TOOL RULES:
 - After receiving a handoff from another agent, the user has NOT yet answered
   YOUR questions. You MUST produce output asking your first question immediately.
   Do NOT call any data-setting tools first.
-- NEVER call data-setting tools unless the user's message contains EXPLICIT data
-  for your domain. Generic messages like "Let's do it!", "sure", "yes", or
-  "sounds good" are readiness signals, NOT data. Do NOT infer, guess, or
-  auto-fill values from them.
+- Button selections and choice labels ARE explicit data. Examples:
+  "No accessibility needs", "Dec–Feb (Summer)", "Keep it relaxed",
+  "Flying solo", "About a month", "Short (1-2 hours max)".
+  You MUST call the appropriate tool for these — they are answers, not readiness signals.
+- The ONLY messages that are NOT data: "Let's do it!", "sure", "yes", "next",
+  "sounds good", "ready", "let's go" — pure readiness signals with no answer content.
+- When in doubt: if the user's message matches any of your presented choices,
+  it IS data. Call the tool.
 - Ask ONE question at a time and STOP. Wait for the user's explicit response
   before calling any tools to record data.
 """

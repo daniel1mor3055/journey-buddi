@@ -9,9 +9,12 @@ from __future__ import annotations
 import json
 from typing import List
 
+import structlog
 from agents import function_tool, RunContextWrapper
 
 from app.agents.context import PlanningContext
+
+log = structlog.get_logger()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -112,16 +115,20 @@ async def set_group_type(
 ) -> str:
     """Set the travel group type. Must be one of: solo, couple, family, friends.
     Also accepts common phrases like 'Flying solo', 'With my partner', 'Family trip', 'Friends trip'."""
+    log.debug("tool_call", tool="set_group_type", raw_input=group_type)
     normalized = _GROUP_TYPE_ALIASES.get(group_type.strip().lower(), group_type.strip().lower())
     valid = {"solo", "couple", "family", "friends"}
     if normalized not in valid:
+        log.debug("tool_invalid_input", tool="set_group_type", raw=group_type, valid=list(valid))
         return f"Invalid group type '{group_type}'. Must be one of: {', '.join(sorted(valid))}"
     ctx.context.group_type = normalized
     if normalized == "solo":
         ctx.context.group_details = {"count": 1}
     elif normalized == "couple":
         ctx.context.group_details = {"count": 2}
-    return _status("Group type set to " + normalized, travel_dna_missing(ctx.context))
+    result = _status("Group type set to " + normalized, travel_dna_missing(ctx.context))
+    log.debug("tool_result", tool="set_group_type", normalized=normalized, result=result)
+    return result
 
 
 @function_tool
@@ -130,10 +137,13 @@ async def set_group_count(
     count: int,
 ) -> str:
     """Set how many people are in the travel group (for family/friends)."""
+    log.debug("tool_call", tool="set_group_count", count=count)
     if not ctx.context.group_details:
         ctx.context.group_details = {}
     ctx.context.group_details["count"] = count
-    return _status(f"Group count set to {count}", travel_dna_missing(ctx.context))
+    result = _status(f"Group count set to {count}", travel_dna_missing(ctx.context))
+    log.debug("tool_result", tool="set_group_count", result=result)
+    return result
 
 
 @function_tool
@@ -142,10 +152,13 @@ async def set_group_ages(
     ages_description: str,
 ) -> str:
     """Record the ages of all travelers as described by the user."""
+    log.debug("tool_call", tool="set_group_ages", ages_description=ages_description)
     if not ctx.context.group_details:
         ctx.context.group_details = {}
     ctx.context.group_details["ages_raw"] = ages_description
-    return _status("Ages recorded", travel_dna_missing(ctx.context))
+    result = _status("Ages recorded", travel_dna_missing(ctx.context))
+    log.debug("tool_result", tool="set_group_ages", result=result)
+    return result
 
 
 _ACCESSIBILITY_ALIASES: dict[str, str] = {
@@ -210,9 +223,12 @@ async def set_accessibility(
       'none'        → no accessibility requirements ('No accessibility needs', 'No special needs')
       'stroller'    → travelling with stroller/pram — need pram-friendly paths and facilities
       'wheelchair'  → wheelchair or mobility aid — need fully accessible facilities throughout"""
+    log.debug("tool_call", tool="set_accessibility", raw_level=level, notes=notes)
     normalized = _ACCESSIBILITY_ALIASES.get(level.strip().lower(), level.strip().lower())
     ctx.context.accessibility_needs = {"level": normalized, "notes": notes}
-    return _status("Accessibility set", travel_dna_missing(ctx.context))
+    result = _status("Accessibility set", travel_dna_missing(ctx.context))
+    log.debug("tool_result", tool="set_accessibility", normalized=normalized, result=result)
+    return result
 
 
 @function_tool
@@ -228,55 +244,22 @@ async def set_fitness_profile(
       'moderate' → a few hours on feet exploring towns, beaches, undulating paths ('Active explorer')
       'advanced' → highly physical days, steep climbs, full-day excursions ('Endless energy')
       'mixed'    → occasional push days balanced with easy recovery days ('A mix of everything')"""
+    log.debug("tool_call", tool="set_fitness_profile", raw_level=level, notes=notes)
     level_key, can_high_exertion = _FITNESS_ALIASES.get(level.strip().lower(), (level.strip().lower(), level.strip().lower() in ("moderate", "advanced", "mixed")))
     ctx.context.fitness_profile = {
         "general_level": level_key,
         "can_handle_high_exertion": can_high_exertion,
         "notes": notes,
     }
-    return _status("Fitness profile set", travel_dna_missing(ctx.context))
-
-
-_BUDGET_ALIASES: dict[str, str] = {
-    "budget-friendly": "budget",
-    "budget": "budget",
-    "keep costs low": "budget",
-    "cheap": "budget",
-    "mid-range": "midrange",
-    "midrange": "midrange",
-    "happy to pay for great experiences": "midrange",
-    "treat ourselves": "premium",
-    "premium": "premium",
-    "luxury": "premium",
-    "splurge": "premium",
-    "flexible": "flexible",
-    "depends on the experience": "flexible",
-}
-
-
-@function_tool
-async def set_budget(
-    ctx: RunContextWrapper[PlanningContext],
-    level: str,
-    notes: str = "",
-) -> str:
-    """Set the travel budget comfort level.
-    Call this whenever the user states their budget preference.
-    Accepted level values (also accepts full button labels):
-      'budget'   → keep costs low, free/cheap activities ('Budget-friendly')
-      'midrange' → happy to pay for great experiences ('Mid-range')
-      'premium'  → treat ourselves, no stress about cost ('Treat ourselves')
-      'flexible' → depends on the experience ('Flexible')"""
-    normalized = _BUDGET_ALIASES.get(level.strip().lower(), level.strip().lower())
-    ctx.context.budget = {"level": normalized, "notes": notes}
-    return _status("Budget set", travel_dna_missing(ctx.context))
+    result = _status("Fitness profile set", travel_dna_missing(ctx.context))
+    log.debug("tool_result", tool="set_fitness_profile", level_key=level_key, can_high_exertion=can_high_exertion, result=result)
+    return result
 
 
 # Public exports for direct-fill resolution in the orchestrator.
 GROUP_TYPE_ALIASES: dict[str, str] = _GROUP_TYPE_ALIASES
 ACCESSIBILITY_ALIASES: dict[str, str] = _ACCESSIBILITY_ALIASES
 FITNESS_ALIASES: dict[str, tuple[str, bool]] = _FITNESS_ALIASES
-BUDGET_ALIASES: dict[str, str] = _BUDGET_ALIASES
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -295,6 +278,7 @@ async def set_travel_dates(
 ) -> str:
     """Record the user's travel dates or seasonal preference.
     Provide whichever fields the user mentioned."""
+    log.debug("tool_call", tool="set_travel_dates", season=season, start_date=start_date, end_date=end_date, duration_days=duration_days, flexibility=flexibility)
     dates: dict = {}
     if season:
         dates["season"] = season
@@ -311,7 +295,9 @@ async def set_travel_dates(
     ctx.context.travel_dates = dates
     if not ctx.context.destination:
         ctx.context.destination = "New Zealand"
-    return _status("Travel dates recorded", logistics_missing(ctx.context))
+    result = _status("Travel dates recorded", logistics_missing(ctx.context))
+    log.debug("tool_result", tool="set_travel_dates", dates=dates, result=result)
+    return result
 
 
 @function_tool
@@ -327,6 +313,7 @@ async def set_trip_duration(
     duration_type: 'fixed' (user has exact days), 'approximate' (rough range),
     or 'flexible' (open to suggestions based on activities).
     For 'fixed': provide days. For 'approximate': provide min_days and max_days."""
+    log.debug("tool_call", tool="set_trip_duration", duration_type=duration_type, days=days, min_days=min_days, max_days=max_days)
     duration: dict = {"type": duration_type.strip().lower()}
     if days:
         duration["days"] = days
@@ -337,7 +324,9 @@ async def set_trip_duration(
     if notes:
         duration["notes"] = notes
     ctx.context.trip_duration = duration
-    return _status("Trip duration recorded", logistics_missing(ctx.context))
+    result = _status("Trip duration recorded", logistics_missing(ctx.context))
+    log.debug("tool_result", tool="set_trip_duration", duration=duration, result=result)
+    return result
 
 
 @function_tool
@@ -346,8 +335,11 @@ async def set_max_driving_hours(
     hours: int,
 ) -> str:
     """Set the maximum comfortable driving hours per day."""
+    log.debug("tool_call", tool="set_max_driving_hours", hours=hours)
     ctx.context.max_driving_hours = hours
-    return _status(f"Max driving set to {hours}h", logistics_missing(ctx.context))
+    result = _status(f"Max driving set to {hours}h", logistics_missing(ctx.context))
+    log.debug("tool_result", tool="set_max_driving_hours", result=result)
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -374,11 +366,14 @@ async def set_interest_categories(
       Attractions, Tours, Day Trips, Outdoor Activities, Concerts & Shows,
       Events, Classes & Workshops, Transportation, Traveler Resources.
     """
+    log.debug("tool_call", tool="set_interest_categories", categories=categories)
     ctx.context.interest_categories = categories
-    return (
+    result = (
         f"Categories set: {', '.join(categories)}. "
         "All categories recorded! Hand off to the next agent now."
     )
+    log.debug("tool_result", tool="set_interest_categories", result=result)
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -392,8 +387,10 @@ async def get_island_analysis(
     """Analyze which NZ islands best match the user's chosen categories.
     Call this to give the user an informed island recommendation based on
     where attractions in their chosen categories are concentrated."""
+    log.debug("tool_call", tool="get_island_analysis")
     chosen = ctx.context.interest_categories
     if not chosen:
+        log.debug("tool_result", tool="get_island_analysis", error="no categories")
         return json.dumps({"error": "No categories selected yet."})
 
     from app.data.activity_taxonomy import get_category_slug_for_label
@@ -423,14 +420,16 @@ async def get_island_analysis(
     north_strong = [c for c in chosen if north_counts.get(c, 0) > south_counts.get(c, 0)]
     balanced = [c for c in chosen if c not in south_strong and c not in north_strong]
 
-    return json.dumps({
+    analysis = {
         "south_island_stronger": south_strong,
         "north_island_stronger": north_strong,
         "balanced_both_islands": balanced,
         "south_attraction_counts": south_counts,
         "north_attraction_counts": north_counts,
         "total_categories_selected": len(chosen),
-    })
+    }
+    log.debug("tool_result", tool="get_island_analysis", analysis=analysis)
+    return json.dumps(analysis)
 
 
 _ISLAND_ALIASES: dict[str, str] = {
@@ -463,6 +462,7 @@ async def set_island_preference(
 ) -> str:
     """Record the user's island preference.
     preference: 'south_only', 'north_only', 'both', or 'undecided' (user chose "I don't know")."""
+    log.debug("tool_call", tool="set_island_preference", raw_preference=preference, notes=notes)
     normalized = _ISLAND_ALIASES.get(preference.strip().lower(), preference.strip().lower())
     islands_map = {
         "south_only": ["south"],
@@ -475,7 +475,9 @@ async def set_island_preference(
         "islands": islands_map.get(normalized, ["south", "north"]),
         "notes": notes,
     }
-    return _status("Island preference set", island_preference_missing(ctx.context))
+    result = _status("Island preference set", island_preference_missing(ctx.context))
+    log.debug("tool_result", tool="set_island_preference", normalized=normalized, result=result)
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -489,8 +491,11 @@ async def set_transport_mode(
     details: str = "",
 ) -> str:
     """Set the transport mode. Should be: campervan, car, mix, or public."""
+    log.debug("tool_call", tool="set_transport_mode", mode=mode, details=details)
     ctx.context.transport_plan = {"mode": mode.strip().lower(), "details": details}
-    return _status("Transport mode set", transport_route_missing(ctx.context))
+    result = _status("Transport mode set", transport_route_missing(ctx.context))
+    log.debug("tool_result", tool="set_transport_mode", result=result)
+    return result
 
 
 @function_tool
@@ -499,5 +504,8 @@ async def set_route_direction(
     direction: str,
 ) -> str:
     """Set the route direction. Should be: clockwise, counter-clockwise, or custom."""
+    log.debug("tool_call", tool="set_route_direction", direction=direction)
     ctx.context.route_direction = direction.strip().lower()
-    return _status("Route direction set", transport_route_missing(ctx.context))
+    result = _status("Route direction set", transport_route_missing(ctx.context))
+    log.debug("tool_result", tool="set_route_direction", result=result)
+    return result

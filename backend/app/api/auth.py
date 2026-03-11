@@ -25,6 +25,7 @@ settings = get_settings()
 
 @router.post("/magic-link", response_model=MagicLinkResponse)
 async def send_magic_link(body: MagicLinkRequest):
+    log.debug("magic_link_request", email=body.email)
     token = create_magic_link_token(body.email)
 
     redis = await get_redis()
@@ -74,13 +75,16 @@ async def verify_magic_link(
     body: VerifyTokenRequest,
     db: AsyncSession = Depends(get_db),
 ):
+    log.debug("verify_magic_link_start", token_prefix=body.token[:20] + "...")
     redis = await get_redis()
     stored_email = await redis.get(f"magic_link:{body.token}")
     if stored_email is None:
+        log.debug("verify_magic_link_failed", reason="not_in_redis")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
 
     email = verify_magic_link_token(body.token)
     if email is None or email != stored_email:
+        log.debug("verify_magic_link_failed", reason="token_mismatch", decoded_email=email, stored_email=stored_email)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
 
     await redis.delete(f"magic_link:{body.token}")
@@ -88,10 +92,12 @@ async def verify_magic_link(
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
+    is_new_user = user is None
     if user is None:
         user = User(email=email)
         db.add(user)
         await db.flush()
+    log.debug("verify_magic_link_user", email=email, user_id=str(user.id), is_new_user=is_new_user)
 
     user.last_login_at = datetime.now(timezone.utc)
 

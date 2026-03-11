@@ -33,7 +33,7 @@ class Conversation(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan", order_by="Message.created_at")
+    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan", order_by="Message.sort_order")
     trip = relationship("Trip", back_populates="conversations")
     user = relationship("User")
 

@@ -16,14 +16,9 @@ _SHARED_PROCESSORS: list = [
     structlog.processors.TimeStamper(fmt="iso"),
     structlog.processors.StackInfoRenderer(),
     structlog.processors.UnicodeDecoder(),
-    # Required bridge: wraps the event dict so ProcessorFormatter can
-    # pick it up in each handler's formatter chain.
     structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
 ]
 
-# Processors that run only when an event arrives via stdlib (e.g., uvicorn,
-# SQLAlchemy) rather than through structlog — they normalise the record so
-# the final renderer sees a consistent event dict.
 _FOREIGN_PRE_CHAIN: list = [
     structlog.stdlib.add_log_level,
     structlog.stdlib.add_logger_name,
@@ -31,7 +26,21 @@ _FOREIGN_PRE_CHAIN: list = [
 ]
 
 
-def _make_stdout_formatter() -> structlog.stdlib.ProcessorFormatter:
+class _ConsoleFilter(logging.Filter):
+    """Only allow app.* loggers through at any level.
+
+    Third-party loggers (uvicorn, sqlalchemy, etc.) are blocked below
+    WARNING so their INFO/DEBUG noise stays out of stdout while the
+    file handler captures everything.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.name.startswith("app"):
+            return True
+        return record.levelno >= logging.WARNING
+
+
+def _make_console_formatter() -> structlog.stdlib.ProcessorFormatter:
     return structlog.stdlib.ProcessorFormatter(
         foreign_pre_chain=_FOREIGN_PRE_CHAIN,
         processors=[
@@ -61,47 +70,44 @@ def setup_logging(environment: str = "development", log_file: str = "") -> None:
         cache_logger_on_first_use=True,
     )
 
-    # ── console handler — INFO+, coloured ConsoleRenderer ─────────────────
-    # Use sys.stderr to match the original basicConfig behaviour (basicConfig
-    # defaults to stderr, and uvicorn also writes there — keeps interleaving
-    # identical to before).
-    stdout_handler = logging.StreamHandler(sys.stderr)
-    stdout_handler.setLevel(logging.INFO)
-    stdout_handler.setFormatter(_make_stdout_formatter())
+    # ── console handler — INFO+, coloured, app.* only below WARNING ─────
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(_make_console_formatter())
+    console_handler.addFilter(_ConsoleFilter())
 
-    handlers: list[logging.Handler] = [stdout_handler]
+    handlers: list[logging.Handler] = [console_handler]
 
-    # ── file handler — DEBUG+, plain JSON (no ANSI) ────────────────────────
+    # ── file handler — DEBUG+, plain JSON, everything ───────────────────
     if log_file:
         file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(_make_file_formatter())
         handlers.append(file_handler)
 
-    # Root logger at WARNING: silences third-party libraries that have no
-    # explicit level set (their effective level walks up to root = WARNING,
-    # so INFO/DEBUG from e.g. httpcore, watchfiles, etc. never becomes a
-    # LogRecord).  Propagated records from app.* loggers skip this check
-    # (propagation calls callHandlers directly, not isEnabledFor), so
-    # app.* DEBUG records DO reach the file handler via propagation.
     root = logging.getLogger()
-    root.setLevel(logging.WARNING)
+    root.setLevel(logging.DEBUG)
     for h in root.handlers[:]:
         root.removeHandler(h)
     for h in handlers:
         root.addHandler(h)
 
-    # App loggers: DEBUG so all structlog app events pass through.
     logging.getLogger("app").setLevel(logging.DEBUG)
 
-    # Silence noisy third-party loggers on both handlers.
+    # Uvicorn access logs: INFO so per-request lines reach the file.
+    # The _ConsoleFilter keeps them off stdout.
+    logging.getLogger("uvicorn.access").setLevel(logging.INFO)
+    logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+
+    # Truly noisy third-party loggers that produce nothing useful even
+    # for the file at INFO.
     for name in (
         "sqlalchemy.engine",
         "sqlalchemy.pool",
         "sqlalchemy.dialects",
         "httpx",
         "openai",
-        "uvicorn.access",
-        "uvicorn.error",
+        "httpcore",
+        "watchfiles",
     ):
         logging.getLogger(name).setLevel(logging.WARNING)
