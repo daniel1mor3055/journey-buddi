@@ -1,23 +1,5 @@
 {
   "plugins": {
-    "vercel": {
-      "enabled": false
-    },
-    "browserstack": {
-      "enabled": false
-    },
-    "figma": {
-      "enabled": true
-    },
-    "cursor-team-kit": {
-      "enabled": false
-    },
-    "sentry": {
-      "enabled": false
-    },
-    "continual-learning": {
-      "enabled": false
-    },
     "context7-plugin": {
       "enabled": true
     }
